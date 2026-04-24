@@ -3,7 +3,7 @@
  *
  * Requires:
  *   PUBLIC_SUPABASE_URL
- *   SUPABASE_SERVICE_ROLE_KEY
+ *   SUPABASE_SECRET_KEY
  *
  * Run with:  npm run seed
  */
@@ -17,10 +17,10 @@ loadEnv({ path: '.env.local' });
 loadEnv();
 
 const url = process.env.PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const key = process.env.SUPABASE_SECRET_KEY;
 
 if (!url || !key) {
-	console.error('Missing PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.');
+	console.error('Missing PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in environment.');
 	process.exit(1);
 }
 

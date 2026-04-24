@@ -9,7 +9,7 @@ import type { Database } from '$lib/server/db/types';
 export function browserSupabase() {
 	if (!isBrowser()) return null;
 	const url = env.PUBLIC_SUPABASE_URL;
-	const anon = env.PUBLIC_SUPABASE_ANON_KEY;
-	if (!url || !anon) return null;
-	return createBrowserClient<Database>(url, anon);
+	const publishable = env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+	if (!url || !publishable) return null;
+	return createBrowserClient<Database>(url, publishable);
 }

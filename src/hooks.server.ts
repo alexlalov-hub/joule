@@ -6,9 +6,9 @@ import { env as privateEnv } from '$env/dynamic/private';
 
 const supabase: Handle = async ({ event, resolve }) => {
 	const url = publicEnv.PUBLIC_SUPABASE_URL;
-	const anon = publicEnv.PUBLIC_SUPABASE_ANON_KEY;
+	const publishable = publicEnv.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-	if (!url || !anon) {
+	if (!url || !publishable) {
 		// Running without Supabase creds — degrade to anonymous, no session.
 		event.locals.supabase = null as never;
 		event.locals.safeGetSession = async () => ({ session: null, user: null });
@@ -20,7 +20,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 		});
 	}
 
-	event.locals.supabase = createServerClient(url, anon, {
+	event.locals.supabase = createServerClient(url, publishable, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			setAll: (cookiesToSet) => {
