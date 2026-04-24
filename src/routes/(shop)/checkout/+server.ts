@@ -67,7 +67,7 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 			},
 			quantity: i.quantity
 		})),
-		success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+		success_url: `${url.origin}/checkout/reconcile?session_id={CHECKOUT_SESSION_ID}`,
 		cancel_url: `${url.origin}/cart`,
 		metadata: { order_id: orderId, user_id: locals.user.id }
 	});
