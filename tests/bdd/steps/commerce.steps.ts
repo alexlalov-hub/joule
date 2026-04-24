@@ -81,3 +81,27 @@ Then('the results count should be zero', async ({ page }) => {
 	const countText = await page.getByTestId('result-count').textContent();
 	expect(Number(countText ?? '-1')).toBe(0);
 });
+
+// ---------- cart & checkout gating ----------
+
+Given('I visit the cart page', async ({ page }) => {
+	await page.goto('/cart');
+});
+
+Then('the add-to-cart button should be enabled', async ({ page }) => {
+	const btn = page.getByTestId('add-to-cart');
+	await expect(btn).toBeVisible();
+	await expect(btn).toBeEnabled();
+});
+
+Then('the wishlist toggle should be visible', async ({ page }) => {
+	await expect(page.getByTestId('wishlist-toggle')).toBeVisible();
+});
+
+Then('I should be redirected to the login page', async ({ page }) => {
+	await expect(page).toHaveURL(/\/login(\?|$)/);
+});
+
+Then('I should not see a cart count badge', async ({ page }) => {
+	await expect(page.getByTestId('cart-count')).toHaveCount(0);
+});
