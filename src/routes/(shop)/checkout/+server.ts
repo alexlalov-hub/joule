@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getCartSummary } from '$lib/server/cart';
 import { getStripe } from '$lib/server/stripe';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
 
 export const POST: RequestHandler = async ({ locals, url }) => {
 	if (!locals.user || !locals.supabase) {
@@ -10,11 +11,14 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 	}
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const sb = locals.supabase as SupabaseClient<any, 'public', any>;
+	// Orders are insert-server-side per RLS — use the secret-key client.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const admin = getSupabaseAdmin() as SupabaseClient<any, 'public', any>;
 
 	const cart = await getCartSummary(sb, locals.user.id);
 	if (cart.items.length === 0) throw redirect(303, '/cart');
 
-	const { data: orderRow, error: orderErr } = await sb
+	const { data: orderRow, error: orderErr } = await admin
 		.from('orders')
 		.insert({
 			user_id: locals.user.id,
@@ -26,7 +30,10 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 		})
 		.select('id')
 		.single();
-	if (orderErr || !orderRow) throw error(500, 'Could not create order');
+	if (orderErr || !orderRow) {
+		console.error('[checkout] order insert failed', orderErr);
+		throw error(500, `Could not create order: ${orderErr?.message ?? 'unknown error'}`);
+	}
 
 	const orderId = orderRow.id as string;
 
@@ -37,7 +44,11 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 		unit_price_cents: i.priceCents,
 		quantity: i.quantity
 	}));
-	await sb.from('order_items').insert(orderItems);
+	const { error: itemsErr } = await admin.from('order_items').insert(orderItems);
+	if (itemsErr) {
+		console.error('[checkout] order_items insert failed', itemsErr);
+		throw error(500, `Could not create order items: ${itemsErr.message}`);
+	}
 
 	const stripe = getStripe();
 	const session = await stripe.checkout.sessions.create({
@@ -61,7 +72,7 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 		metadata: { order_id: orderId, user_id: locals.user.id }
 	});
 
-	await sb.from('orders').update({ stripe_session: session.id }).eq('id', orderId);
+	await admin.from('orders').update({ stripe_session: session.id }).eq('id', orderId);
 
 	if (!session.url) throw error(500, 'Stripe did not return a checkout URL');
 	throw redirect(303, session.url);
