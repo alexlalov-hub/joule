@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { formatPrice } from '$lib/catalog/types';
 
 	type Props = {
@@ -12,6 +13,13 @@
 	};
 
 	let { brands, selectedBrand, minPrice, maxPrice, priceMin, priceMax, sort }: Props = $props();
+
+	const hasActiveFilters = $derived(
+		!!selectedBrand ||
+			minPrice !== undefined ||
+			maxPrice !== undefined ||
+			(!!sort && sort !== 'featured')
+	);
 </script>
 
 <form method="get" class="space-y-6">
@@ -83,4 +91,14 @@
 	>
 		Apply filters
 	</button>
+
+	{#if hasActiveFilters}
+		<a
+			href={page.url.pathname}
+			data-testid="reset-filters"
+			class="block text-center font-mono text-xs tracking-widest text-ink-faint uppercase underline-offset-4 hover:text-accent hover:underline"
+		>
+			Reset filters
+		</a>
+	{/if}
 </form>
