@@ -1,5 +1,10 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { Given, Then } from './fixtures';
+
+async function assertMinProductsInGrid(page: Page, n: number) {
+	const count = await page.locator('[data-testid="product-card"]').count();
+	expect(count).toBeGreaterThanOrEqual(n);
+}
 
 Given('I visit the home page', async ({ page }) => {
 	await page.goto('/');
@@ -42,8 +47,11 @@ Then('I should see at least {int} products in the featured grid', async ({ page 
 });
 
 Then('I should see at least {int} products in the product grid', async ({ page }, n: number) => {
-	const count = await page.locator('[data-testid="product-card"]').count();
-	expect(count).toBeGreaterThanOrEqual(n);
+	await assertMinProductsInGrid(page, n);
+});
+
+Then('I should see at least {int} product in the product grid', async ({ page }, n: number) => {
+	await assertMinProductsInGrid(page, n);
 });
 
 Then('every product should be in the {string} category', async ({ page }, _name: string) => {
