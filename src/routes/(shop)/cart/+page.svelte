@@ -143,7 +143,7 @@
 						{formatPrice(cart.subtotalCents)}
 					</span>
 				</div>
-				<form method="POST" action="/checkout" use:enhance class="mt-6">
+				<form method="POST" action="/checkout" class="mt-6">
 					<button
 						type="submit"
 						class="w-full rounded-sm bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"

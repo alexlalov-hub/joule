@@ -169,13 +169,19 @@
 						{/if}
 					</button>
 				</form>
-				<button
-					type="button"
-					class="inline-flex items-center rounded-sm border border-ink px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper disabled:opacity-50"
-					disabled
-				>
-					Save to wishlist
-				</button>
+				<form method="POST" action="?/toggleWishlist" use:enhance>
+					<button
+						type="submit"
+						class="inline-flex items-center rounded-sm border border-ink px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper"
+						data-testid="wishlist-toggle"
+					>
+						{#if data.wishlisted || form?.wishlisted === true}
+							♥ Saved
+						{:else}
+							♡ Save to wishlist
+						{/if}
+					</button>
+				</form>
 			</div>
 			{#if form && !form.added && form.message}
 				<p class="mt-3 text-sm text-red-600" data-testid="add-to-cart-error">{form.message}</p>
