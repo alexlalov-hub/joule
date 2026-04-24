@@ -66,9 +66,22 @@
 								<div
 									class="mt-1 inline-block rounded-sm bg-ink/5 px-2 py-0.5 font-mono text-[11px] tracking-wider uppercase"
 									class:text-accent={order.status === 'paid'}
+									class:text-amber-700={order.status === 'pending'}
 								>
-									{order.status}
+									{order.status === 'pending' ? 'payment needed' : order.status}
 								</div>
+								{#if order.status === 'pending'}
+									<form method="POST" action="/checkout/resume" class="mt-2">
+										<input type="hidden" name="orderId" value={order.id} />
+										<button
+											type="submit"
+											class="font-mono text-xs tracking-widest text-accent uppercase underline-offset-4 hover:underline"
+											data-testid="resume-payment"
+										>
+											Resume payment →
+										</button>
+									</form>
+								{/if}
 							</div>
 						</div>
 					</li>
