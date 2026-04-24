@@ -7,14 +7,14 @@ import {
 	findCategory as seedFindCategory,
 	findProduct as seedFindProduct
 } from './data';
-import type { Category, Product } from './types';
+import type { Category, Product, ProductImage, ProductSpec } from './types';
 
 type SB = SupabaseClient<Database> | null;
 
 /**
- * Catalog queries degrade gracefully to in-memory seed data when Supabase
- * isn't wired up. This keeps local dev and week-1 CI working before the DB
- * is provisioned.
+ * Catalog queries. Hit Supabase when a client is provided, otherwise fall back
+ * to the in-memory seed. The fallback keeps local dev and CI working when the
+ * database isn't configured.
  */
 
 export type ProductFilters = {
@@ -25,6 +25,53 @@ export type ProductFilters = {
 	query?: string;
 	sort?: 'featured' | 'price_asc' | 'price_desc' | 'name';
 };
+
+// ---------- row normalization ----------
+
+type DbCategory = { slug: string; name: string; blurb: string | null };
+type DbImage = { url: string; alt: string | null; sort_order: number };
+type DbProductRow = {
+	slug: string;
+	name: string;
+	brand: string;
+	price_cents: number;
+	tagline: string;
+	description: string;
+	specs: ProductSpec[];
+	stock_qty: number;
+	featured: boolean;
+	categories: { slug: string } | null;
+	product_images: DbImage[];
+};
+
+const PRODUCT_SELECT =
+	'slug, name, brand, price_cents, tagline, description, specs, stock_qty, featured, categories!inner(slug), product_images(url, alt, sort_order)';
+
+function toProduct(row: DbProductRow): Product {
+	const images: ProductImage[] = (row.product_images ?? [])
+		.slice()
+		.sort((a, b) => a.sort_order - b.sort_order)
+		.map((i) => ({ url: i.url, alt: i.alt ?? '' }));
+	return {
+		slug: row.slug,
+		name: row.name,
+		brand: row.brand,
+		categorySlug: row.categories?.slug ?? '',
+		priceCents: row.price_cents,
+		tagline: row.tagline,
+		description: row.description,
+		specs: Array.isArray(row.specs) ? row.specs : [],
+		stockQty: row.stock_qty,
+		featured: row.featured,
+		images
+	};
+}
+
+function toCategory(row: DbCategory): Category {
+	return { slug: row.slug, name: row.name, blurb: row.blurb ?? '' };
+}
+
+// ---------- seed filters (fallback only) ----------
 
 function applyFilters(list: Product[], f: ProductFilters): Product[] {
 	let out = list;
@@ -42,54 +89,114 @@ function applyFilters(list: Product[], f: ProductFilters): Product[] {
 				p.description.toLowerCase().includes(q)
 		);
 	}
-	switch (f.sort) {
+	return sortSeed(out, f.sort);
+}
+
+function sortSeed(list: Product[], sort: ProductFilters['sort']): Product[] {
+	switch (sort) {
 		case 'price_asc':
-			out = [...out].sort((a, b) => a.priceCents - b.priceCents);
+			return [...list].sort((a, b) => a.priceCents - b.priceCents);
+		case 'price_desc':
+			return [...list].sort((a, b) => b.priceCents - a.priceCents);
+		case 'name':
+			return [...list].sort((a, b) => a.name.localeCompare(b.name));
+		case 'featured':
+		default:
+			return [...list].sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
+	}
+}
+
+// ---------- public queries ----------
+
+export async function listCategories(supabase: SB): Promise<Category[]> {
+	if (!supabase) return seedCategories;
+	const { data, error } = await supabase
+		.from('categories')
+		.select('slug, name, blurb')
+		.order('sort_order', { ascending: true });
+	if (error || !data) return seedCategories;
+	return data.map(toCategory);
+}
+
+export async function listProducts(supabase: SB, filters: ProductFilters = {}): Promise<Product[]> {
+	if (!supabase) return applyFilters(seedProducts, filters);
+
+	let qb = supabase.from('products').select(PRODUCT_SELECT);
+
+	if (filters.category) qb = qb.eq('categories.slug', filters.category);
+	if (typeof filters.minPrice === 'number') qb = qb.gte('price_cents', filters.minPrice);
+	if (typeof filters.maxPrice === 'number') qb = qb.lte('price_cents', filters.maxPrice);
+	if (filters.brand) qb = qb.ilike('brand', filters.brand);
+	if (filters.query) qb = qb.textSearch('search_tsv', filters.query, { type: 'websearch' });
+
+	switch (filters.sort) {
+		case 'price_asc':
+			qb = qb.order('price_cents', { ascending: true });
 			break;
 		case 'price_desc':
-			out = [...out].sort((a, b) => b.priceCents - a.priceCents);
+			qb = qb.order('price_cents', { ascending: false });
 			break;
 		case 'name':
-			out = [...out].sort((a, b) => a.name.localeCompare(b.name));
+			qb = qb.order('name', { ascending: true });
 			break;
 		case 'featured':
 		default:
-			out = [...out].sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
+			qb = qb.order('featured', { ascending: false }).order('name', { ascending: true });
 	}
-	return out;
+
+	const { data, error } = await qb;
+	if (error || !data) return applyFilters(seedProducts, filters);
+	return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function listCategories(_supabase: SB): Promise<Category[]> {
-	// DB-backed version arrives in a later commit once Supabase is provisioned.
-	return seedCategories;
+export async function listFeatured(supabase: SB, limit = 6): Promise<Product[]> {
+	if (!supabase) return seedProducts.filter((p) => p.featured).slice(0, limit);
+	const { data, error } = await supabase
+		.from('products')
+		.select(PRODUCT_SELECT)
+		.eq('featured', true)
+		.limit(limit);
+	if (error || !data) return seedProducts.filter((p) => p.featured).slice(0, limit);
+	return (data as unknown as DbProductRow[]).map(toProduct);
 }
 
-export async function listProducts(
-	_supabase: SB,
-	filters: ProductFilters = {}
-): Promise<Product[]> {
-	return applyFilters(seedProducts, filters);
+export async function listByCategory(supabase: SB, slug: string): Promise<Product[]> {
+	if (!supabase) return seedByCategory(slug);
+	return listProducts(supabase, { category: slug, sort: 'featured' });
 }
 
-export async function listFeatured(_supabase: SB, limit = 6): Promise<Product[]> {
-	return seedProducts.filter((p) => p.featured).slice(0, limit);
+export async function getProduct(supabase: SB, slug: string): Promise<Product | null> {
+	if (!supabase) return seedFindProduct(slug) ?? null;
+	const { data, error } = await supabase
+		.from('products')
+		.select(PRODUCT_SELECT)
+		.eq('slug', slug)
+		.maybeSingle();
+	if (error || !data) return seedFindProduct(slug) ?? null;
+	return toProduct(data as unknown as DbProductRow);
 }
 
-export async function listByCategory(_supabase: SB, slug: string): Promise<Product[]> {
-	return seedByCategory(slug);
+export async function getCategory(supabase: SB, slug: string): Promise<Category | null> {
+	if (!supabase) return seedFindCategory(slug) ?? null;
+	const { data, error } = await supabase
+		.from('categories')
+		.select('slug, name, blurb')
+		.eq('slug', slug)
+		.maybeSingle();
+	if (error || !data) return seedFindCategory(slug) ?? null;
+	return toCategory(data);
 }
 
-export async function getProduct(_supabase: SB, slug: string): Promise<Product | null> {
-	return seedFindProduct(slug) ?? null;
-}
-
-export async function getCategory(_supabase: SB, slug: string): Promise<Category | null> {
-	return seedFindCategory(slug) ?? null;
-}
-
-export async function listBrands(_supabase: SB, category?: string): Promise<string[]> {
-	const scope = category ? seedProducts.filter((p) => p.categorySlug === category) : seedProducts;
-	return Array.from(new Set(scope.map((p) => p.brand))).sort();
+export async function listBrands(supabase: SB, category?: string): Promise<string[]> {
+	if (!supabase) {
+		const scope = category ? seedProducts.filter((p) => p.categorySlug === category) : seedProducts;
+		return Array.from(new Set(scope.map((p) => p.brand))).sort();
+	}
+	let qb = supabase.from('products').select('brand, categories!inner(slug)');
+	if (category) qb = qb.eq('categories.slug', category);
+	const { data, error } = await qb;
+	if (error || !data) return [];
+	return Array.from(new Set(data.map((r) => (r as { brand: string }).brand))).sort();
 }
 
 export function priceBounds(list: Product[]): { min: number; max: number } {
