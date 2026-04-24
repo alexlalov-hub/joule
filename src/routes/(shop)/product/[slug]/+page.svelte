@@ -4,7 +4,23 @@
 
 	let { data } = $props();
 	let activeImage = $state(0);
+
+	const imageCount = $derived(data.product.images.length);
+
+	function prev() {
+		activeImage = (activeImage - 1 + imageCount) % imageCount;
+	}
+	function next() {
+		activeImage = (activeImage + 1) % imageCount;
+	}
+	function onKey(e: KeyboardEvent) {
+		if (imageCount < 2) return;
+		if (e.key === 'ArrowLeft') prev();
+		else if (e.key === 'ArrowRight') next();
+	}
 </script>
+
+<svelte:window onkeydown={onKey} />
 
 <svelte:head>
 	<title>{data.product.name} — TechnoMarket</title>
@@ -22,24 +38,77 @@
 
 	<div class="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
 		<div>
-			<div class="aspect-[4/3] overflow-hidden rounded-sm bg-paper-warm">
-				<img
-					src={data.product.images[activeImage]?.url}
-					alt={data.product.images[activeImage]?.alt}
-					class="h-full w-full object-cover"
-				/>
+			<div class="group relative aspect-[4/3] overflow-hidden rounded-sm bg-paper-warm">
+				{#each data.product.images as image, i}
+					<img
+						src={image.url}
+						alt={image.alt}
+						class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 {activeImage ===
+						i
+							? 'opacity-100'
+							: 'pointer-events-none opacity-0'}"
+						loading={i === 0 ? 'eager' : 'lazy'}
+					/>
+				{/each}
+
+				{#if imageCount > 1}
+					<button
+						type="button"
+						onclick={prev}
+						aria-label="Previous image"
+						class="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-paper/80 p-2 text-ink opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100 hover:bg-paper focus-visible:opacity-100"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg
+						>
+					</button>
+					<button
+						type="button"
+						onclick={next}
+						aria-label="Next image"
+						class="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-paper/80 p-2 text-ink opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100 hover:bg-paper focus-visible:opacity-100"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg
+						>
+					</button>
+
+					<div
+						class="absolute right-3 bottom-3 rounded-full bg-ink/70 px-2.5 py-1 font-mono text-[11px] tracking-wider text-paper"
+					>
+						{activeImage + 1} / {imageCount}
+					</div>
+				{/if}
 			</div>
-			{#if data.product.images.length > 1}
-				<div class="mt-3 grid grid-cols-{data.product.images.length} gap-2">
+
+			{#if imageCount > 1}
+				<div class="mt-3 flex gap-2 overflow-x-auto pb-1">
 					{#each data.product.images as image, i}
 						<button
 							type="button"
-							class="aspect-[4/3] overflow-hidden rounded-sm border transition-colors {activeImage ===
+							class="aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-sm border transition-colors {activeImage ===
 							i
 								? 'border-accent'
 								: 'border-ink/10 hover:border-ink/30'}"
 							onclick={() => (activeImage = i)}
 							aria-label="View image {i + 1}"
+							aria-current={activeImage === i}
 						>
 							<img src={image.url} alt={image.alt} class="h-full w-full object-cover" />
 						</button>
