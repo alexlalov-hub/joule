@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { User } from '@supabase/supabase-js';
 
-	let { user }: { user: User | null } = $props();
+	let { user, cartCount = 0 }: { user: User | null; cartCount?: number } = $props();
 </script>
 
 <header
@@ -34,7 +34,11 @@
 					<path d="m21 21-4.3-4.3" stroke-linecap="round" />
 				</svg>
 			</a>
-			<a href="/account/cart" aria-label="Cart" class="text-ink-soft hover:text-accent">
+			<a
+				href="/cart"
+				aria-label="Cart ({cartCount} items)"
+				class="relative text-ink-soft hover:text-accent"
+			>
 				<svg
 					class="h-5 w-5"
 					viewBox="0 0 24 24"
@@ -50,6 +54,14 @@
 					<circle cx="10" cy="21" r="1.2" />
 					<circle cx="18" cy="21" r="1.2" />
 				</svg>
+				{#if cartCount > 0}
+					<span
+						class="absolute -top-2 -right-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 font-mono text-[10px] font-medium text-paper"
+						data-testid="cart-count"
+					>
+						{cartCount}
+					</span>
+				{/if}
 			</a>
 			{#if user}
 				<a href="/account" class="hidden text-ink-soft hover:text-accent sm:inline">Account</a>

@@ -1,11 +1,14 @@
 <script lang="ts">
 	import ProductGrid from '$lib/components/product/ProductGrid.svelte';
 	import { formatPrice } from '$lib/catalog/types';
+	import { enhance } from '$app/forms';
 
-	let { data } = $props();
+	let { data, form } = $props();
 	let activeImage = $state(0);
+	let adding = $state(false);
 
 	const imageCount = $derived(data.product.images.length);
+	const outOfStock = $derived(data.product.stockQty <= 0);
 
 	function prev() {
 		activeImage = (activeImage - 1 + imageCount) % imageCount;
@@ -138,15 +141,34 @@
 			<p class="mt-6 max-w-prose leading-relaxed">{data.product.description}</p>
 
 			<div class="mt-8 flex flex-wrap gap-3">
-				<button
-					type="button"
-					class="inline-flex items-center rounded-sm bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
-					disabled
-					data-testid="add-to-cart"
-					aria-label="Add to cart (coming in week 2)"
+				<form
+					method="POST"
+					action="?/addToCart"
+					use:enhance={() => {
+						adding = true;
+						return async ({ update }) => {
+							await update({ reset: false });
+							adding = false;
+						};
+					}}
 				>
-					Add to cart <span class="ml-2 font-mono text-xs text-paper/60">· week 2</span>
-				</button>
+					<button
+						type="submit"
+						class="inline-flex items-center rounded-sm bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+						disabled={adding || outOfStock}
+						data-testid="add-to-cart"
+					>
+						{#if outOfStock}
+							Out of stock
+						{:else if adding}
+							Adding…
+						{:else if form?.added}
+							Added ✓
+						{:else}
+							Add to cart
+						{/if}
+					</button>
+				</form>
 				<button
 					type="button"
 					class="inline-flex items-center rounded-sm border border-ink px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper disabled:opacity-50"
@@ -155,6 +177,9 @@
 					Save to wishlist
 				</button>
 			</div>
+			{#if form && !form.added && form.message}
+				<p class="mt-3 text-sm text-red-600" data-testid="add-to-cart-error">{form.message}</p>
+			{/if}
 
 			<section class="mt-10 border-t border-ink/10 pt-6">
 				<div class="mb-3 kicker text-ink-faint">Specifications</div>

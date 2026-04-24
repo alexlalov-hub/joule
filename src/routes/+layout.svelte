@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex min-h-screen flex-col">
-	<Header user={data.user} />
+	<Header user={data.user} cartCount={data.cartCount} />
 	<main class="flex-1">
 		{@render children()}
 	</main>
