@@ -154,6 +154,9 @@ Thumbs.db
 test-results
 playwright-report
 
+# playwright-bdd generated features
+/.features-gen/
+
 # Local Claude harness state
 /.claude
 
