@@ -8,9 +8,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 		listProducts(locals.supabase, { sort: 'featured' })
 	]);
 
+	const brandCount = new Set(latest.map((p) => p.brand)).size;
+
 	return {
 		featured,
 		categories,
-		productCount: latest.length
+		productCount: latest.length,
+		brandCount
 	};
 };
