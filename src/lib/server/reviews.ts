@@ -9,7 +9,7 @@ async function resolveProductId(sb: SB, slug: string): Promise<string | null> {
 	return (data?.id as string) ?? null;
 }
 
-export const REVIEW_PAGE_SIZE = 10;
+export const REVIEW_PAGE_SIZE = 5;
 
 export type ReviewsPage = {
 	reviews: Review[];
