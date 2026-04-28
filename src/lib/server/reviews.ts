@@ -16,11 +16,15 @@ export async function listReviews(sb: SB | null, productSlug: string): Promise<R
 
 	const { data, error } = await sb
 		.from('reviews')
-		.select('id, user_id, rating, aspect, title, body, created_at, profiles(full_name)')
+		.select('id, user_id, rating, aspect, title, body, created_at')
 		.eq('product_id', productId)
 		.order('created_at', { ascending: false });
 
-	if (error || !data) return [];
+	if (error) {
+		console.warn('[reviews] listReviews failed:', error);
+		return [];
+	}
+	if (!data) return [];
 
 	type Row = {
 		id: string;
@@ -30,16 +34,27 @@ export async function listReviews(sb: SB | null, productSlug: string): Promise<R
 		title: string | null;
 		body: string | null;
 		created_at: string;
-		profiles: { full_name: string | null } | { full_name: string | null }[] | null;
 	};
-	return (data as unknown as Row[]).map((row) => {
-		const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+	const rows = data as unknown as Row[];
+
+	// reviews.user_id references auth.users, not public.profiles, so PostgREST
+	// can't embed the join — fetch the profile names in a second query.
+	const userIds = Array.from(new Set(rows.map((r) => r.user_id).filter((u): u is string => !!u)));
+	const namesByUserId = new Map<string, string>();
+	if (userIds.length > 0) {
+		const { data: profiles } = await sb.from('profiles').select('id, full_name').in('id', userIds);
+		for (const p of (profiles as Array<{ id: string; full_name: string | null }> | null) ?? []) {
+			if (p.full_name) namesByUserId.set(p.id, p.full_name);
+		}
+	}
+
+	return rows.map((row) => {
 		const aspectRaw = row.aspect ?? 'overall';
 		return {
 			id: row.id,
 			productSlug,
 			userId: row.user_id,
-			authorName: profile?.full_name ?? 'Anonymous',
+			authorName: row.user_id ? (namesByUserId.get(row.user_id) ?? 'Verified buyer') : 'Anonymous',
 			rating: row.rating,
 			aspect: isAspect(aspectRaw) ? aspectRaw : 'overall',
 			title: row.title ?? '',
