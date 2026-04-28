@@ -16,6 +16,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	if (!product) throw error(404, `Product "${params.slug}" not found`);
 
 	const reviewPage = Math.max(1, Number(url.searchParams.get('rp') ?? '1') || 1);
+	const justPostedReview = url.searchParams.get('review') === 'posted';
 
 	const [category, siblings, wishlisted, reviewsPage, summary, userReviewed] = await Promise.all([
 		getCategory(locals.supabase, product.categorySlug),
@@ -36,7 +37,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		reviews: reviewsPage.reviews,
 		reviewsPage,
 		summary,
-		userReviewed
+		userReviewed,
+		justPostedReview
 	};
 };
 
@@ -78,6 +80,8 @@ export const actions: Actions = {
 			body
 		});
 		if (!result.ok) return fail(400, { reviewError: result.message });
-		return { reviewed: true };
+		// Land back on page 1 so the new review (which is at the top, sorted by
+		// created_at desc) is the first thing the user sees.
+		throw redirect(303, `${url.pathname}?review=posted#reviews`);
 	}
 };

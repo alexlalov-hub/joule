@@ -218,7 +218,7 @@
 			alreadyReviewed={data.userReviewed}
 			signedIn={!!data.user}
 			formMessage={form?.reviewError ?? null}
-			justReviewed={form?.reviewed === true}
+			justReviewed={data.justPostedReview}
 			page={data.reviewsPage.page}
 			pageCount={data.reviewsPage.pageCount}
 			pageSize={data.reviewsPage.pageSize}
