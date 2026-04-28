@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ProductGrid from '$lib/components/product/ProductGrid.svelte';
+	import ReviewsSection from '$lib/components/product/ReviewsSection.svelte';
 	import { formatPrice } from '$lib/catalog/types';
 	import { enhance } from '$app/forms';
 
@@ -9,6 +10,8 @@
 
 	const imageCount = $derived(data.product.images.length);
 	const outOfStock = $derived(data.product.stockQty <= 0);
+	const ratingAvg = $derived(data.summary.average);
+	const reviewCount = $derived(data.summary.count);
 
 	function prev() {
 		activeImage = (activeImage - 1 + imageCount) % imageCount;
@@ -131,10 +134,14 @@
 				<span class="font-serif text-3xl font-medium" data-testid="product-price">
 					{formatPrice(data.product.priceCents)}
 				</span>
-				{#if data.product.rating}
-					<span class="font-mono text-sm text-ink-faint">
-						★ {data.product.rating.toFixed(1)} ({data.product.reviewCount ?? 0} reviews)
-					</span>
+				{#if ratingAvg !== null}
+					<a
+						href="#reviews"
+						class="font-mono text-sm text-ink-faint hover:text-accent"
+						data-testid="product-rating"
+					>
+						★ {ratingAvg.toFixed(1)} ({reviewCount} review{reviewCount === 1 ? '' : 's'})
+					</a>
 				{/if}
 			</div>
 
@@ -201,6 +208,18 @@
 				</dl>
 			</section>
 		</div>
+	</div>
+
+	<div id="reviews">
+		<ReviewsSection
+			reviews={data.reviews}
+			summary={data.summary}
+			canReview={true}
+			alreadyReviewed={data.userReviewed}
+			signedIn={!!data.user}
+			formMessage={form?.reviewError ?? null}
+			justReviewed={form?.reviewed === true}
+		/>
 	</div>
 
 	{#if data.related.length}

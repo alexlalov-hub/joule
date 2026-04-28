@@ -199,6 +199,44 @@ export async function listBrands(supabase: SB, category?: string): Promise<strin
 	return Array.from(new Set(data.map((r) => (r as { brand: string }).brand))).sort();
 }
 
+/**
+ * Semantic search via pgvector. Returns the top-N products ranked by cosine
+ * similarity to the supplied query embedding. Falls back to an empty list when
+ * the RPC is missing or the database has no embeddings populated yet — callers
+ * should treat that as "use text search instead".
+ */
+export async function semanticSearch(
+	supabase: SB,
+	queryEmbedding: number[],
+	options: { category?: string; limit?: number } = {}
+): Promise<Product[]> {
+	if (!supabase) return [];
+	// The placeholder Database type narrows rpc args/returns to `never`. Cast
+	// once here; replace with generated types when supabase gen types runs.
+	const sb = supabase as unknown as {
+		rpc: (
+			fn: string,
+			args: Record<string, unknown>
+		) => Promise<{ data: Array<{ slug: string }> | null; error: unknown }>;
+		from: SupabaseClient['from'];
+	};
+	const { data, error } = await sb.rpc('match_products', {
+		query_embedding: queryEmbedding,
+		category_slug: options.category ?? null,
+		match_count: options.limit ?? 24
+	});
+	if (error || !data || data.length === 0) return [];
+
+	const slugs = data.map((r) => r.slug);
+	const { data: rows } = await supabase.from('products').select(PRODUCT_SELECT).in('slug', slugs);
+	if (!rows) return [];
+
+	const order = new Map(slugs.map((s, i) => [s, i]));
+	return (rows as unknown as DbProductRow[])
+		.map(toProduct)
+		.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
+}
+
 export function priceBounds(list: Product[]): { min: number; max: number } {
 	if (list.length === 0) return { min: 0, max: 0 };
 	const prices = list.map((p) => p.priceCents);

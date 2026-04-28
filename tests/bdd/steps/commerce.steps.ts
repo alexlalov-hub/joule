@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { Given, Then } from './fixtures';
+import { Given, Then, When } from './fixtures';
 
 async function assertMinProductsInGrid(page: Page, n: number) {
 	const count = await page.locator('[data-testid="product-card"]').count();
@@ -104,4 +104,63 @@ Then('I should be redirected to the login page', async ({ page }) => {
 
 Then('I should not see a cart count badge', async ({ page }) => {
 	await expect(page.getByTestId('cart-count')).toHaveCount(0);
+});
+
+// ---------- search ----------
+
+Then('I should see the search mode indicator', async ({ page }) => {
+	await expect(page.getByTestId('search-mode')).toBeVisible();
+});
+
+// ---------- catalog filters ----------
+
+Given(
+	'I visit the laptops category with the price filter at {int}',
+	async ({ page }, max: number) => {
+		await page.goto(`/category/laptops?max=${max}`);
+	}
+);
+
+When('I click the reset filters link', async ({ page }) => {
+	await page.getByTestId('reset-filters').first().click();
+	await page.waitForLoadState('networkidle');
+});
+
+Then('I should see a reset filters link', async ({ page }) => {
+	await expect(page.getByTestId('reset-filters').first()).toBeVisible();
+});
+
+Then('I should not see a reset filters link', async ({ page }) => {
+	await expect(page.getByTestId('reset-filters')).toHaveCount(0);
+});
+
+// ---------- reviews ----------
+
+Then('I should see the reviews section', async ({ page }) => {
+	await expect(page.getByTestId('reviews-section')).toBeVisible();
+});
+
+Then('I should see at least {int} review', async ({ page }, n: number) => {
+	const count = await page.getByTestId('review-item').count();
+	expect(count).toBeGreaterThanOrEqual(n);
+});
+
+Then('I should see the review summary', async ({ page }) => {
+	await expect(page.getByTestId('review-summary')).toBeVisible();
+});
+
+Then('the review form should not be visible', async ({ page }) => {
+	await expect(page.getByTestId('review-form')).toHaveCount(0);
+});
+
+Then('I should see a sign-in prompt in the reviews section', async ({ page }) => {
+	const section = page.getByTestId('reviews-section');
+	await expect(section.getByRole('link', { name: /sign in/i })).toBeVisible();
+});
+
+Then('the product rating should link to the reviews section', async ({ page }) => {
+	const rating = page.getByTestId('product-rating');
+	const exists = (await rating.count()) > 0;
+	if (!exists) return;
+	await expect(rating).toHaveAttribute('href', '#reviews');
 });

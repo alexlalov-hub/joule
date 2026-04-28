@@ -20,7 +20,8 @@
 		"db:types": "supabase gen types typescript --local > src/lib/server/db/types.ts",
 		"db:reset": "supabase db reset",
 		"db:migrate": "supabase migration up",
-		"seed": "tsx scripts/seed.ts"
+		"seed": "tsx scripts/seed.ts",
+		"embed": "tsx scripts/embed-products.ts"
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.7.0",

@@ -124,8 +124,60 @@ async function main() {
 	if (imgErr) throw imgErr;
 	console.log(`  ✓ ${imageRows.length} product images`);
 
+	// Reviews — deterministic synthetic reviews per product so PDPs aren't empty.
+	const reviewRows = products.flatMap((p) => {
+		const productId = productIdBySlug.get(p.slug)!;
+		const seed = hashString(p.slug);
+		return REVIEW_TEMPLATES.map((t, i) => ({
+			product_id: productId,
+			user_id: null,
+			rating: t.rating,
+			aspect: t.aspect,
+			title: t.title,
+			body: t.body.replaceAll('{name}', p.name).replaceAll('{brand}', p.brand),
+			created_at: new Date(Date.now() - ((seed + i * 17) % 90) * 86400000).toISOString()
+		}));
+	});
+	const { error: rvDelErr } = await sb.from('reviews').delete().is('user_id', null);
+	if (rvDelErr) throw rvDelErr;
+	const { error: rvErr } = await sb.from('reviews').insert(reviewRows);
+	if (rvErr) throw rvErr;
+	console.log(`  ✓ ${reviewRows.length} reviews`);
+
 	console.log('✓ Seed complete.');
 }
+
+const REVIEW_TEMPLATES: Array<{
+	rating: number;
+	aspect: 'overall' | 'value' | 'build' | 'performance';
+	title: string;
+	body: string;
+}> = [
+	{
+		rating: 5,
+		aspect: 'overall',
+		title: 'Lives up to the description',
+		body: 'I held off ordering for weeks reading reviews elsewhere. The {name} matched everything Joule wrote in the listing — no nasty surprises out of the box.'
+	},
+	{
+		rating: 4,
+		aspect: 'build',
+		title: 'Solid where it matters',
+		body: 'Materials feel premium, fit and finish is what you expect from {brand}. Knocking a star because the packaging was a bit overdone.'
+	},
+	{
+		rating: 5,
+		aspect: 'performance',
+		title: 'Fast, quiet, predictable',
+		body: 'Replaced an older model and the difference is obvious within an hour of use. Handles everything I throw at it without breaking a sweat.'
+	},
+	{
+		rating: 4,
+		aspect: 'value',
+		title: 'Worth what they ask',
+		body: 'Not the cheapest option in the category, but the cheaper ones I tried last year ended up replaced within months. This feels like the right balance.'
+	}
+];
 
 main().catch((err) => {
 	console.error('Seed failed:', err);
