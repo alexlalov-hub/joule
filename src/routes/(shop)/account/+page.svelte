@@ -12,7 +12,7 @@
 	}
 </script>
 
-<svelte:head><title>Account — TechnoMarket</title></svelte:head>
+<svelte:head><title>Account — Joule</title></svelte:head>
 
 <section class="mx-auto max-w-5xl px-6 py-16 md:px-10 md:py-20">
 	<div class="flex flex-wrap items-baseline justify-between gap-4">

@@ -1,4 +1,4 @@
--- TechnoMarket 2.0 — initial schema
+-- Joule — initial schema
 -- Week 1: catalog + reviews + cart + orders skeleton + auth profiles.
 -- Extensions, embeddings, and full-text search slots are reserved here so later
 -- migrations can fill them without rewriting tables.

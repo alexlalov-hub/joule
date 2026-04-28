@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.q ? `Search: ${data.q}` : 'Search'} — TechnoMarket</title>
+	<title>{data.q ? `Search: ${data.q}` : 'Search'} — Joule</title>
 </svelte:head>
 
 <section class="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">

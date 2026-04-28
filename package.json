@@ -1,6 +1,6 @@
 {
-	"name": "technomarket",
-	"description": "TechnoMarket 2.0 — AI-augmented electronics store",
+	"name": "joule",
+	"description": "Joule — AI-augmented electronics store",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",

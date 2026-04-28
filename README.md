@@ -1,4 +1,4 @@
-# TechnoMarket 2.0
+# Joule
 
 AI-augmented electronics store — a rebuild of a first-year ASP.NET catalog as a modern, personalised, BDD-verified SvelteKit + Supabase app.
 

@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.category.name} — TechnoMarket</title>
+	<title>{data.category.name} — Joule</title>
 </svelte:head>
 
 <section class="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">

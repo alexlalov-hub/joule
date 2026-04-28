@@ -5,7 +5,7 @@
 	let loading = $state(false);
 </script>
 
-<svelte:head><title>Sign in — TechnoMarket</title></svelte:head>
+<svelte:head><title>Sign in — Joule</title></svelte:head>
 
 <section class="mx-auto max-w-md px-6 py-16 md:py-24">
 	<div class="kicker text-accent">Account</div>

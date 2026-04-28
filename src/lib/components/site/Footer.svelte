@@ -6,7 +6,7 @@
 	<div class="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-4 md:px-10">
 		<div class="md:col-span-2">
 			<div class="font-serif text-3xl font-medium">
-				Techno<span class="text-accent-warm italic">Market</span>
+				Jo<span class="text-accent-warm italic">ule</span>
 			</div>
 			<p class="mt-3 max-w-sm text-sm text-paper/60">
 				An AI-augmented electronics store. A research project rebuilt from a 2019 catalog into a
@@ -46,7 +46,7 @@
 		<div
 			class="mx-auto flex max-w-7xl flex-col items-start gap-2 px-6 py-6 font-mono text-[10px] tracking-widest text-paper/50 uppercase md:flex-row md:items-center md:justify-between md:px-10"
 		>
-			<span>TechnoMarket 2.0 · {year}</span>
+			<span>Joule · {year}</span>
 			<span>Two sprints · End of June 2026</span>
 		</div>
 	</div>

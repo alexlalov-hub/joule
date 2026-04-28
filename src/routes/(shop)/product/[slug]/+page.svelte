@@ -26,7 +26,7 @@
 <svelte:window onkeydown={onKey} />
 
 <svelte:head>
-	<title>{data.product.name} — TechnoMarket</title>
+	<title>{data.product.name} — Joule</title>
 	<meta name="description" content={data.product.tagline} />
 </svelte:head>
 

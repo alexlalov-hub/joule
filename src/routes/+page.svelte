@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>TechnoMarket 2.0 — an AI-augmented electronics store</title>
+	<title>Joule — an AI-augmented electronics store</title>
 </svelte:head>
 
 <section class="relative">

@@ -9,8 +9,7 @@
 >
 	<div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 md:px-10">
 		<a href="/" class="font-serif text-xl font-medium tracking-tight">
-			Techno<span class="text-accent italic">Market</span>
-			<span class="ml-1 font-mono text-[10px] font-medium text-ink-faint"> v2.0 </span>
+			Jo<span class="text-accent italic">ule</span>
 		</a>
 
 		<nav class="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">

@@ -1,4 +1,4 @@
-<svelte:head><title>About the research — TechnoMarket</title></svelte:head>
+<svelte:head><title>About the research — Joule</title></svelte:head>
 
 <section class="mx-auto max-w-3xl px-6 py-16 md:px-10 md:py-24">
 	<div class="kicker text-accent">About</div>
@@ -6,9 +6,9 @@
 		A site is an excuse. The <em class="text-accent italic">question</em> is the project.
 	</h1>
 	<p class="mt-6 max-w-prose font-serif text-xl leading-snug text-ink-soft italic">
-		TechnoMarket 2.0 is a rebuild of a first-year ASP.NET catalog as a two-sprint applied-research
-		project — exploring whether a solo developer can ship a grounded, AI-augmented shopping
-		experience with the engineering discipline to keep the stochastic parts honest.
+		Joule is a rebuild of a first-year ASP.NET catalog as a two-sprint applied-research project —
+		exploring whether a solo developer can ship a grounded, AI-augmented shopping experience with
+		the engineering discipline to keep the stochastic parts honest.
 	</p>
 
 	<div class="mt-10 space-y-5 leading-relaxed text-ink">
