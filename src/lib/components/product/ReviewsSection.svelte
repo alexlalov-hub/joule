@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page as pageState } from '$app/state';
 	import {
 		ASPECT_LABELS,
 		REVIEW_ASPECTS,
@@ -15,6 +16,10 @@
 		signedIn: boolean;
 		formMessage?: string | null;
 		justReviewed?: boolean;
+		page: number;
+		pageCount: number;
+		pageSize: number;
+		total: number;
 	};
 
 	let {
@@ -24,8 +29,26 @@
 		alreadyReviewed,
 		signedIn,
 		formMessage = null,
-		justReviewed = false
+		justReviewed = false,
+		page,
+		pageCount,
+		pageSize,
+		total
 	}: Props = $props();
+
+	function pageHref(n: number): string {
+		const parts: string[] = [];
+		for (const [k, v] of pageState.url.searchParams) {
+			if (k === 'rp') continue;
+			parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+		}
+		if (n > 1) parts.push(`rp=${n}`);
+		const qs = parts.join('&');
+		return `${pageState.url.pathname}${qs ? `?${qs}` : ''}#reviews`;
+	}
+
+	const showingFrom = $derived(total === 0 ? 0 : (page - 1) * pageSize + 1);
+	const showingTo = $derived(Math.min(page * pageSize, total));
 
 	let submitting = $state(false);
 	let rating = $state(5);
@@ -102,6 +125,41 @@
 
 			{#if reviews.length === 0}
 				<li class="text-sm text-ink-soft">Be the first to share what you think.</li>
+			{/if}
+
+			{#if pageCount > 1}
+				<li
+					class="flex items-center justify-between pt-4 font-mono text-xs tracking-wider text-ink-faint"
+				>
+					<span data-testid="review-pagination-summary">
+						Showing {showingFrom}–{showingTo} of {total}
+					</span>
+					<nav class="flex items-center gap-1" aria-label="Reviews pagination">
+						{#if page > 1}
+							<a
+								href={pageHref(page - 1)}
+								data-testid="review-prev"
+								class="rounded-sm border border-ink/15 px-3 py-1 hover:border-accent hover:text-accent"
+								rel="prev"
+							>
+								← Prev
+							</a>
+						{/if}
+						<span class="px-2" data-testid="review-page-indicator">
+							Page {page} / {pageCount}
+						</span>
+						{#if page < pageCount}
+							<a
+								href={pageHref(page + 1)}
+								data-testid="review-next"
+								class="rounded-sm border border-ink/15 px-3 py-1 hover:border-accent hover:text-accent"
+								rel="next"
+							>
+								Next →
+							</a>
+						{/if}
+					</nav>
+				</li>
 			{/if}
 		</ul>
 

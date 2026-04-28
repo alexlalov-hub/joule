@@ -219,6 +219,10 @@
 			signedIn={!!data.user}
 			formMessage={form?.reviewError ?? null}
 			justReviewed={form?.reviewed === true}
+			page={data.reviewsPage.page}
+			pageCount={data.reviewsPage.pageCount}
+			pageSize={data.reviewsPage.pageSize}
+			total={data.reviewsPage.total}
 		/>
 	</div>
 

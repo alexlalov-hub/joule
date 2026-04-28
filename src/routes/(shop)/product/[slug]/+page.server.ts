@@ -3,25 +3,41 @@ import type { Actions, PageServerLoad } from './$types';
 import { getCategory, getProduct, listByCategory } from '$lib/catalog/queries';
 import { addToCart } from '$lib/server/cart';
 import { isWishlistedBySlug, toggleWishlistBySlug } from '$lib/server/wishlist';
-import { listReviews, postReview } from '$lib/server/reviews';
-import { isAspect, summarize, type ReviewAspect } from '$lib/reviews/types';
+import {
+	listReviewsPage,
+	postReview,
+	summarizeProduct,
+	userHasReviewed
+} from '$lib/server/reviews';
+import { isAspect, type ReviewAspect } from '$lib/reviews/types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const product = await getProduct(locals.supabase, params.slug);
 	if (!product) throw error(404, `Product "${params.slug}" not found`);
 
-	const [category, siblings, wishlisted, reviews] = await Promise.all([
+	const reviewPage = Math.max(1, Number(url.searchParams.get('rp') ?? '1') || 1);
+
+	const [category, siblings, wishlisted, reviewsPage, summary, userReviewed] = await Promise.all([
 		getCategory(locals.supabase, product.categorySlug),
 		listByCategory(locals.supabase, product.categorySlug),
 		isWishlistedBySlug(locals.supabase ?? null, locals.user?.id ?? null, product.slug),
-		listReviews(locals.supabase ?? null, product.slug)
+		listReviewsPage(locals.supabase ?? null, product.slug, { page: reviewPage }),
+		summarizeProduct(locals.supabase ?? null, product.slug),
+		userHasReviewed(locals.supabase ?? null, locals.user?.id ?? null, product.slug)
 	]);
 
-	const summary = summarize(reviews);
 	const related = siblings.filter((p) => p.slug !== product.slug).slice(0, 4);
-	const userReviewed = locals.user ? reviews.some((r) => r.userId === locals.user!.id) : false;
 
-	return { product, category, related, wishlisted, reviews, summary, userReviewed };
+	return {
+		product,
+		category,
+		related,
+		wishlisted,
+		reviews: reviewsPage.reviews,
+		reviewsPage,
+		summary,
+		userReviewed
+	};
 };
 
 export const actions: Actions = {
