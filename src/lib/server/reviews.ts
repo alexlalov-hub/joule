@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isAspect, type Review, type ReviewAspect, type ReviewSummary } from '$lib/reviews/types';
+import { seedReviews } from '$lib/reviews/seed';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SB = SupabaseClient<any, 'public', any>;
@@ -10,6 +11,38 @@ async function resolveProductId(sb: SB, slug: string): Promise<string | null> {
 }
 
 export const REVIEW_PAGE_SIZE = 5;
+
+function paginateSeed(all: Review[], page: number, pageSize: number): ReviewsPage {
+	const total = all.length;
+	const pageCount = total === 0 ? 0 : Math.ceil(total / pageSize);
+	const from = (page - 1) * pageSize;
+	const reviews = all.slice(from, from + pageSize);
+	return { reviews, page, pageSize, total, pageCount };
+}
+
+function summarizeSeed(productSlug: string): ReviewSummary {
+	const all = seedReviews(productSlug);
+	const summary: ReviewSummary = {
+		count: all.length,
+		average: null,
+		perAspect: {
+			overall: { count: 0, average: null },
+			value: { count: 0, average: null },
+			build: { count: 0, average: null },
+			performance: { count: 0, average: null }
+		}
+	};
+	if (all.length === 0) return summary;
+	let total = 0;
+	for (const r of all) {
+		total += r.rating;
+		const slot = summary.perAspect[r.aspect];
+		slot.count += 1;
+		slot.average = ((slot.average ?? 0) * (slot.count - 1) + r.rating) / slot.count;
+	}
+	summary.average = total / all.length;
+	return summary;
+}
 
 export type ReviewsPage = {
 	reviews: Review[];
@@ -26,17 +59,12 @@ export async function listReviewsPage(
 ): Promise<ReviewsPage> {
 	const pageSize = Math.max(1, Math.min(50, options.pageSize ?? REVIEW_PAGE_SIZE));
 	const requested = Math.max(1, Math.floor(options.page ?? 1));
-	const empty: ReviewsPage = {
-		reviews: [],
-		page: requested,
-		pageSize,
-		total: 0,
-		pageCount: 0
-	};
 
-	if (!sb) return empty;
+	if (!sb) return paginateSeed(seedReviews(productSlug), requested, pageSize);
 	const productId = await resolveProductId(sb, productSlug);
-	if (!productId) return empty;
+	if (!productId) {
+		return paginateSeed(seedReviews(productSlug), requested, pageSize);
+	}
 
 	const from = (requested - 1) * pageSize;
 	const to = from + pageSize - 1;
@@ -50,7 +78,7 @@ export async function listReviewsPage(
 
 	if (error) {
 		console.warn('[reviews] listReviewsPage failed:', error);
-		return empty;
+		return { reviews: [], page: requested, pageSize, total: 0, pageCount: 0 };
 	}
 
 	type Row = {
@@ -110,9 +138,9 @@ export async function summarizeProduct(sb: SB | null, productSlug: string): Prom
 			performance: { count: 0, average: null }
 		}
 	};
-	if (!sb) return empty;
+	if (!sb) return summarizeSeed(productSlug);
 	const productId = await resolveProductId(sb, productSlug);
-	if (!productId) return empty;
+	if (!productId) return summarizeSeed(productSlug);
 
 	const { data, error } = await sb
 		.from('reviews')
