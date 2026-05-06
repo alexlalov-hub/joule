@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ProductGrid from '$lib/components/product/ProductGrid.svelte';
 	import ReviewsSection from '$lib/components/product/ReviewsSection.svelte';
+	import ReviewIntelligence from '$lib/components/product/ReviewIntelligence.svelte';
 	import { formatPrice } from '$lib/catalog/types';
 	import { enhance } from '$app/forms';
 	import { compareStore } from '$lib/compare/store.svelte';
@@ -234,6 +235,9 @@
 	</div>
 
 	<div id="reviews">
+		{#if data.summary.count >= 3}
+			<ReviewIntelligence productSlug={data.product.slug} reviewCount={data.summary.count} />
+		{/if}
 		<ReviewsSection
 			reviews={data.reviews}
 			summary={data.summary}

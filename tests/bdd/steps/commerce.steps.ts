@@ -235,3 +235,27 @@ Then('the product rating should link to the reviews section', async ({ page }) =
 	if (!exists) return;
 	await expect(rating).toHaveAttribute('href', '#reviews');
 });
+
+// ---------- review intelligence ----------
+
+Then('the review-intelligence panel should be visible', async ({ page }) => {
+	await expect(page.getByTestId('review-intelligence')).toBeVisible();
+});
+
+Then('the review-intelligence summary should be collapsed', async ({ page }) => {
+	await expect(page.getByTestId('review-intelligence-output')).toHaveCount(0);
+	await expect(page.getByTestId('review-intelligence-toggle')).toHaveAttribute(
+		'aria-expanded',
+		'false'
+	);
+});
+
+Then('each review item should expose its review number', async ({ page }) => {
+	const items = page.getByTestId('review-item');
+	const count = await items.count();
+	expect(count).toBeGreaterThan(0);
+	for (let i = 0; i < count; i++) {
+		const attr = await items.nth(i).getAttribute('data-review-number');
+		expect(attr).toMatch(/^\d+$/);
+	}
+});

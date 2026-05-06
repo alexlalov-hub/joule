@@ -183,6 +183,58 @@ export async function summarizeProduct(
 	return summary;
 }
 
+/**
+ * Pull every review for a product. Used by the review-intelligence synthesis,
+ * which needs the full set (not a page) to find themes. Returns at most
+ * `limit` rows newest-first so the prompt stays bounded for popular products.
+ */
+export async function listAllReviewsForSynthesis(
+	sb: SB | null,
+	productSlug: string,
+	options: { productId?: string | null; limit?: number } = {}
+): Promise<Review[]> {
+	const limit = Math.max(1, Math.min(100, options.limit ?? 50));
+	if (!sb) return seedReviews(productSlug).slice(0, limit);
+	const productId =
+		options.productId !== undefined ? options.productId : await resolveProductId(sb, productSlug);
+	if (!productId) return seedReviews(productSlug).slice(0, limit);
+
+	const { data, error } = await sb
+		.from('reviews')
+		.select('id, user_id, rating, aspect, title, body, created_at')
+		.eq('product_id', productId)
+		.order('created_at', { ascending: false })
+		.limit(limit);
+
+	if (error || !data) return [];
+
+	type Row = {
+		id: string;
+		user_id: string | null;
+		rating: number;
+		aspect: string | null;
+		title: string | null;
+		body: string | null;
+		created_at: string;
+	};
+	const rows = data as unknown as Row[];
+
+	return rows.map((row) => {
+		const aspectRaw = row.aspect ?? 'overall';
+		return {
+			id: row.id,
+			productSlug,
+			userId: row.user_id,
+			authorName: 'Anonymous',
+			rating: row.rating,
+			aspect: isAspect(aspectRaw) ? aspectRaw : 'overall',
+			title: row.title ?? '',
+			body: row.body ?? '',
+			createdAt: row.created_at
+		};
+	});
+}
+
 export async function userHasReviewed(
 	sb: SB | null,
 	userId: string | null,
