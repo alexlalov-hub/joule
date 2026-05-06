@@ -106,6 +106,27 @@ Then('I should not see a cart count badge', async ({ page }) => {
 	await expect(page.getByTestId('cart-count')).toHaveCount(0);
 });
 
+// ---------- generic ----------
+
+Given('I visit {string}', async ({ page }, path: string) => {
+	await page.goto(path);
+});
+
+// ---------- compare ----------
+
+Then('I should see the comparison grid', async ({ page }) => {
+	await expect(page.getByTestId('compare-grid')).toBeVisible();
+});
+
+Then('the comparison should list {int} products', async ({ page }, n: number) => {
+	const count = await page.getByTestId('compare-product-name').count();
+	expect(count).toBe(n);
+});
+
+Then('I should see the missing-products notice', async ({ page }) => {
+	await expect(page.getByTestId('compare-missing')).toBeVisible();
+});
+
 // ---------- search ----------
 
 Then('I should see the search mode indicator', async ({ page }) => {
