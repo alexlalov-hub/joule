@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.q ? `Search: ${data.q}` : 'Search'} — TechnoMarket</title>
+	<title>{data.q ? `Search: ${data.q}` : 'Search'} — Joule</title>
 </svelte:head>
 
 <section class="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">
@@ -49,7 +49,7 @@
 	<div class="mt-12">
 		{#if !data.q}
 			<p class="font-serif text-lg text-ink-soft italic">
-				Type a query to search. Semantic search (pgvector) arrives in week 2.
+				Type a query to search across the catalog.
 			</p>
 		{:else}
 			<p class="mb-6 font-mono text-sm text-ink-faint">
@@ -57,6 +57,7 @@
 				{data.products.length === 1 ? 'result' : 'results'} for "<span class="text-ink"
 					>{data.q}</span
 				>"
+				<span class="ml-3 text-ink-faint" data-testid="search-mode">· {data.mode} search</span>
 			</p>
 			<ProductGrid
 				products={data.products}

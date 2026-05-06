@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>All categories — TechnoMarket</title>
+	<title>All categories — Joule</title>
 </svelte:head>
 
 <section class="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">

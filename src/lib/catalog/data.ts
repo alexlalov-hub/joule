@@ -70,13 +70,14 @@ export const products: Product[] = [
 		'laptops',
 		129900,
 		'Silent, fanless, all-day battery.',
-		'The fanless M4 MacBook Air is the default answer for anyone who writes, codes, or edits light video on the move. Eighteen-hour battery, a display that holds up outdoors, and near-silent operation under load.',
+		'The fanless M4 MacBook Air handles writing, coding, and light video editing without a sound. Up to 18-hour battery and a 500-nit Liquid Retina display that holds up outdoors.',
 		[
 			['Chip', 'Apple M4 (10-core CPU, 10-core GPU)'],
 			['Memory', '16 GB unified'],
 			['Storage', '512 GB SSD'],
-			['Display', '13.6" Liquid Retina · 2560×1664'],
-			['Battery', 'Up to 18 h'],
+			['Display', '13.6" Liquid Retina · 2560×1664 · 500 nits'],
+			['Ports', '2× Thunderbolt 4, MagSafe 3, 3.5 mm'],
+			['Battery', 'Up to 18 h video playback'],
 			['Weight', '1.24 kg']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 412 }
@@ -88,31 +89,34 @@ export const products: Product[] = [
 		'laptops',
 		239900,
 		'Mini-LED, 12-core, quiet under load.',
-		'A pro machine that almost never spins its fans. Best-in-class 120 Hz mini-LED display, 24 GB RAM as standard, and Thunderbolt 5 for monster external rigs.',
+		"A pro machine with Apple's 120 Hz Liquid Retina XDR mini-LED display, the M4 Pro chip, and Thunderbolt 5 ports for high-bandwidth external storage and displays.",
 		[
 			['Chip', 'Apple M4 Pro (12-core CPU, 16-core GPU)'],
 			['Memory', '24 GB unified'],
 			['Storage', '1 TB SSD'],
-			['Display', '14.2" Liquid Retina XDR · 120 Hz'],
-			['Ports', '3× TB5, HDMI, SD'],
+			['Display', '14.2" Liquid Retina XDR · 3024×1964 · ProMotion 120 Hz'],
+			['Ports', '3× Thunderbolt 5, HDMI, SDXC, MagSafe 3'],
+			['Battery', 'Up to 22 h video playback'],
 			['Weight', '1.60 kg']
 		],
 		{ rating: 4.9, reviewCount: 298 }
 	),
 	p(
 		'xps-13-plus',
-		'XPS 13 Plus (Ultra 7)',
+		'XPS 13 Plus (9340)',
 		'Dell',
 		'laptops',
 		144900,
 		'Edge-to-edge keyboard, OLED option.',
-		"Dell's most daring thin-and-light. Capacitive function row, a glass-covered keyboard deck, and a gorgeous optional OLED.",
+		"Dell's minimalist thin-and-light with a capacitive function row, a seamless glass haptic trackpad, and an optional 3.5K OLED panel.",
 		[
 			['CPU', 'Intel Core Ultra 7 155H'],
-			['Memory', '16 GB LPDDR5X'],
-			['Storage', '512 GB SSD'],
-			['Display', '13.4" OLED · 3.5K · 60 Hz'],
-			['Weight', '1.23 kg']
+			['Memory', '16 GB LPDDR5X-7467'],
+			['Storage', '512 GB PCIe 4.0 SSD'],
+			['Display', '13.4" 3.5K OLED · 2880×1800 · 60 Hz touch'],
+			['Ports', '2× Thunderbolt 4'],
+			['Battery', '55 Wh'],
+			['Weight', '1.24 kg']
 		],
 		{ featured: true, rating: 4.4, reviewCount: 168 }
 	),
@@ -123,14 +127,15 @@ export const products: Product[] = [
 		'laptops',
 		189900,
 		'The boring-in-a-good-way business laptop.',
-		'Every year it gets a little lighter and a little faster, and the keyboard stays the best in the business. 5G option for road warriors.',
+		"Lenovo's flagship carbon-fibre business ultrabook with a Core Ultra (Series 2) platform, a legendary keyboard, and an optional 5G modem for road warriors.",
 		[
-			['CPU', 'Intel Core Ultra 7 165U'],
-			['Memory', '32 GB LPDDR5X'],
-			['Storage', '1 TB SSD'],
-			['Display', '14" 2.8K OLED · 120 Hz'],
-			['Battery', 'Up to 14 h'],
-			['Weight', '1.09 kg']
+			['CPU', 'Intel Core Ultra 7 258V (Lunar Lake)'],
+			['Memory', '32 GB LPDDR5X (on-package)'],
+			['Storage', '1 TB PCIe 4.0 SSD'],
+			['Display', '14" 2.8K OLED · 2880×1800 · 120 Hz'],
+			['Ports', '2× Thunderbolt 4, 2× USB-A, HDMI 2.1'],
+			['Battery', '57 Wh · up to 18 h'],
+			['Weight', '0.99 kg']
 		],
 		{ rating: 4.7, reviewCount: 221 }
 	),
@@ -141,31 +146,34 @@ export const products: Product[] = [
 		'laptops',
 		164900,
 		'Copilot+ with Snapdragon X Elite.',
-		'Microsoft finally cracked ARM on Windows. All-day battery, native x86 translation that actually works, and the long-missed haptic trackpad.',
+		"Microsoft's first Copilot+ Surface. The Snapdragon X Elite pairs long battery life with Prism x86 emulation, a 120 Hz PixelSense display, and a haptic touchpad.",
 		[
-			['CPU', 'Snapdragon X Elite (12-core)'],
+			['CPU', 'Snapdragon X Elite X1E-80-100 (12-core)'],
 			['Memory', '16 GB LPDDR5X'],
 			['Storage', '512 GB SSD'],
-			['Display', '15" PixelSense · 120 Hz'],
+			['Display', '15" PixelSense · 2496×1664 · 120 Hz touch'],
+			['Ports', '2× USB-C 4.0, USB-A 3.1, Surface Connect'],
+			['Battery', 'Up to 22 h video'],
 			['Weight', '1.66 kg']
 		],
 		{ rating: 4.5, reviewCount: 142 }
 	),
 	p(
 		'zephyrus-g14-2025',
-		'ROG Zephyrus G14 (RTX 5070)',
+		'ROG Zephyrus G14 (2025)',
 		'ASUS',
 		'laptops',
 		219900,
 		'A gaming laptop that fits a backpack.',
-		'The G14 keeps its cult status: RTX 5070 performance in a 1.5 kg chassis with a 120 Hz OLED and surprisingly livable fan curves.',
+		'A 14-inch thin-and-light gaming laptop with an RTX 50-series GPU, a 3K OLED 120 Hz display, and a CNC-milled magnesium-aluminium chassis under 1.6 kg.',
 		[
 			['CPU', 'AMD Ryzen AI 9 HX 370'],
-			['GPU', 'NVIDIA RTX 5070 Laptop'],
-			['Memory', '32 GB DDR5X'],
+			['GPU', 'NVIDIA GeForce RTX 5070 Laptop (8 GB)'],
+			['Memory', '32 GB LPDDR5X-7500'],
 			['Storage', '1 TB PCIe 4.0 SSD'],
-			['Display', '14" OLED · 2.8K · 120 Hz'],
-			['Weight', '1.50 kg']
+			['Display', '14" ROG Nebula OLED · 2880×1800 · 120 Hz'],
+			['Battery', '73 Wh'],
+			['Weight', '1.59 kg']
 		],
 		{ featured: true, rating: 4.6, reviewCount: 186 }
 	),
@@ -176,14 +184,15 @@ export const products: Product[] = [
 		'laptops',
 		199900,
 		'The one you can actually repair.',
-		'Swappable expansion cards, a hot-swappable GPU module, and every part ships with a QR code to its spare. Built to last a decade.',
+		'A fully modular 16-inch laptop with a hot-swappable GPU bay, swappable expansion card ports, and every major part rated user-replaceable with QR codes to spares.',
 		[
 			['CPU', 'AMD Ryzen 9 7940HS'],
-			['GPU', 'Radeon RX 7700S (module)'],
-			['Memory', '32 GB DDR5'],
-			['Storage', '1 TB PCIe 4.0 SSD'],
-			['Display', '16" · 2560×1600 · 165 Hz'],
-			['Weight', '2.10 kg']
+			['GPU', 'Radeon RX 7700S (graphics module, 8 GB)'],
+			['Memory', '32 GB DDR5-5600 SO-DIMM'],
+			['Storage', '1 TB PCIe 4.0 M.2 NVMe'],
+			['Display', '16" · 2560×1600 · 165 Hz matte'],
+			['Ports', '6× swappable Expansion Cards'],
+			['Weight', '2.1 kg']
 		],
 		{ rating: 4.4, reviewCount: 95 }
 	),
@@ -196,13 +205,14 @@ export const products: Product[] = [
 		'desktops',
 		149900,
 		'Tiny footprint, workstation muscle.',
-		'A palm-sized box that compresses RAW video faster than machines three times its size. Silent unless you really push it.',
+		'A 12.7 cm-square desktop that compresses ProRes and runs Xcode builds faster than many tower PCs — with Thunderbolt 5 and near-silent cooling.',
 		[
-			['Chip', 'Apple M4 Pro'],
+			['Chip', 'Apple M4 Pro (12-core CPU, 16-core GPU)'],
 			['Memory', '24 GB unified'],
 			['Storage', '512 GB SSD'],
-			['Ports', '3× TB5, HDMI, 2.5GbE'],
-			['Size', '12.7 × 12.7 × 5 cm']
+			['Ports', '3× Thunderbolt 5, HDMI, 2× USB-A, 10GbE option'],
+			['Networking', 'Wi-Fi 6E, Bluetooth 5.3'],
+			['Size', '12.7 × 12.7 × 5.0 cm']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 312 }
 	),
@@ -213,29 +223,31 @@ export const products: Product[] = [
 		'desktops',
 		159900,
 		'All-in-one with a 4.5K screen.',
-		"The friendliest family desktop on the market. Seven colours, a magnetic cable, and a 4.5K display that's colour-accurate out of the box.",
+		"Apple's friendly family desktop in seven colours. A 4.5K Retina display, a 12 MP Center Stage camera, and the M4 chip in a 11.5 mm-thin chassis.",
 		[
-			['Chip', 'Apple M4 (10-core)'],
+			['Chip', 'Apple M4 (10-core CPU, 10-core GPU)'],
 			['Memory', '16 GB unified'],
 			['Storage', '512 GB SSD'],
-			['Display', '24" 4.5K Retina'],
-			['Webcam', '12 MP Center Stage']
+			['Display', '24" 4.5K Retina · 4480×2520 · 500 nits'],
+			['Camera', '12 MP Center Stage'],
+			['Ports', '2× Thunderbolt 4, 2× USB-C']
 		],
 		{ rating: 4.7, reviewCount: 178 }
 	),
 	p(
 		'beelink-ser8',
-		'Beelink SER8 (Ryzen 7)',
+		'Beelink SER8 (Ryzen 7 8845HS)',
 		'Beelink',
 		'desktops',
 		72900,
 		'A mini PC that punches up.',
-		'Ryzen 8 cores in a 1-litre box. Good enough for a second dev machine, a living-room NAS, or a quiet HTPC.',
+		'A sub-litre mini PC with a Ryzen 8000-series APU — strong enough for a dev box, a Plex server, or a quiet HTPC under a TV.',
 		[
-			['CPU', 'AMD Ryzen 7 8845HS'],
-			['Memory', '32 GB DDR5'],
-			['Storage', '1 TB NVMe'],
-			['Ports', 'USB4, 2× HDMI, 2.5GbE'],
+			['CPU', 'AMD Ryzen 7 8845HS (8C/16T, up to 5.1 GHz)'],
+			['GPU', 'Radeon 780M (integrated)'],
+			['Memory', '32 GB DDR5-5600'],
+			['Storage', '1 TB PCIe 4.0 NVMe'],
+			['Ports', 'USB4 40 Gbps, 2× HDMI 2.1, 2.5GbE, 3× USB-A'],
 			['Size', '12.6 × 11.3 × 4.2 cm']
 		],
 		{ rating: 4.5, reviewCount: 142 }
@@ -247,13 +259,14 @@ export const products: Product[] = [
 		'desktops',
 		289900,
 		"A pre-built you won't want to take apart.",
-		'Clean-cabled, quiet-fanned, and benchmark-verified before it leaves the factory. RTX 5080 paired with an 8-core X3D.',
+		"NZXT's top-tier Player: Three gaming PC: clean cable-managed build tested before shipping, RTX 5080 paired with the Ryzen 7 9800X3D, and a CAM-tuned fan curve.",
 		[
-			['CPU', 'AMD Ryzen 7 9800X3D'],
-			['GPU', 'NVIDIA RTX 5080'],
+			['CPU', 'AMD Ryzen 7 9800X3D (8C/16T, 3D V-Cache)'],
+			['GPU', 'NVIDIA GeForce RTX 5080 (16 GB GDDR7)'],
 			['Memory', '32 GB DDR5-6000'],
-			['Storage', '2 TB PCIe 5.0 SSD'],
-			['PSU', '850 W Gold']
+			['Storage', '2 TB PCIe 4.0 NVMe'],
+			['PSU', '850 W 80+ Gold'],
+			['Case', 'NZXT H6 Flow (mid-tower)']
 		],
 		{ featured: true, rating: 4.6, reviewCount: 84 }
 	),
@@ -266,28 +279,32 @@ export const products: Product[] = [
 		'monitors',
 		82900,
 		'Calibrated IPS Black with Thunderbolt 4.',
-		'The one you buy for office work and forget about. 120 Hz IPS Black, factory calibrated, and a Thunderbolt 4 daisy chain that finally works.',
+		'A 27-inch 4K IPS Black panel with factory sRGB calibration, a Thunderbolt 4 hub that delivers 140 W to a laptop, and a dual-stream daisy-chain output.',
 		[
-			['Panel', '27" 4K IPS Black'],
+			['Panel', '27" 4K IPS Black (3840×2160)'],
 			['Refresh', '120 Hz'],
+			['Contrast', '2000:1'],
 			['Color', '100 % sRGB · 98 % DCI-P3'],
-			['Ports', 'TB4 in/out, USB-C 90 W, DP, HDMI']
+			['Ports', 'TB4 in (140 W) + out, 3× USB-C, 4× USB-A, DP 1.4, HDMI 2.1, 2.5GbE'],
+			['HDR', 'VESA DisplayHDR 600']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 204 }
 	),
 	p(
 		'lg-27gr95qe',
-		'UltraGear 27GR95QE (QD-OLED)',
+		'UltraGear 27GR95QE (OLED)',
 		'LG',
 		'monitors',
 		99900,
-		'240 Hz QD-OLED for esports.',
-		'The display that flipped the gaming monitor conversation. 0.03 ms, 1000-nit highlights, a properly anti-glare coat.',
+		'240 Hz OLED for esports.',
+		"LG's 27-inch WOLED gaming monitor with a 0.03 ms response time, 240 Hz refresh, and a low-reflection matte coating. G-SYNC Compatible and FreeSync Premium.",
 		[
-			['Panel', '27" QD-OLED'],
+			['Panel', '27" WOLED'],
 			['Resolution', '2560×1440'],
 			['Refresh', '240 Hz'],
-			['HDR', 'DisplayHDR True Black 400']
+			['Response', '0.03 ms GtG'],
+			['HDR', 'DisplayHDR True Black 400'],
+			['Ports', '2× HDMI 2.1, DP 1.4, 3× USB 3.0']
 		],
 		{ rating: 4.7, reviewCount: 156 }
 	),
@@ -298,12 +315,14 @@ export const products: Product[] = [
 		'monitors',
 		289900,
 		'Mini-LED HDR reference.',
-		'A reference monitor for colour work: 1152-zone mini-LED, 1600 nits, Calman auto-calibration, PANTONE-validated.',
+		'A reference 32-inch mini-LED display with 1152 dimming zones, 1600 nits peak brightness, Calman auto-calibration, and Dolby Vision support for colour-grading work.',
 		[
-			['Panel', '32" 4K mini-LED'],
+			['Panel', '32" 4K IPS mini-LED (3840×2160)'],
+			['Dimming zones', '1152'],
 			['Peak brightness', '1600 nits'],
-			['Color', '98 % Rec.2020'],
-			['Ports', 'TB4, HDMI 2.1, DP 1.4']
+			['Color', '98 % DCI-P3 · 85 % Rec.2020 · Delta E < 1'],
+			['Refresh', '120 Hz'],
+			['Ports', 'Thunderbolt 4 (90 W), 3× HDMI 2.1, DP 1.4']
 		]
 	),
 	p(
@@ -313,12 +332,14 @@ export const products: Product[] = [
 		'monitors',
 		55900,
 		'4K 144 Hz at a sane price.',
-		'A generalist 4K that covers gaming, photo, and everyday office without forcing a hard trade-off.',
+		'A generalist 32-inch 4K IPS with 144 Hz, HDMI 2.1, and a built-in KVM switch. Covers gaming, photo, and office without forcing a compromise.',
 		[
-			['Panel', '32" 4K IPS'],
+			['Panel', '31.5" 4K SS IPS (3840×2160)'],
 			['Refresh', '144 Hz'],
-			['HDR', 'VESA HDR400'],
-			['Ports', 'HDMI 2.1, DP 1.4, USB-C 18 W']
+			['Response', '1 ms MPRT'],
+			['HDR', 'VESA DisplayHDR 400'],
+			['Color', '90 % DCI-P3'],
+			['Ports', '2× HDMI 2.1, DP 1.4, USB-C (18 W), KVM']
 		],
 		{ rating: 4.4, reviewCount: 224 }
 	),
@@ -331,12 +352,14 @@ export const products: Product[] = [
 		'keyboards',
 		19900,
 		'Hall-effect, QMK, hot-swap.',
-		'An enthusiast keyboard that went mainstream. Hall-effect switches you can tune per-key, heavy aluminium body, wireless if you want it.',
+		'A 75 % CNC-aluminium keyboard with Gateron Nebula magnetic Hall-effect switches, per-key actuation tuning, Rapid Trigger, and open-source QMK/VIA firmware.',
 		[
-			['Layout', '75 %'],
-			['Switches', 'Gateron Nebula HE'],
-			['Polling', '1000 Hz wired / 1000 Hz 2.4 GHz'],
-			['Firmware', 'QMK/VIA']
+			['Layout', '75 % (81 keys)'],
+			['Switches', 'Gateron Nebula magnetic (Hall-effect)'],
+			['Connection', 'Wired USB-C / Bluetooth 5.1 / 2.4 GHz'],
+			['Polling', '1000 Hz'],
+			['Firmware', 'QMK / VIA'],
+			['Body', 'CNC aluminium, 1.9 kg']
 		],
 		{ featured: true, rating: 4.7, reviewCount: 312 }
 	),
@@ -346,13 +369,14 @@ export const products: Product[] = [
 		'Apple',
 		'keyboards',
 		17900,
-		'Low-profile chiclet done right.',
-		'The keyboard your laptop wishes its own keyboard was. Touch ID on the number row, USB-C charging, and the stability Apple peripherals finally have.',
+		'Low-profile scissor, done right.',
+		"Apple's full-size Magic Keyboard with Touch ID, USB-C charging, and a numeric keypad. Pairs with any Apple-silicon Mac for biometric login.",
 		[
-			['Layout', 'Full-size'],
+			['Layout', 'Full-size with numeric keypad'],
 			['Wireless', 'Bluetooth'],
-			['Battery', '~1 month'],
-			['Extras', 'Touch ID']
+			['Battery', '~1 month per charge'],
+			['Charging', 'USB-C'],
+			['Extras', 'Touch ID (Apple silicon Macs)']
 		]
 	),
 	p(
@@ -361,13 +385,14 @@ export const products: Product[] = [
 		'PFU',
 		'keyboards',
 		38900,
-		'Topre meets a pointing stick.',
-		'For the small-but-loud crowd. Topre switches, a pointing stick, and four mouse buttons. Compact but deeply opinionated.',
+		'Topre-style meets a pointing stick.',
+		'The HHKB reimagined for power users: mechanical contactless switches, a pointing stick, four mouse buttons and gesture pads. 60 % with the classic HHKB layout.',
 		[
-			['Layout', '60 %'],
-			['Switches', 'Topre 45 g'],
-			['Wireless', 'BT 5.1'],
-			['Extras', 'Pointing stick, gesture pads']
+			['Layout', '60 % (HHKB)'],
+			['Switches', 'HHKB Studio contactless (silent linear)'],
+			['Connection', 'USB-C / Bluetooth 5.1 (up to 4 devices)'],
+			['Power', '4× AA or USB-C'],
+			['Extras', 'Pointing stick, 4 mouse buttons, 4 gesture pads']
 		]
 	),
 	p(
@@ -377,12 +402,13 @@ export const products: Product[] = [
 		'keyboards',
 		11900,
 		'The safe office pick.',
-		'Quiet low-profile scissor keys, backlit with a proximity sensor, and Flow to hop between a Mac and a PC.',
+		'A quiet low-profile scissor keyboard with smart backlighting, proximity wake, and Logi Flow to hop between a Mac and a PC on the same keystroke.',
 		[
 			['Layout', 'Full-size'],
-			['Wireless', 'BT + Logi Bolt'],
-			['Battery', 'Up to 10 days'],
-			['Backlight', 'Auto-adjusting']
+			['Wireless', 'Bluetooth + Logi Bolt USB'],
+			['Battery', '10 days (backlit) / 5 months (off)'],
+			['Backlight', 'Auto-adjusting'],
+			['Charging', 'USB-C']
 		]
 	),
 
@@ -394,12 +420,13 @@ export const products: Product[] = [
 		'mice',
 		9900,
 		'Silent clicks, 8K DPI sensor.',
-		'Still the mouse that gets recommended by default. Seven years of small refinements and a horizontal scroll wheel that has converted entire design teams.',
+		"Logitech's flagship productivity mouse with quiet clicks, a MagSpeed electromagnetic scroll wheel, and a thumb-actuated horizontal scroll wheel. Flow across devices.",
 		[
-			['Sensor', '8000 DPI'],
+			['Sensor', 'Darkfield 8000 DPI'],
 			['Buttons', '7 programmable'],
-			['Wireless', 'BT + Logi Bolt'],
-			['Battery', '70 days']
+			['Wireless', 'Bluetooth Low Energy + Logi Bolt'],
+			['Battery', '70 days per charge (USB-C)'],
+			['Weight', '141 g']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 512 }
 	),
@@ -409,13 +436,14 @@ export const products: Product[] = [
 		'Razer',
 		'mice',
 		14900,
-		'64 g of ergonomic speed.',
-		'A lightweight esports mouse that still respects larger hands. Optical switches rated for 90 million clicks, 4000 Hz polling dongle included.',
+		'63 g of ergonomic speed.',
+		'An ultra-light ergonomic esports mouse with a 30K DPI optical sensor, third-gen optical switches rated for 90 million clicks, and optional 4000 Hz HyperPolling via the Wireless Dongle Pro.',
 		[
-			['Sensor', 'Focus Pro 35K (30000 DPI)'],
+			['Sensor', 'Focus Pro 30K optical'],
 			['Weight', '63 g'],
-			['Polling', 'Up to 4000 Hz'],
-			['Battery', '~90 h']
+			['Switches', 'Gen-3 Optical (90M clicks)'],
+			['Polling', '1000 Hz (up to 4000 Hz with dongle)'],
+			['Battery', '~90 h wireless']
 		],
 		{ rating: 4.6, reviewCount: 288 }
 	),
@@ -426,12 +454,13 @@ export const products: Product[] = [
 		'mice',
 		10900,
 		'Featherweight wireless.',
-		"A 55 g ambidextrous mouse with BAMF 2.0, hybrid switches, and a honeycomb shell the dust doesn't get stuck in this time.",
+		'A 58 g ambidextrous wireless esports mouse with the BAMF 2.0 sensor, 4K/8K optional receiver, and a solid (non-honeycomb) shell.',
 		[
 			['Sensor', 'BAMF 2.0 (26000 DPI)'],
-			['Weight', '55 g'],
-			['Polling', '1000 Hz'],
-			['Battery', '80 h']
+			['Weight', '58 g'],
+			['Polling', '1000 Hz (4K/8K receiver optional)'],
+			['Battery', '~80 h wireless'],
+			['Connection', '2.4 GHz / Bluetooth / USB-C']
 		]
 	),
 	p(
@@ -440,13 +469,14 @@ export const products: Product[] = [
 		'Logitech',
 		'mice',
 		9900,
-		'57° grip. Wrist-friendly.',
-		'Once you try a vertical grip for a week you rarely want to go back. Thumb rest, textured rubber, wire-free charging over USB-C.',
+		'57° grip, wrist-friendly.',
+		'A vertical ergonomic mouse that holds the hand at a natural 57-degree angle, reducing forearm strain. Works with Logi Flow across three paired devices.',
 		[
 			['Sensor', '4000 DPI'],
 			['Grip angle', '57°'],
-			['Wireless', 'BT + receiver'],
-			['Battery', '4 months']
+			['Wireless', 'Bluetooth + Logi Unifying'],
+			['Battery', '4 months per charge (USB-C)'],
+			['Weight', '135 g']
 		]
 	),
 
@@ -456,46 +486,50 @@ export const products: Product[] = [
 		'WH-1000XM6',
 		'Sony',
 		'headphones',
-		39900,
+		44900,
 		'Category-defining noise cancelling.',
-		'Sixth-generation ANC with the best transparency mode Sony has shipped. LDAC, multipoint, and finally — a folding hinge again.',
+		"Sony's sixth-gen flagship ANC headphones. New QN3 processor with twelve microphones, best-in-class noise cancelling, multipoint, LDAC, and a folding hinge.",
 		[
 			['Type', 'Over-ear, closed'],
-			['ANC', 'Adaptive QN3'],
-			['Battery', '30 h'],
-			['Codecs', 'LDAC, LC3, AAC'],
+			['ANC', 'QN3 processor · 12 mics'],
+			['Battery', '30 h (ANC on) · 40 h (off)'],
+			['Codecs', 'LDAC, LC3, AAC, SBC'],
+			['Charging', 'USB-C · 3 min = 3 h'],
 			['Weight', '254 g']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 487 }
 	),
 	p(
 		'bose-qc-ultra',
-		'QuietComfort Ultra',
+		'QuietComfort Ultra Headphones',
 		'Bose',
 		'headphones',
-		42900,
+		44900,
 		'Still the comfort leader.',
-		"They sit so lightly on the head you forget they're there. Immersive Audio is genuinely fun. aptX Adaptive support makes it an easy Android pick too.",
+		"Bose's lightest-feeling over-ear ANC headphones with Immersive Audio, CustomTune per-ear calibration, and Snapdragon Sound aptX Adaptive support.",
 		[
 			['Type', 'Over-ear, closed'],
 			['ANC', 'CustomTune adaptive'],
-			['Battery', '24 h'],
-			['Codecs', 'aptX Adaptive, SBC, AAC']
+			['Battery', '24 h (ANC on) · 18 h (Immersive)'],
+			['Codecs', 'aptX Adaptive, SBC, AAC'],
+			['Weight', '253 g']
 		]
 	),
 	p(
 		'apple-airpods-pro-3',
-		'AirPods Pro 3',
+		'AirPods Pro 2 (USB-C)',
 		'Apple',
 		'headphones',
-		25900,
-		'The default iPhone pair.',
-		"USB-C charging, even better ANC, hearing-aid mode in supported regions, and the smoothest iCloud handoff you'll find.",
+		27900,
+		'The default iPhone earbud.',
+		"Apple's second-gen AirPods Pro with USB-C case, improved ANC, Adaptive Audio, Conversation Awareness, and certified clinical-grade Hearing Aid mode.",
 		[
-			['Type', 'In-ear, closed'],
-			['ANC', 'H3 chip'],
+			['Type', 'In-ear, closed (silicone tips)'],
+			['Chip', 'Apple H2'],
+			['ANC', 'Adaptive Audio · Transparency'],
 			['Battery', '6 h bud / 30 h case'],
-			['Codecs', 'AAC, PCM Lossless (with Vision Pro)']
+			['Codecs', 'AAC, Lossless (with Vision Pro)'],
+			['Case', 'USB-C · MagSafe · Qi · Apple Watch charger']
 		]
 	),
 	p(
@@ -505,11 +539,13 @@ export const products: Product[] = [
 		'headphones',
 		54900,
 		'Reference open-back for deep listening.',
-		"Sennheiser's beloved HD 600 lineage, updated with a more energetic bass response and the same refined midrange that made these a genre-defining pair.",
+		"Sennheiser's HD 600-lineage open-back with a deeper, more extended sub-bass response and the refined midrange that made this family a genre classic.",
 		[
 			['Type', 'Over-ear, open-back'],
 			['Impedance', '300 Ω'],
-			['Drivers', '42 mm transducers'],
+			['Drivers', '42 mm dynamic transducers'],
+			['Frequency response', '8 Hz – 41.5 kHz'],
+			['Cable', '1.8 m 6.35 mm + 1.8 m 4.4 mm balanced'],
 			['Weight', '260 g']
 		]
 	),
@@ -518,14 +554,15 @@ export const products: Product[] = [
 		'AONIC 50 Gen 2',
 		'Shure',
 		'headphones',
-		34900,
+		37900,
 		'Wireless + 24-bit USB audio.',
-		'Studio lineage you can actually live with on a commute. Passes as wired DAC over USB-C, excellent microphone array for calls.',
+		'A studio-leaning wireless over-ear with adaptive ANC, Snapdragon Sound, and a USB-C wired mode that passes a 32-bit/384 kHz signal into the onboard DAC.',
 		[
 			['Type', 'Over-ear, closed'],
-			['ANC', 'Adaptive'],
+			['ANC', 'Adaptive hybrid'],
 			['Battery', '45 h'],
-			['Codecs', 'aptX Lossless, LDAC']
+			['Codecs', 'aptX Lossless, aptX Adaptive, LDAC, AAC, SBC'],
+			['Wired', 'USB-C (32-bit/384 kHz) · 3.5 mm']
 		]
 	),
 	p(
@@ -535,12 +572,14 @@ export const products: Product[] = [
 		'headphones',
 		17900,
 		'Tiny earbuds, big feature set.',
-		'The smallest ANC earbud Sony makes, with 360 Reality Audio and multipoint. A great budget recommendation.',
+		"Sony's smallest and lightest ANC earbud, with 360 Reality Audio, Speak-to-Chat, and LDAC support over Android.",
 		[
 			['Type', 'In-ear, closed'],
+			['Driver', '5 mm dynamic'],
 			['ANC', 'Adaptive'],
 			['Battery', '6 h bud / 20 h case'],
-			['Codecs', 'LDAC, AAC']
+			['Codecs', 'LDAC, AAC, SBC'],
+			['Weight', '4.8 g per bud']
 		]
 	),
 
@@ -552,12 +591,13 @@ export const products: Product[] = [
 		'speakers',
 		49900,
 		'Spatial audio for the living room.',
-		'The first Sonos built for Dolby Atmos Music. Surprisingly expressive bass for the size, Trueplay tuning over the mic, and wired line-in via a USB-C adapter.',
+		'The first Sonos built for Dolby Atmos Music. Six drivers fire sideways and upwards, Trueplay tunes to the room, and USB-C line-in accepts aux or Ethernet via adapter.',
 		[
-			['Drivers', '6 custom'],
-			['Inputs', 'Wi-Fi, BT, USB-C (line-in)'],
-			['Voice', 'Amazon Alexa'],
-			['Stereo', 'Pairable']
+			['Drivers', '6 (4 tweeters + 2 woofers)'],
+			['Inputs', 'Wi-Fi 6, Bluetooth 5.0, USB-C line-in'],
+			['Voice', 'Amazon Alexa, Sonos Voice'],
+			['Pairing', 'Stereo pair + Atmos rears on Arc/Beam'],
+			['Weight', '4.47 kg']
 		],
 		{ rating: 4.5, reviewCount: 188 }
 	),
@@ -568,12 +608,13 @@ export const products: Product[] = [
 		'speakers',
 		259900,
 		'Bookshelf monitors with a brain.',
-		'An active bookshelf pair with room correction and streaming built in. One of the most recommended audiophile speakers you can actually recommend to a friend.',
+		'A pair of active bookshelf speakers with onboard amplification, room correction, HDMI eARC, and every major streaming protocol built in.',
 		[
-			['Drivers', 'Uni-Q coaxial'],
-			['Inputs', 'HDMI eARC, optical, coaxial, Wi-Fi, BT, RCA'],
-			['Power', '280 W per side'],
-			['Streaming', 'AirPlay 2, Chromecast, Roon, Tidal Connect']
+			['Drivers', 'Uni-Q 12th-gen coaxial'],
+			['Amplification', '280 W per side (100 W Class A/B tweeter, 280 W Class D woofer)'],
+			['Inputs', 'HDMI eARC, optical, coaxial, RCA, subwoofer out'],
+			['Wireless', 'Wi-Fi, Bluetooth 4.2'],
+			['Streaming', 'AirPlay 2, Chromecast, Roon Ready, Tidal Connect, Spotify Connect']
 		],
 		{ featured: true }
 	),
@@ -584,12 +625,13 @@ export const products: Product[] = [
 		'speakers',
 		32900,
 		'The classic 360° portable.',
-		"Refined again: a fuller low end, USB-C, a proper handle, and a ruggedised rubber finish that survives a summer's worth of picnics.",
+		'A 360-degree portable Bluetooth speaker with a built-in handle, full-range driver plus dual passive radiators, and IP55 dust and water resistance.',
 		[
 			['Type', 'Portable 360°'],
 			['Battery', '17 h'],
 			['Water rating', 'IP55'],
-			['Inputs', 'BT, 3.5 mm']
+			['Inputs', 'Bluetooth 4.2, 3.5 mm aux, USB-C'],
+			['Weight', '0.9 kg']
 		]
 	),
 	p(
@@ -599,12 +641,14 @@ export const products: Product[] = [
 		'speakers',
 		14900,
 		'Party default.',
-		'IP68, Auracast for linking multiple speakers, and punchy mids that carry over outdoor noise.',
+		"JBL's latest portable Bluetooth speaker — IP68-rated, Auracast-capable for linking multiple units, and a hardened metal grille that survives real use.",
 		[
-			['Type', 'Portable'],
-			['Battery', '14 h'],
+			['Type', 'Portable (oval tube)'],
+			['Battery', '14 h (+ 2 h Playtime Boost)'],
 			['Water rating', 'IP68'],
-			['Linking', 'Auracast']
+			['Linking', 'Auracast'],
+			['Bluetooth', '5.4 LE Audio'],
+			['Weight', '0.56 kg']
 		]
 	),
 
@@ -615,14 +659,16 @@ export const products: Product[] = [
 		'Apple',
 		'smartphones',
 		129900,
-		'A1 chip, vapor chamber cooling.',
-		"Apple's most aggressive performance step in years. Brighter Pro Motion display, a redesigned camera bump, and the cooling headroom to match.",
+		'A19 Pro, vapor chamber cooling.',
+		"Apple's most aggressive thermal design in years. A19 Pro silicon, a redesigned camera plateau, and ProMotion OLED at up to 3000 nits outdoors.",
 		[
 			['Chip', 'Apple A19 Pro'],
-			['Display', '6.3" OLED · 120 Hz · 2500 nits'],
-			['Storage', '256 GB / 512 GB / 1 TB'],
+			['Display', '6.3" Super Retina XDR · 120 Hz ProMotion · 3000 nits'],
+			['Storage', '256 GB / 512 GB / 1 TB / 2 TB'],
 			['Battery', 'Up to 27 h video'],
-			['Cameras', '48 MP + 48 MP UW + 48 MP 5× tele']
+			['Cameras', '48 MP main + 48 MP UW + 48 MP 4× tele (8× optical-quality)'],
+			['Build', 'Aluminium unibody, Ceramic Shield 2'],
+			['Connectivity', 'USB-C 3.2, Wi-Fi 7, Thread']
 		],
 		{ featured: true, rating: 4.8, reviewCount: 524 }
 	),
@@ -633,13 +679,15 @@ export const products: Product[] = [
 		'smartphones',
 		134900,
 		'Peak Android with an S Pen.',
-		'A titanium chassis, 200 MP main sensor, and seven years of OS updates. The productivity phone people keep for half a decade.',
+		'A titanium-framed Android flagship with a 200 MP main sensor, S Pen in the body, and seven years of OS and security updates.',
 		[
 			['Chip', 'Snapdragon 8 Elite for Galaxy'],
-			['Display', '6.8" QHD+ AMOLED · 120 Hz'],
+			['Display', '6.9" QHD+ Dynamic AMOLED 2X · 120 Hz · 2600 nits'],
 			['Storage', '256 GB / 512 GB / 1 TB'],
-			['Battery', '5000 mAh'],
-			['Cameras', '200 MP + 50 MP tele + 10 MP + 12 MP UW']
+			['Battery', '5000 mAh · 45 W wired / 15 W Qi2'],
+			['Cameras', '200 MP main + 50 MP 5× tele + 10 MP 3× tele + 50 MP UW'],
+			['Build', 'Titanium frame, Gorilla Armor 2'],
+			['Support', '7 years of OS + security updates']
 		],
 		{ rating: 4.7, reviewCount: 368 }
 	),
@@ -650,13 +698,14 @@ export const products: Product[] = [
 		'smartphones',
 		109900,
 		'Computational photography, refined.',
-		'The phone where the software is still the story. Tensor G5 runs on-device AI features that were cloud-only a year ago.',
+		"Google's software-first flagship with the Tensor G5 on a TSMC 3 nm process, seven years of updates, and Magic Editor + on-device generative tools.",
 		[
-			['Chip', 'Tensor G5'],
-			['Display', '6.7" LTPO OLED · 120 Hz'],
-			['Storage', '128 GB / 256 GB / 512 GB'],
-			['Battery', '5000 mAh'],
-			['Cameras', '50 MP + 48 MP UW + 48 MP 5× tele']
+			['Chip', 'Google Tensor G5 (TSMC 3 nm)'],
+			['Display', '6.3" LTPO OLED · 120 Hz · 3000 nits'],
+			['Storage', '128 GB / 256 GB / 512 GB / 1 TB'],
+			['Battery', '4870 mAh · 30 W wired / 15 W Qi2'],
+			['Cameras', '50 MP main + 48 MP UW + 48 MP 5× tele'],
+			['Support', '7 years of Pixel Drops + security']
 		]
 	),
 	p(
@@ -666,12 +715,14 @@ export const products: Product[] = [
 		'smartphones',
 		89900,
 		'Fast charging, fast display.',
-		'100 W wired, 50 W wireless, and a Hasselblad-tuned camera system. Classic OnePlus value.',
+		'A flagship with Hasselblad-tuned cameras, 100 W wired SuperVOOC, 50 W wireless, and one of the largest batteries in a slab phone this year.',
 		[
 			['Chip', 'Snapdragon 8 Elite'],
-			['Display', '6.82" LTPO AMOLED · 120 Hz'],
-			['Battery', '6000 mAh'],
-			['Charging', '100 W wired · 50 W wireless']
+			['Display', '6.82" LTPO AMOLED · QHD+ · 120 Hz · 4500 nits peak'],
+			['Storage', '256 GB / 512 GB / 1 TB (UFS 4.0)'],
+			['Battery', '6000 mAh Si-C'],
+			['Charging', '100 W wired · 50 W wireless'],
+			['Water rating', 'IP68 / IP69']
 		]
 	),
 	p(
@@ -680,46 +731,52 @@ export const products: Product[] = [
 		'Fairphone',
 		'smartphones',
 		59900,
-		'The ethical Android.',
-		'Modular, repairable, and the only flagship-adjacent phone with a user-replaceable battery. Five years of updates, sourced responsibly.',
+		'The ethical, modular Android.',
+		'The most repairable Android phone on sale — user-swappable battery, fair-traded cobalt and gold, 8 years of OS updates, and a 5-year warranty.',
 		[
 			['Chip', 'Snapdragon 7s Gen 3'],
-			['Display', '6.3" OLED · 120 Hz'],
+			['Display', '6.31" LTPO OLED · 120 Hz'],
+			['Memory', '8 GB RAM'],
 			['Storage', '256 GB + microSD'],
-			['Warranty', '5 years · replaceable parts']
+			['Battery', '4415 mAh (user-replaceable)'],
+			['Warranty', '5 years · 8 years of OS updates']
 		]
 	),
 	p(
 		'iphone-se-4',
-		'iPhone SE 4',
+		'iPhone 16e',
 		'Apple',
 		'smartphones',
-		49900,
-		'Small, sharp, affordable.',
-		"The iPhone for people who don't want a phone the size of a paperback novel. A18 chip, USB-C, and Face ID finally.",
+		69900,
+		"Apple's value iPhone.",
+		"The budget iPhone with Apple Intelligence: A18 chip, USB-C, Face ID, and Apple's first in-house cellular modem (C1) for better battery life.",
 		[
-			['Chip', 'Apple A18'],
-			['Display', '6.1" OLED · 60 Hz'],
+			['Chip', 'Apple A18 (4-core GPU)'],
+			['Modem', 'Apple C1 (first-party 5G)'],
+			['Display', '6.1" Super Retina XDR OLED · 60 Hz'],
 			['Storage', '128 GB / 256 GB / 512 GB'],
-			['Cameras', '48 MP single']
+			['Battery', 'Up to 26 h video playback'],
+			['Camera', '48 MP Fusion (2-in-1 main)']
 		]
 	),
 
 	// --- Tablets ---
 	p(
 		'ipad-pro-m5-13',
-		'iPad Pro 13" (M5)',
+		'iPad Pro 13" (M4)',
 		'Apple',
 		'tablets',
-		139900,
+		149900,
 		'Tandem OLED, pencil haptics.',
-		'The closest a tablet gets to a laptop. Tandem OLED means movie-grade HDR without blooming, and the Magic Keyboard has a proper trackpad now.',
+		"Apple's thinnest product: a 5.1 mm 13-inch tablet with a Tandem OLED Ultra Retina XDR display, Apple Pencil Pro support, and the M4 chip.",
 		[
-			['Chip', 'Apple M5'],
-			['Display', '13" Tandem OLED · 120 Hz'],
-			['Storage', '256 GB → 2 TB'],
-			['Connectivity', 'Wi-Fi 6E · optional 5G'],
-			['Pencil', 'Apple Pencil Pro']
+			['Chip', 'Apple M4 (up to 10-core CPU, 10-core GPU)'],
+			['Display', '13" Ultra Retina XDR Tandem OLED · 120 Hz'],
+			['Storage', '256 GB / 512 GB / 1 TB / 2 TB'],
+			['Connectivity', 'Wi-Fi 6E · 5G option'],
+			['Ports', 'Thunderbolt 4 / USB 4'],
+			['Pencil', 'Apple Pencil Pro (haptics, squeeze)'],
+			['Thickness', '5.1 mm · 579 g']
 		],
 		{ featured: true }
 	),
@@ -730,11 +787,14 @@ export const products: Product[] = [
 		'tablets',
 		74900,
 		'The default iPad.',
-		'The iPad most people should buy. Pencil Pro support, a proper keyboard, and enough GPU for any creative app.',
+		'The iPad most people should buy — M3 performance, Apple Pencil Pro support, and Magic Keyboard compatibility with a proper function row and trackpad.',
 		[
-			['Chip', 'Apple M3'],
-			['Display', '11" Liquid Retina'],
-			['Storage', '128 GB → 1 TB']
+			['Chip', 'Apple M3 (8-core CPU, 9-core GPU)'],
+			['Display', '11" Liquid Retina · 2360×1640 · 60 Hz'],
+			['Storage', '128 GB / 256 GB / 512 GB / 1 TB'],
+			['Connectivity', 'Wi-Fi 6E · optional 5G'],
+			['Pencil', 'Apple Pencil Pro / USB-C'],
+			['Weight', '460 g']
 		]
 	),
 	p(
@@ -743,12 +803,15 @@ export const products: Product[] = [
 		'Samsung',
 		'tablets',
 		119900,
-		'14-inch Android canvas.',
-		'The biggest Android tablet on sale. Ships with S Pen, DeX desktop mode, and anti-reflective AMOLED.',
+		'14.6-inch Android canvas.',
+		"Samsung's biggest Android tablet: a 14.6-inch anti-reflective Dynamic AMOLED 2X panel, included S Pen, and DeX desktop mode for real productivity.",
 		[
 			['Chip', 'MediaTek Dimensity 9300+'],
-			['Display', '14.6" AMOLED 2X · 120 Hz'],
-			['Storage', '256 GB → 1 TB + microSD']
+			['Display', '14.6" Dynamic AMOLED 2X · 2960×1848 · 120 Hz'],
+			['Storage', '256 GB / 512 GB / 1 TB + microSD'],
+			['Memory', '12 / 16 GB RAM'],
+			['S Pen', 'Included'],
+			['Weight', '718 g']
 		]
 	),
 	p(
@@ -758,89 +821,102 @@ export const products: Product[] = [
 		'tablets',
 		57900,
 		"A tablet that thinks it's paper.",
-		"A colour e-ink tablet with a front-lit screen that doesn't pretend to do anything else. For writers and deep readers.",
+		'An 11.8-inch colour e-ink tablet with front lighting and Marker Plus stylus. Built for writing and deep reading, with no apps, no notifications, no social.',
 		[
-			['Display', '11.8" Canvas Color e-ink'],
+			['Display', '11.8" Canvas Color e-ink (4 096 colours, 2160×1620)'],
+			['Lighting', 'Adjustable front-light'],
 			['Storage', '64 GB'],
 			['Battery', 'Up to 2 weeks'],
-			['Connectivity', 'Wi-Fi']
+			['Connectivity', 'Wi-Fi, USB-C'],
+			['Stylus', 'Marker Plus (with eraser)']
 		]
 	),
 
 	// --- Smartwatches ---
 	p(
 		'apple-watch-ultra-3',
-		'Apple Watch Ultra 3',
+		'Apple Watch Ultra 2',
 		'Apple',
 		'smartwatches',
-		84900,
-		'Titanium + days of battery.',
-		'Dual-frequency GPS, the best map app on any watch, and an always-on screen you can read under a Dubai summer sun.',
+		89900,
+		'Titanium, 3000 nits, days of battery.',
+		"Apple's rugged 49 mm titanium smartwatch with dual-frequency GPS, a 3000-nit always-on display, and 100 m water resistance for diving and open-water swims.",
 		[
-			['Case', '49 mm titanium'],
-			['Battery', 'Up to 72 h low-power'],
-			['Sensors', 'ECG, SpO2, temperature'],
-			['Connectivity', 'Cellular']
+			['Case', '49 mm titanium (natural or black)'],
+			['Display', '3000-nit LTPO Always-On Retina'],
+			['Battery', 'Up to 36 h · 72 h low-power'],
+			['Sensors', 'ECG, SpO2, skin temperature, depth, altimeter'],
+			['GPS', 'Dual-frequency L1/L5'],
+			['Water rating', '100 m (WR100 + EN13319 dive)']
 		],
 		{ featured: true }
 	),
 	p(
 		'apple-watch-series-11',
-		'Apple Watch Series 11',
+		'Apple Watch Series 10',
 		'Apple',
 		'smartwatches',
 		44900,
 		'Everyday health tracking.',
-		'The baseline smartwatch most people want. Sleep apnea detection, fall detection, and new blood pressure trend monitoring.',
+		"Apple's thinnest mainline watch, with a wider always-on LTPO3 OLED, sleep apnea detection, fall and crash detection, and fast charging.",
 		[
-			['Case', '42 / 46 mm'],
-			['Battery', 'Up to 24 h'],
-			['Sensors', 'ECG, SpO2, depth']
+			['Case', '42 mm / 46 mm aluminium or titanium'],
+			['Display', 'LTPO3 Always-On Retina (2000 nits)'],
+			['Battery', 'Up to 18 h · 36 h low-power'],
+			['Sensors', 'ECG, SpO2, skin temperature, depth (up to 6 m)'],
+			['Health', 'Sleep apnea, fall + crash detection']
 		]
 	),
 	p(
 		'garmin-fenix-8',
-		'Fenix 8',
+		'fēnix 8',
 		'Garmin',
 		'smartwatches',
 		104900,
 		'Two-week battery, military rugged.',
-		'The serious outdoors watch: full topo maps offline, multi-band GNSS, dive mode, and a battery that laughs at a weekend hike.',
+		"Garmin's flagship multisport watch: full offline topo maps, multi-band GNSS, a built-in mic and speaker for calls, leakproof dive capability, and AMOLED option.",
 		[
-			['Battery', 'Up to 16 days smartwatch mode'],
-			['GPS', 'Multi-band'],
-			['Durability', '10 ATM, MIL-STD-810']
+			['Display', '1.3" / 1.4" AMOLED or MIP'],
+			['Battery', 'Up to 16 days smartwatch (MIP) · 10 days (AMOLED)'],
+			['GPS', 'Multi-band GNSS, SatIQ'],
+			['Durability', '10 ATM + MIL-STD-810, leakproof buttons'],
+			['Diving', 'Dive computer (to 40 m recreational)'],
+			['Extras', 'Speaker, microphone, offline topo maps']
 		]
 	),
 	p(
 		'oura-ring-gen4',
-		'Oura Ring Gen 4',
+		'Oura Ring 4',
 		'Oura',
 		'smartwatches',
 		39900,
 		'Health data without the screen.',
-		'For people who want the data without a watch on their wrist. Sleep, readiness, HRV, and temperature trends.',
+		'A titanium smart ring with improved SmartSensing for 24/7 heart rate, HRV, temperature and sleep tracking. Data access requires the Oura subscription.',
 		[
-			['Battery', '8 days'],
-			['Materials', 'Titanium'],
-			['Water rating', '100 m']
+			['Material', 'Titanium (6 finishes)'],
+			['Battery', 'Up to 8 days'],
+			['Water rating', '100 m'],
+			['Sensors', 'PPG HR, SpO2, skin temperature, accelerometer'],
+			['Sizes', '4–15']
 		]
 	),
 
 	// --- Cameras ---
 	p(
 		'sony-a7cr',
-		'α7CR (Full-frame)',
+		'α7CR (ILCE-7CR)',
 		'Sony',
 		'cameras',
-		279900,
-		'61 MP in a compact body.',
-		'High-resolution full-frame in a travel-friendly shell. AI subject detection, in-body stabilisation, and uncompressed RAW to a CFexpress card.',
+		319900,
+		'61 MP in a compact full-frame.',
+		'A compact rangefinder-style full-frame with the 61 MP BSI CMOS sensor from the α7R V, AI subject recognition, and 7-stop in-body stabilisation.',
 		[
-			['Sensor', '61 MP BSI full-frame'],
+			['Sensor', '61 MP BSI full-frame Exmor R'],
 			['IBIS', '7 stops'],
-			['Autofocus', 'AI subject recognition'],
-			['Weight', '515 g']
+			['Autofocus', 'AI subject recognition (693 phase points)'],
+			['Video', '4K 60p (Super 35) / 4K 30p full-width'],
+			['Viewfinder', '2.36 M-dot OLED EVF'],
+			['Weight', '515 g (with battery + card)']
 		]
 	),
 	p(
@@ -850,11 +926,13 @@ export const products: Product[] = [
 		'cameras',
 		179900,
 		"A camera you'll actually carry.",
-		'The reason Fujifilm is a cult brand. A fixed 35 mm (equiv.) rangefinder-style compact with IBIS and the film simulations.',
+		"The iconic fixed-lens rangefinder-style APS-C compact with a 23 mm f/2 lens, in-body stabilisation, 6.2K video, and Fujifilm's Film Simulations.",
 		[
-			['Sensor', 'X-Trans CMOS 5 HR (40 MP)'],
-			['Lens', '23 mm f/2'],
-			['IBIS', '6 stops'],
+			['Sensor', '40 MP X-Trans CMOS 5 HR APS-C'],
+			['Lens', '23 mm f/2 (35 mm equiv.)'],
+			['IBIS', '6 stops (5-axis)'],
+			['Video', '6.2K 30p / 4K 60p 10-bit'],
+			['Viewfinder', 'Hybrid OVF/EVF (3.69 M-dot)'],
 			['Weight', '521 g']
 		]
 	),
@@ -863,13 +941,16 @@ export const products: Product[] = [
 		'EOS R50',
 		'Canon',
 		'cameras',
-		89900,
+		79900,
 		'Mirrorless for upgraders.',
-		'A modern, approachable APS-C mirrorless with dual-pixel autofocus. Great starting system.',
+		'An approachable APS-C mirrorless with Dual Pixel CMOS AF II subject tracking, 4K oversampled video, and RF-S lens mount. A strong first-system camera.',
 		[
-			['Sensor', '24 MP APS-C'],
-			['Autofocus', 'Dual Pixel CMOS AF II'],
-			['Video', '4K 30p cropped']
+			['Sensor', '24.2 MP APS-C CMOS'],
+			['Mount', 'Canon RF / RF-S'],
+			['Autofocus', 'Dual Pixel CMOS AF II (subject detection)'],
+			['Burst', 'Up to 15 fps (electronic)'],
+			['Video', '4K 30p oversampled from 6K · FHD 120p'],
+			['Weight', '375 g']
 		]
 	),
 	p(
@@ -877,44 +958,52 @@ export const products: Product[] = [
 		'Osmo Action 5 Pro',
 		'DJI',
 		'cameras',
-		34900,
+		37900,
 		'Action cam with a front OLED.',
-		'A GoPro rival with an OLED on the front and 47 GB of internal storage. Runs cold, shoots 4K 120, and mounts into the entire GoPro ecosystem.',
+		'A dual-OLED action cam with a 1/1.3-inch sensor, 4K/120 D-Log M, waterproof to 20 m without housing, and 47 GB of internal storage for offload-free shooting.',
 		[
 			['Sensor', '1/1.3" CMOS'],
-			['Video', '4K 120 · 10-bit D-Log M'],
-			['Depth', '20 m without housing']
+			['Video', '4K 120 fps · 10-bit D-Log M / HLG'],
+			['Depth', '20 m without housing (60 m with case)'],
+			['Displays', '1.46" front + 2.5" rear OLED'],
+			['Battery', '1950 mAh · 4 h at 1080p/24'],
+			['Storage', '47 GB internal + microSD']
 		]
 	),
 
 	// --- Drones ---
 	p(
 		'dji-air-3s',
-		'DJI Air 3S',
+		'Air 3S',
 		'DJI',
 		'drones',
 		119900,
 		'Dual-camera prosumer drone.',
-		'A 1" main sensor paired with a 70 mm tele. ActiveTrack 360 works well, and 45 minutes of flight on the Intelligent Battery is real.',
+		'A two-camera folding drone with a 1-inch main sensor paired with a 70 mm medium tele. Forward LiDAR and omnidirectional obstacle sensing, with up to 45 min flight.',
 		[
-			['Cameras', '1" 50 MP main + 70 mm tele'],
-			['Flight time', '45 min'],
-			['Transmission', 'O4']
+			['Cameras', '1" CMOS 50 MP main + 1/1.3" 70 mm tele'],
+			['Video', '4K 100 fps HDR · 10-bit D-Log M'],
+			['Flight time', '45 min (Intelligent Battery)'],
+			['Transmission', 'OcuSync 4 (O4) · up to 20 km'],
+			['Sensing', 'Forward LiDAR + omnidirectional vision'],
+			['Weight', '724 g']
 		]
 	),
 	p(
 		'dji-mini-4-pro',
-		'DJI Mini 4 Pro',
+		'Mini 4 Pro',
 		'DJI',
 		'drones',
 		95900,
 		'Sub-250 g with omnidirectional sensing.',
-		'Under the regulatory weight, above the usual compromises. 4K 60 HDR, all-around obstacle sensing, and a body you can fit into a jacket pocket.',
+		'A sub-249 g folding drone with 4K/100 HDR, omnidirectional obstacle sensing, ActiveTrack 360°, and OcuSync 4 video transmission.',
 		[
-			['Weight', '< 249 g'],
-			['Cameras', '1/1.3" CMOS'],
-			['Video', '4K 60 HDR'],
-			['Flight time', '34 min']
+			['Weight', '< 249 g (C0 class)'],
+			['Camera', '1/1.3" CMOS · f/1.7'],
+			['Video', '4K 100 fps HDR · 10-bit D-Log M'],
+			['Flight time', '34 min (standard) · 45 min (Plus battery)'],
+			['Transmission', 'OcuSync 4 · up to 20 km'],
+			['Sensing', 'Omnidirectional obstacle']
 		],
 		{ featured: true }
 	),
@@ -927,11 +1016,14 @@ export const products: Product[] = [
 		'gaming-consoles',
 		79900,
 		'Ray-traced, upscaled, quieter.',
-		"A mid-gen refresh that actually feels like one. AI-upscaling (PSSR) adds real image clarity, and it's the quietest PlayStation yet.",
+		'A mid-generation PS5 refresh with a larger RDNA-based GPU (67 % more compute units), a ~45 % faster GPU clock, and the new PSSR AI-upscaler.',
 		[
-			['Storage', '2 TB NVMe'],
-			['GPU', 'RDNA-based, ~16.7 TF'],
-			['Ports', 'HDMI 2.1, USB-C']
+			['Storage', '2 TB NVMe SSD (custom)'],
+			['GPU', 'RDNA-custom · 67 % more CUs than PS5 · PSSR upscaler'],
+			['Memory', '16 GB GDDR6 + 2 GB DDR5'],
+			['Networking', 'Wi-Fi 7'],
+			['Ports', 'HDMI 2.1, 4× USB (2× USB-A, 2× USB-C)'],
+			['Disc drive', 'Sold separately']
 		],
 		{ featured: true }
 	),
@@ -940,27 +1032,32 @@ export const products: Product[] = [
 		'Nintendo Switch 2',
 		'Nintendo',
 		'gaming-consoles',
-		47900,
+		46900,
 		'The family console, refined.',
-		'A bigger LCD, NVIDIA-powered upscaling at the dock, proper online matchmaking, and backward compatibility for most Switch 1 games.',
+		'A bigger 7.9-inch 120 Hz LCD with HDR, NVIDIA-powered upscaling (DLSS-style) in dock mode up to 4K, and magnetic Joy-Con 2 controllers.',
 		[
-			['Storage', '256 GB'],
-			['Display', '8" 1080p 120 Hz LCD'],
-			['Dock', '4K 60 HDR']
+			['SoC', 'Custom NVIDIA (Ampere-generation)'],
+			['Storage', '256 GB UFS internal (+ microSD Express)'],
+			['Display', '7.9" 1080p 120 Hz HDR LCD'],
+			['Dock', '4K 60 (up to 4K 120) HDR'],
+			['Controllers', 'Magnetic Joy-Con 2 (with mouse mode)'],
+			['Compatibility', 'Most Nintendo Switch games']
 		]
 	),
 	p(
 		'xbox-series-x-2tb',
-		'Xbox Series X (2 TB)',
+		'Xbox Series X (2 TB Galaxy Black)',
 		'Microsoft',
 		'gaming-consoles',
-		54900,
+		64900,
 		'Highest-storage refresh.',
-		'Same silicon, new capacity and a matte black shell. Xbox Game Pass still the best value in gaming.',
+		'The most powerful Xbox in its quietest revision, with 2 TB of NVMe storage and a matte galaxy-black finish. Same 12 TFLOPS RDNA 2 GPU.',
 		[
-			['Storage', '2 TB NVMe'],
-			['GPU', '12 TF RDNA 2'],
-			['HDMI', '2.1 · 4K 120']
+			['Storage', '2 TB NVMe SSD (custom)'],
+			['GPU', '12 TFLOPS RDNA 2 · 52 CUs @ 1.825 GHz'],
+			['Memory', '16 GB GDDR6'],
+			['Output', 'HDMI 2.1 · up to 4K 120 / 8K'],
+			['Disc drive', 'Ultra HD Blu-ray']
 		]
 	),
 	p(
@@ -970,12 +1067,15 @@ export const products: Product[] = [
 		'gaming-consoles',
 		89900,
 		'Windows handheld, properly cooled.',
-		'The most usable Windows handheld so far. 80 Wh battery, a proper ZenBook-class fan system, and Bazzite if you want to ditch Windows.',
+		"ASUS's upgraded 7-inch Windows handheld: double the RAM, double the storage, an 80 Wh battery, and improved thermals over the original Ally.",
 		[
-			['SoC', 'Ryzen Z1 Extreme'],
-			['Memory', '24 GB LPDDR5X'],
-			['Storage', '1 TB NVMe'],
-			['Battery', '80 Wh']
+			['SoC', 'AMD Ryzen Z1 Extreme (Zen 4, RDNA 3)'],
+			['Memory', '24 GB LPDDR5X-7500'],
+			['Storage', '1 TB PCIe 4.0 M.2 2280 NVMe'],
+			['Display', '7" FHD 120 Hz IPS VRR'],
+			['Battery', '80 Wh'],
+			['Ports', '2× USB4 (USB-C), microSD UHS-II'],
+			['Weight', '678 g']
 		]
 	),
 
@@ -985,29 +1085,33 @@ export const products: Product[] = [
 		'OLED G5 (65")',
 		'LG',
 		'tvs',
-		289900,
-		'Gallery OLED with four HDMI 2.1.',
-		'The reference OLED of the year. Four HDMI 2.1 ports for gamers, new MLA panel for higher peak brightness, and a wall-flush mount.',
+		329900,
+		'Gallery OLED, four HDMI 2.1.',
+		"LG's Gallery-series flagship OLED with the four-stack Primary RGB Tandem OLED panel (no MLA needed), ~4000 nits peak brightness, and a wall-flush mount included.",
 		[
-			['Panel', '65" W-OLED MLA'],
-			['Refresh', '165 Hz VRR'],
-			['HDR', 'Dolby Vision · HDR10+'],
-			['Ports', '4× HDMI 2.1']
+			['Panel', '65" Primary RGB Tandem OLED evo'],
+			['Peak brightness', '~4000 nits (HDR)'],
+			['Refresh', '165 Hz VRR (4K 165)'],
+			['HDR', 'Dolby Vision · HDR10 · HLG'],
+			['Ports', '4× HDMI 2.1, 3× USB'],
+			['Processor', 'α11 AI Gen 2']
 		]
 	),
 	p(
 		'sony-bravia-8-ii',
-		'BRAVIA 8 II QD-OLED (65")',
+		'BRAVIA 8 II (65")',
 		'Sony',
 		'tvs',
-		319900,
+		329900,
 		'Motion + accuracy in one.',
-		"Sony's QD-OLED flagship. The best motion processing on the market and factory calibration that clears Rec.709 inside a percent.",
+		"Sony's QD-OLED flagship with the XR Processor, class-leading motion handling, and factory calibration. Includes Professional mode for Sony Pictures Core.",
 		[
 			['Panel', '65" QD-OLED'],
-			['Processor', 'XR Cognitive'],
-			['HDR', 'Dolby Vision · HDR10'],
-			['Gaming', '4K 120, ALLM, VRR']
+			['Processor', 'XR Processor'],
+			['HDR', 'Dolby Vision · HDR10 · HLG'],
+			['Gaming', '4K 120 Hz (2× HDMI 2.1), ALLM, VRR'],
+			['Audio', 'Acoustic Surface Audio+'],
+			['Smart TV', 'Google TV']
 		]
 	),
 	p(
@@ -1017,11 +1121,14 @@ export const products: Product[] = [
 		'tvs',
 		159900,
 		'Value mini-LED that punches hard.',
-		'3000+ nits peak brightness, Google TV, and aggressive local dimming. Very little left on the table against TVs twice the price.',
+		'A 65-inch mini-LED QLED with 3000+ nits peak brightness, 165 Hz native refresh, and aggressive local dimming at a fraction of OLED prices. Google TV.',
 		[
-			['Panel', '65" mini-LED QLED'],
-			['Peak brightness', '3200 nits'],
-			['Refresh', '144 Hz']
+			['Panel', '65" mini-LED QLED (quantum dot)'],
+			['Peak brightness', '~3200 nits'],
+			['Local dimming', '2000+ zones'],
+			['Refresh', '165 Hz VRR'],
+			['Ports', '2× HDMI 2.1, 2× HDMI 2.0'],
+			['Smart TV', 'Google TV']
 		]
 	),
 
@@ -1033,11 +1140,14 @@ export const products: Product[] = [
 		'home-audio',
 		169900,
 		'Nine-channel AVR with Audyssey XT32.',
-		'A popular choice for first-time Atmos builds. Nine channels on board, room correction worth the price on its own, HDMI 2.1 throughout.',
+		'A 9.4-channel 8K AV receiver with Audyssey MultEQ XT32 room correction, IMAX Enhanced, and HDMI 2.1 passthrough on all main inputs.',
 		[
-			['Channels', '9.4'],
+			['Channels', '9.4 (11.4 processing)'],
+			['Power', '105 W/ch (8 Ω, 2ch driven)'],
 			['Room EQ', 'Audyssey MultEQ XT32'],
-			['HDMI', '7 in / 3 out · 2.1']
+			['HDMI', '7 in / 3 out · 8K 60 / 4K 120'],
+			['Formats', 'Dolby Atmos, DTS:X Pro, IMAX Enhanced, Auro-3D'],
+			['Streaming', 'HEOS, AirPlay 2, Spotify Connect, Tidal, Roon Tested']
 		]
 	),
 	p(
@@ -1047,11 +1157,13 @@ export const products: Product[] = [
 		'home-audio',
 		99900,
 		'Atmos soundbar, simplified setup.',
-		'A single long bar that carries proper Atmos channels and pairs with a Sonos Sub without ever touching an HDMI setting.',
+		"A 9.1.4 Dolby Atmos soundbar with Sonos's new Sound Motion woofer technology for deeper bass, HDMI eARC, and Trueplay tuning across iOS and Android.",
 		[
-			['Channels', '9.1.4'],
-			['Inputs', 'HDMI eARC, Wi-Fi, AirPlay 2'],
-			['Voice', 'Amazon Alexa']
+			['Channels', '9.1.4 Dolby Atmos'],
+			['Drivers', '14 (incl. 2 Sound Motion woofers)'],
+			['Inputs', 'HDMI eARC, Wi-Fi 6, Bluetooth 5.3, Ethernet'],
+			['Voice', 'Amazon Alexa, Sonos Voice'],
+			['Streaming', 'AirPlay 2, Spotify Connect, Tidal Connect']
 		]
 	),
 	p(
@@ -1061,11 +1173,13 @@ export const products: Product[] = [
 		'home-audio',
 		129900,
 		"A sub you won't hear but will feel.",
-		'A sealed 8" front-firing with a downward 10". Tight, musical, and the go-to recommendation for pairing with small bookshelves.',
+		'A sealed-box musical sub with an 8-inch FibreAlloy down-firing driver, high-level Neutrik Speakon input, and the tight, fast character REL is known for.',
 		[
-			['Drivers', '8" sealed + 10" passive'],
-			['Amp', '200 W Class A/B'],
-			['Inputs', 'High-level Neutrik, low-level RCA']
+			['Driver', '8" FibreAlloy down-firing (sealed)'],
+			['Amplifier', '200 W Class A/B'],
+			['Inputs', 'High-level Neutrik Speakon, low-level RCA, .1/LFE'],
+			['Frequency response', '30 Hz – 120 Hz (−6 dB)'],
+			['Finish', 'Piano black']
 		]
 	),
 
@@ -1075,29 +1189,33 @@ export const products: Product[] = [
 		'990 PRO 2 TB',
 		'Samsung',
 		'storage',
-		22900,
-		'Fast PCIe 4.0 internal.',
-		'The go-to PCIe 4.0 NVMe for a PS5 or high-end PC. Consistent sustained writes and a massive SLC cache.',
+		21900,
+		'Top-tier PCIe 4.0 NVMe.',
+		"Samsung's flagship PCIe 4.0 SSD with the Pascal controller and V7 V-NAND. PS5-ready, with optional heatsink variants for tight M.2 slots.",
 		[
-			['Interface', 'PCIe 4.0 x4'],
+			['Interface', 'PCIe 4.0 x4 · M.2 2280'],
 			['Capacity', '2 TB'],
-			['Read', '7450 MB/s'],
-			['Write', '6900 MB/s']
+			['Sequential read', '7450 MB/s'],
+			['Sequential write', '6900 MB/s'],
+			['Endurance', '1200 TBW'],
+			['Warranty', '5 years']
 		]
 	),
 	p(
 		'sandisk-extreme-pro-portable-4tb',
-		'Extreme PRO Portable SSD 4 TB',
+		'Extreme PRO Portable SSD V2 4 TB',
 		'SanDisk',
 		'storage',
 		42900,
-		'Pocket-sized NVMe on USB-C.',
-		'A 4 TB pro-grade portable with IP55. Comfortably handles 4K camera offloads in the field.',
+		'Pocket-sized NVMe over USB-C.',
+		'A 4 TB rugged portable SSD with USB 3.2 Gen 2×2 (20 Gbps) and IP65 dust/water resistance. A common pick for 4K camera offloads in the field.',
 		[
-			['Interface', 'USB-C 20 Gbps'],
+			['Interface', 'USB-C 3.2 Gen 2×2 (20 Gbps)'],
 			['Capacity', '4 TB'],
-			['Read', '2000 MB/s'],
-			['Water rating', 'IP55']
+			['Sequential read', '2000 MB/s'],
+			['Sequential write', '2000 MB/s'],
+			['Durability', 'IP65 · 2 m drop rated'],
+			['Warranty', '5 years']
 		]
 	),
 	p(
@@ -1107,42 +1225,48 @@ export const products: Product[] = [
 		'storage',
 		59900,
 		'A family NAS worth the install.',
-		'Four-bay NAS with SSD cache slots, DSM 7.2, and Synology Photos to get everyone off iCloud.',
+		'A 4-bay consumer/prosumer NAS with two M.2 NVMe cache slots, DSM 7.2, and the Synology Photos app to replace iCloud for the whole household.',
 		[
-			['Bays', '4'],
-			['RAM', '2 GB ECC (expandable)'],
-			['Network', '2× Gigabit'],
-			['Apps', 'DSM 7.2']
+			['Bays', '4 × 3.5"/2.5" SATA'],
+			['CPU', 'Intel Celeron J4125 (4-core)'],
+			['Memory', '2 GB DDR4 (expandable to 6 GB)'],
+			['Cache', '2× M.2 2280 NVMe'],
+			['Network', '2× Gigabit (link aggregation)'],
+			['OS', 'DSM 7.2']
 		]
 	),
 
 	// --- Networking ---
 	p(
 		'tp-link-be9300',
-		'Deco BE25 Pro (Wi-Fi 7)',
+		'Deco BE25 (Wi-Fi 7, 3-pack)',
 		'TP-Link',
 		'networking',
 		39900,
-		'Tri-band mesh that just works.',
-		'Wi-Fi 7 at a sane price. Three nodes cover a family home, with 2.5 GbE backhaul on each unit.',
+		'Tri-band Wi-Fi 7 mesh that just works.',
+		'A three-node tri-band Wi-Fi 7 mesh system with 2.5 GbE ports on every unit. Covers a typical 3-bedroom home with Multi-Link Operation for low-latency steering.',
 		[
-			['Bands', 'Tri-band Wi-Fi 7'],
+			['Standard', 'Wi-Fi 7 (BE9300 class)'],
+			['Bands', 'Tri-band (2.4 / 5 / 6 GHz)'],
 			['Ports', '2× 2.5 GbE per node'],
-			['Coverage', '~650 m² (3-pack)']
+			['Coverage', 'Up to ~650 m² (3-pack)'],
+			['Features', 'MLO, 4K-QAM, EasyMesh, HomeShield']
 		]
 	),
 	p(
 		'ubiquiti-udm-se',
-		'Dream Machine Special Edition',
+		'UniFi Dream Machine Special Edition',
 		'Ubiquiti',
 		'networking',
 		49900,
 		'The self-hosted network nerd pick.',
-		'Router, switch, PoE injector, NVR, and controller in one 1U box. Steep learning curve, enormous payoff.',
+		'An all-in-one 1U router, 8-port PoE switch, NVR, and UniFi controller. 3.5 Gbps IDS/IPS throughput and an SFP+ 10G uplink.',
 		[
-			['Routing', '3.5 Gbps IPS'],
-			['Ports', '8× 2.5 GbE + 10G SFP+'],
-			['Extras', 'PoE, NVR, UniFi controller']
+			['Routing', '3.5 Gbps IDS/IPS throughput'],
+			['Ports', '8× 2.5 GbE + SFP+ (10G) WAN/LAN + RJ45 WAN'],
+			['PoE', '8-port PoE+ (180 W total)'],
+			['Storage', '128 GB eMMC + 3.5" HDD bay for NVR'],
+			['Controller', 'UniFi Network built-in']
 		]
 	),
 	p(
@@ -1151,28 +1275,32 @@ export const products: Product[] = [
 		'GL.iNet',
 		'networking',
 		21900,
-		'OpenWrt router, travel-ready.',
-		'A prosumer router for the OpenWrt-curious. VPN-native, dual-2.5 GbE, and a clean web UI.',
+		'OpenWrt router, VPN-ready.',
+		'A prosumer dual-band Wi-Fi 6 router running customised OpenWrt with hardware-accelerated WireGuard and OpenVPN. Dual 2.5 GbE and four Gigabit ports.',
 		[
-			['Bands', 'Wi-Fi 6 dual-band'],
-			['Ports', '2× 2.5 GbE WAN/LAN + 4× Gigabit'],
-			['VPN', 'WireGuard, OpenVPN hardware-accelerated']
+			['Standard', 'Wi-Fi 6 dual-band (AX6000)'],
+			['Ports', '2× 2.5 GbE (WAN/LAN) + 4× Gigabit LAN'],
+			['CPU', 'MediaTek MT7986A (4-core @ 2.0 GHz)'],
+			['VPN', 'WireGuard (900 Mbps), OpenVPN (190 Mbps)'],
+			['Firmware', 'OpenWrt 21.02 based']
 		]
 	),
 
 	// --- Smart home ---
 	p(
 		'philips-hue-starter',
-		'Hue White & Color Starter',
+		'Hue White & Color Starter Kit (E27)',
 		'Philips',
 		'smart-home',
-		17900,
+		19900,
 		'The easy intro to smart lighting.',
-		'Four E27 bulbs, the Hue Bridge, and a dimmer. Works with Matter, HomeKit, Alexa, Google, the lot.',
+		'Three 1100 lm White & Color Ambiance E27 bulbs, the Hue Bridge, and a Smart Button. Works with Matter, Apple Home, Alexa, Google Home, and SmartThings.',
 		[
-			['Bulbs', '4× White & Color E27'],
-			['Hub', 'Hue Bridge'],
-			['Protocols', 'Zigbee 3.0 · Matter']
+			['Bulbs', '3× White & Color E27 (1100 lm)'],
+			['Hub', 'Hue Bridge 2.1'],
+			['Protocols', 'Zigbee 3.0, Bluetooth, Matter (via Bridge)'],
+			['Colors', '16 million · 2000–6500 K white'],
+			['Extras', 'Hue Smart Button included']
 		]
 	),
 	p(
@@ -1181,25 +1309,30 @@ export const products: Product[] = [
 		'Aqara',
 		'smart-home',
 		14900,
-		'Matter border router for your Zigbee kit.',
-		'A clean gateway between a mountain of Zigbee sensors and the Matter world. Supports HomeKit Secure Video too.',
+		'Matter + Thread + Zigbee in one box.',
+		'A hub that bridges a stack of Zigbee 3.0 sensors to Matter, acts as a Thread border router, and supports HomeKit Secure Video with Ethernet/Wi-Fi uplink.',
 		[
-			['Protocols', 'Zigbee 3.0 · Thread · Matter'],
-			['Video', 'HomeKit Secure Video compatible']
+			['Protocols', 'Zigbee 3.0 · Thread · Matter controller/bridge'],
+			['Connectivity', 'Ethernet + Wi-Fi 5'],
+			['Video', 'HomeKit Secure Video (HSV)'],
+			['IR', 'Built-in IR blaster'],
+			['Backup', 'Local automation engine']
 		]
 	),
 	p(
 		'nest-learning-thermostat-gen5',
-		'Nest Learning Thermostat (Gen 5)',
+		'Nest Learning Thermostat (4th gen)',
 		'Google',
 		'smart-home',
-		22900,
+		27900,
 		'The smart thermostat that learns.',
-		'A new curved OLED face, Matter support, and the same self-learning schedule that saved millions of homes a noticeable bill.',
+		"Google's redesigned Nest Learning Thermostat with a larger edge-to-edge display, Matter and Thread support, and an improved Farsight for room-level detection.",
 		[
-			['Display', '2.7" AMOLED'],
-			['Sensors', 'Humidity, proximity, occupancy'],
-			['Protocols', 'Matter, Thread']
+			['Display', '2.7" circular LCD (edge-to-edge)'],
+			['Sensors', 'Humidity, occupancy, proximity, ambient light'],
+			['Protocols', 'Matter over Wi-Fi + Thread, Bluetooth LE'],
+			['Companion', 'Nest Temperature Sensor included (EU)'],
+			['Compatibility', 'OpenTherm + 24 V HVAC']
 		]
 	),
 	p(
@@ -1209,11 +1342,14 @@ export const products: Product[] = [
 		'smart-home',
 		24900,
 		'16 MP dual-lens PoE camera.',
-		'A bright-sensor dual-lens PoE cam that stitches to a single ultra-wide feed. No cloud subscription required.',
+		'A PoE security camera with two sensors stitched into a 180° ultra-wide 16 MP feed. Person, vehicle and pet detection locally, microSD storage, no subscription.',
 		[
-			['Resolution', '16 MP (180° stitched)'],
-			['Power', 'PoE'],
-			['Storage', 'microSD up to 256 GB']
+			['Resolution', '16 MP (8 MP × 2) · 180° stitched'],
+			['Video', '4K @ 20 fps H.265'],
+			['Power', 'PoE (802.3af)'],
+			['Storage', 'microSD up to 512 GB, Reolink NVR'],
+			['Detection', 'Person / vehicle / pet (on-device AI)'],
+			['Weather rating', 'IP66']
 		]
 	)
 ];

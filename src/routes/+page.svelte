@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>TechnoMarket 2.0 — an AI-augmented electronics store</title>
+	<title>Joule — electronics, considered.</title>
 </svelte:head>
 
 <section class="relative">
@@ -13,24 +13,24 @@
 		<span
 			class="inline-flex items-center gap-2 rounded-full border border-accent px-3 py-1 kicker text-accent"
 		>
-			Two sprints · BDD-verified · grounded AI
+			New season · Free EU shipping
 		</span>
 		<h1 class="mt-6 font-serif text-5xl leading-[1] font-normal tracking-tight md:text-7xl">
-			Shopping as <em class="text-accent italic">conversation,</em><br />
-			not catalog lookup.
+			The right kit, <em class="text-accent italic">picked with care.</em><br />
+			Not just listed.
 		</h1>
 		<p
 			class="mt-6 max-w-2xl font-serif text-xl leading-snug font-light text-ink-soft italic md:text-2xl"
 		>
-			A dusty first-year catalog reborn as a modern, personalised, AI-augmented electronics store —
-			built to ask better questions than <em>"what's the cheapest?"</em>
+			Laptops, phones, audio, peripherals — chosen, photographed, and described properly. No fluff,
+			no astroturf, no lock-in.
 		</p>
 		<div class="mt-10 flex flex-wrap gap-3">
 			<a
 				href="/categories"
 				class="inline-flex items-center rounded-sm bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
 			>
-				Browse the catalog
+				Shop the catalog
 			</a>
 			<a
 				href="/search"
@@ -54,12 +54,12 @@
 				</dd>
 			</div>
 			<div>
-				<dt class="kicker text-ink-faint">Sprint</dt>
-				<dd class="mt-1 font-serif text-2xl font-medium">1 of 2</dd>
+				<dt class="kicker text-ink-faint">Brands</dt>
+				<dd class="mt-1 font-serif text-2xl font-medium">{data.brandCount}</dd>
 			</div>
 			<div>
-				<dt class="kicker text-ink-faint">Stack</dt>
-				<dd class="mt-1 font-serif text-2xl font-medium">SvelteKit · Supabase</dd>
+				<dt class="kicker text-ink-faint">Returns</dt>
+				<dd class="mt-1 font-serif text-2xl font-medium">30 days</dd>
 			</div>
 		</dl>
 	</div>

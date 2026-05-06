@@ -1,6 +1,6 @@
 {
-	"name": "technomarket",
-	"description": "TechnoMarket 2.0 — AI-augmented electronics store",
+	"name": "joule",
+	"description": "Joule — AI-augmented electronics store",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -20,11 +20,13 @@
 		"db:types": "supabase gen types typescript --local > src/lib/server/db/types.ts",
 		"db:reset": "supabase db reset",
 		"db:migrate": "supabase migration up",
-		"seed": "tsx scripts/seed.ts"
+		"seed": "tsx scripts/seed.ts",
+		"embed": "tsx scripts/embed-products.ts"
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.7.0",
-		"@supabase/supabase-js": "^2.47.10"
+		"@supabase/supabase-js": "^2.47.10",
+		"stripe": "^22.1.0"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.4",

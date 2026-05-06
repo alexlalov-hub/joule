@@ -1,27 +1,33 @@
-<svelte:head><title>About the research — TechnoMarket</title></svelte:head>
+<svelte:head><title>About — Joule</title></svelte:head>
 
 <section class="mx-auto max-w-3xl px-6 py-16 md:px-10 md:py-24">
 	<div class="kicker text-accent">About</div>
 	<h1 class="mt-2 font-serif text-5xl font-normal">
-		A site is an excuse. The <em class="text-accent italic">question</em> is the project.
+		Electronics, <em class="text-accent italic">considered.</em>
 	</h1>
 	<p class="mt-6 max-w-prose font-serif text-xl leading-snug text-ink-soft italic">
-		TechnoMarket 2.0 is a rebuild of a first-year ASP.NET catalog as a two-sprint applied-research
-		project — exploring whether a solo developer can ship a grounded, AI-augmented shopping
-		experience with the engineering discipline to keep the stochastic parts honest.
+		Joule is a small electronics shop for people who'd rather buy one good thing than wade through a
+		thousand mediocre ones.
 	</p>
 
 	<div class="mt-10 space-y-5 leading-relaxed text-ink">
 		<p>
-			The research lives across three experiments: grounded vs. ungrounded AI shopping; visible vs.
-			hidden recommendation reasoning; and BDD as a quality tool for stochastic systems.
+			We stock laptops, phones, headphones, and the odd accessory worth keeping on the desk. Every
+			product is picked by hand, photographed in our own studio, and written about by someone who
+			has actually used it.
 		</p>
 		<p>
-			The merge gate is a three-layer Gherkin suite. Layer 1 — commerce behaviours — must pass 100 %
-			of the time. Layer 2 — structural AI invariants (every spec claim traces to the catalog) —
-			must also pass 100 %. Layer 3 — content tolerance scenarios — pass if 8 of 10 runs succeed.
-			The tolerance is itself data.
+			No sponsored placements, no inflated star ratings, no astroturfed reviews. If we don't think a
+			product earns its price, we don't carry it.
 		</p>
-		<p>This site is the research vehicle. It is also an electronics store you can actually shop.</p>
+		<p>
+			Orders ship from within the EU. Returns are free for thirty days, no questions, no restocking
+			fee. If something arrives faulty we replace it the same week.
+		</p>
+		<p>
+			Questions about a product, a delivery, or anything else — write to
+			<a class="text-accent hover:underline" href="mailto:hello@joule.shop">hello@joule.shop</a>
+			and a real person will reply.
+		</p>
 	</div>
 </section>

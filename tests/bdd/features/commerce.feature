@@ -1,11 +1,10 @@
 Feature: Catalog browsing (commerce — layer 1)
 
   # These scenarios are deterministic. Flakiness here is a bug.
-  # Expanded in week 2 once cart + checkout + auth-backed flows land.
 
   Scenario: Home page renders the hero and featured products
     Given I visit the home page
-    Then I should see "Shopping as"
+    Then I should see "picked with care"
     And I should see at least 4 products in the featured grid
 
   Scenario: Browsing a category shows its products
@@ -28,3 +27,13 @@ Feature: Catalog browsing (commerce — layer 1)
     Given I search for "qwertyzzzxxx"
     Then the results count should be zero
     And I should see "No matches"
+
+  Scenario: Search results indicate which engine handled the query
+    Given I search for "laptop"
+    Then I should see the search mode indicator
+
+  Scenario: Reset filters link clears applied filters
+    Given I visit the laptops category with the price filter at 1500
+    Then I should see a reset filters link
+    When I click the reset filters link
+    Then I should not see a reset filters link
