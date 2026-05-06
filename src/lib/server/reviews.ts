@@ -55,13 +55,14 @@ export type ReviewsPage = {
 export async function listReviewsPage(
 	sb: SB | null,
 	productSlug: string,
-	options: { page?: number; pageSize?: number } = {}
+	options: { page?: number; pageSize?: number; productId?: string | null } = {}
 ): Promise<ReviewsPage> {
 	const pageSize = Math.max(1, Math.min(50, options.pageSize ?? REVIEW_PAGE_SIZE));
 	const requested = Math.max(1, Math.floor(options.page ?? 1));
 
 	if (!sb) return paginateSeed(seedReviews(productSlug), requested, pageSize);
-	const productId = await resolveProductId(sb, productSlug);
+	const productId =
+		options.productId !== undefined ? options.productId : await resolveProductId(sb, productSlug);
 	if (!productId) {
 		return paginateSeed(seedReviews(productSlug), requested, pageSize);
 	}
@@ -127,7 +128,11 @@ export async function listReviewsPage(
  * Summarize all reviews for a product. Pulls only `rating` and `aspect` so it
  * stays light even when a product has hundreds of reviews.
  */
-export async function summarizeProduct(sb: SB | null, productSlug: string): Promise<ReviewSummary> {
+export async function summarizeProduct(
+	sb: SB | null,
+	productSlug: string,
+	options: { productId?: string | null } = {}
+): Promise<ReviewSummary> {
 	const empty: ReviewSummary = {
 		count: 0,
 		average: null,
@@ -139,7 +144,8 @@ export async function summarizeProduct(sb: SB | null, productSlug: string): Prom
 		}
 	};
 	if (!sb) return summarizeSeed(productSlug);
-	const productId = await resolveProductId(sb, productSlug);
+	const productId =
+		options.productId !== undefined ? options.productId : await resolveProductId(sb, productSlug);
 	if (!productId) return summarizeSeed(productSlug);
 
 	const { data, error } = await sb
@@ -180,10 +186,12 @@ export async function summarizeProduct(sb: SB | null, productSlug: string): Prom
 export async function userHasReviewed(
 	sb: SB | null,
 	userId: string | null,
-	productSlug: string
+	productSlug: string,
+	options: { productId?: string | null } = {}
 ): Promise<boolean> {
 	if (!sb || !userId) return false;
-	const productId = await resolveProductId(sb, productSlug);
+	const productId =
+		options.productId !== undefined ? options.productId : await resolveProductId(sb, productSlug);
 	if (!productId) return false;
 	const { count } = await sb
 		.from('reviews')

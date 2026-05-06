@@ -34,8 +34,12 @@ const supabase: Handle = async ({ event, resolve }) => {
 	 * Authenticate via getUser() (which contacts the Supabase Auth server) rather
 	 * than reading the user off getSession()'s return value, which is unverified
 	 * and triggers the SSR warning.
+	 *
+	 * Short-circuit when no Supabase auth cookie is present on the request —
+	 * otherwise every anonymous page view costs a round-trip to Supabase Auth.
 	 */
 	event.locals.safeGetUser = async () => {
+		if (!hasSupabaseAuthCookie(event.cookies.getAll())) return null;
 		const {
 			data: { user },
 			error
@@ -56,3 +60,15 @@ const supabase: Handle = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(supabase);
+
+/**
+ * Supabase SSR sets cookies named `sb-<project-ref>-auth-token`. We can't pin
+ * the project ref because it varies per environment, so we look for the
+ * `sb-`...`-auth-token` shape. Anything else means the visitor is anonymous
+ * and we can skip the network round-trip to Supabase Auth.
+ */
+function hasSupabaseAuthCookie(cookies: Array<{ name: string; value: string }>): boolean {
+	return cookies.some(
+		(c) => c.name.startsWith('sb-') && c.name.includes('-auth-token') && c.value.length > 0
+	);
+}
