@@ -24,9 +24,14 @@ export function catalogTools(supabase: SB) {
 	return {
 		search_catalog: tool({
 			description:
-				'Search the Joule catalog by free-text query, optionally filtered by category slug or price range. Returns a small list of matching products with the fields needed to recommend them.',
+				'Browse or search the Joule catalog. Either or both of `query` and `category` should be provided. Use `category` alone to list everything in a department; add `query` only when the user gave product-shaped keywords (a brand, a model name, a clear feature like "noise-cancelling"). Avoid putting use-case phrases like "for the office" in `query` — they rarely match product copy. Returns matching products with the fields needed to recommend them.',
 			inputSchema: z.object({
-				query: z.string().min(1).describe('Free-text query — e.g. "lightweight laptop for travel"'),
+				query: z
+					.string()
+					.optional()
+					.describe(
+						'Optional free-text query — best with brand, model name, or a single feature keyword. Omit when browsing a category.'
+					),
 				category: z
 					.string()
 					.optional()
@@ -47,16 +52,37 @@ export function catalogTools(supabase: SB) {
 					.describe('Maximum number of results to return (1-10).')
 			}),
 			execute: async ({ query, category, max_price_eur, min_price_eur, limit }) => {
-				const filters: ProductFilters = {
-					query,
+				const baseFilters: ProductFilters = {
 					category,
 					sort: 'featured',
 					maxPrice: max_price_eur ? max_price_eur * 100 : undefined,
 					minPrice: min_price_eur ? min_price_eur * 100 : undefined
 				};
-				const products = await listProducts(supabase, filters);
+
+				const trimmedQuery = query?.trim();
+				let products = await listProducts(
+					supabase,
+					trimmedQuery ? { ...baseFilters, query: trimmedQuery } : baseFilters
+				);
+
+				let fallback_used = false;
+				// If the text-search came back empty but we have a category or price
+				// filter to fall back on, retry without the query so the model gets a
+				// useful list instead of an over-restrictive zero. The note in the
+				// payload tells it to broaden in the response.
+				if (products.length === 0 && trimmedQuery && (category || max_price_eur || min_price_eur)) {
+					products = await listProducts(supabase, baseFilters);
+					fallback_used = products.length > 0;
+				}
+
 				return {
 					count: products.length,
+					query: trimmedQuery ?? null,
+					category: category ?? null,
+					fallback_used,
+					note: fallback_used
+						? 'Text query returned no matches; results below are the broader category/price selection. Mention this in your reply if relevant.'
+						: undefined,
 					results: products.slice(0, limit).map(toToolProduct)
 				};
 			}
