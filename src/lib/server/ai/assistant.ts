@@ -1,4 +1,6 @@
 import { convertToModelMessages, stepCountIs, streamText, type UIMessage } from 'ai';
+import { createGateway } from '@ai-sdk/gateway';
+import { env } from '$env/dynamic/private';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { catalogTools } from './tools';
 
@@ -10,6 +12,16 @@ type SB = SupabaseClient<any, 'public', any> | null;
  * Override with the JOULE_ASSISTANT_MODEL env var for local experimentation.
  */
 const DEFAULT_MODEL = 'anthropic/claude-sonnet-4.5';
+
+/**
+ * Build a gateway provider with the API key explicitly threaded through. We
+ * read from $env/dynamic/private rather than relying on process.env, since
+ * SvelteKit dev doesn't always propagate unprefixed .env.local vars to
+ * process.env in time for the gateway library's lazy header construction.
+ */
+function getGateway() {
+	return createGateway({ apiKey: env.AI_GATEWAY_API_KEY });
+}
 
 const SYSTEM_PROMPT = `You are Joule's shopping assistant. Joule is a small, opinionated electronics store that sells laptops, phones, audio gear, and peripherals.
 
@@ -32,10 +44,11 @@ When the user asks for something Joule doesn't sell (e.g. cars, fridges), say so
  * wired up. Caller is responsible for shaping the response (toUIMessageStreamResponse).
  */
 export async function streamAssistant(opts: { messages: UIMessage[]; supabase: SB }) {
-	const model = process.env.JOULE_ASSISTANT_MODEL ?? DEFAULT_MODEL;
+	const modelId = env.JOULE_ASSISTANT_MODEL ?? DEFAULT_MODEL;
 	const modelMessages = await convertToModelMessages(opts.messages);
+	const gateway = getGateway();
 	return streamText({
-		model,
+		model: gateway(modelId),
 		system: SYSTEM_PROMPT,
 		messages: modelMessages,
 		tools: catalogTools(opts.supabase),
