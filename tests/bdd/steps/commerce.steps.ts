@@ -112,6 +112,29 @@ Then('I should see the search mode indicator', async ({ page }) => {
 	await expect(page.getByTestId('search-mode')).toBeVisible();
 });
 
+// ---------- assistant ----------
+
+Given('I visit the assistant page', async ({ page }) => {
+	await page.goto('/assistant');
+});
+
+Then('I should see the assistant input', async ({ page }) => {
+	await expect(page.getByTestId('assistant-input')).toBeVisible();
+});
+
+Then('I should see the assistant send button', async ({ page }) => {
+	await expect(page.getByTestId('assistant-send')).toBeVisible();
+});
+
+Then('I should see at least {int} assistant suggestions', async ({ page }, n: number) => {
+	const count = await page.getByTestId('assistant-suggestions').locator('button').count();
+	expect(count).toBeGreaterThanOrEqual(n);
+});
+
+Then('I should see an Ask Joule nav link', async ({ page }) => {
+	await expect(page.getByTestId('nav-assistant')).toBeVisible();
+});
+
 // ---------- catalog filters ----------
 
 Given(

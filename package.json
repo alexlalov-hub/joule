@@ -24,9 +24,12 @@
 		"embed": "tsx scripts/embed-products.ts"
 	},
 	"dependencies": {
+		"@ai-sdk/svelte": "^4.0.175",
 		"@supabase/ssr": "^0.7.0",
 		"@supabase/supabase-js": "^2.47.10",
-		"stripe": "^22.1.0"
+		"ai": "^6.0.175",
+		"stripe": "^22.1.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.4",
