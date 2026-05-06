@@ -127,6 +127,25 @@ Then('I should see the missing-products notice', async ({ page }) => {
 	await expect(page.getByTestId('compare-missing')).toBeVisible();
 });
 
+Then('the compare tray should not be visible', async ({ page }) => {
+	await expect(page.getByTestId('compare-tray')).toHaveCount(0);
+});
+
+When('I click the add-to-compare button', async ({ page }) => {
+	await page.getByTestId('compare-toggle').click();
+});
+
+Then('the compare tray should be visible', async ({ page }) => {
+	await expect(page.getByTestId('compare-tray')).toBeVisible();
+});
+
+Then(
+	'the compare tray should show {int} of {int}',
+	async ({ page }, current: number, max: number) => {
+		await expect(page.getByTestId('compare-tray-count')).toHaveText(`${current} / ${max}`);
+	}
+);
+
 // ---------- search ----------
 
 Then('I should see the search mode indicator', async ({ page }) => {

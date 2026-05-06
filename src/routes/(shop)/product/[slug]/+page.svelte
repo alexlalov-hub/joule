@@ -3,6 +3,7 @@
 	import ReviewsSection from '$lib/components/product/ReviewsSection.svelte';
 	import { formatPrice } from '$lib/catalog/types';
 	import { enhance } from '$app/forms';
+	import { compareStore } from '$lib/compare/store.svelte';
 
 	let { data, form } = $props();
 	let activeImage = $state(0);
@@ -12,6 +13,17 @@
 	const outOfStock = $derived(data.product.stockQty <= 0);
 	const ratingAvg = $derived(data.summary.average);
 	const reviewCount = $derived(data.summary.count);
+
+	const inCompare = $derived(compareStore.has(data.product.slug));
+
+	function toggleCompare() {
+		compareStore.toggle({
+			slug: data.product.slug,
+			name: data.product.name,
+			brand: data.product.brand,
+			priceCents: data.product.priceCents
+		});
+	}
 
 	function prev() {
 		activeImage = (activeImage - 1 + imageCount) % imageCount;
@@ -189,6 +201,17 @@
 						{/if}
 					</button>
 				</form>
+				<button
+					type="button"
+					onclick={toggleCompare}
+					data-testid="compare-toggle"
+					aria-pressed={inCompare}
+					class="inline-flex items-center rounded-sm border border-ink/30 px-6 py-3 text-sm font-medium text-ink-soft transition-colors hover:border-accent hover:text-accent {inCompare
+						? 'border-accent text-accent'
+						: ''}"
+				>
+					{inCompare ? '✓ In comparison' : '⇄ Add to compare'}
+				</button>
 			</div>
 			{#if form && !form.added && form.message}
 				<p class="mt-3 text-sm text-red-600" data-testid="add-to-cart-error">{form.message}</p>
