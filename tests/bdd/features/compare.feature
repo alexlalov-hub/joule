@@ -24,3 +24,9 @@ Feature: Product comparison (commerce — layer 1)
     When I click the add-to-compare button
     Then the compare tray should be visible
     And the compare tray should show 1 of 3
+
+  Scenario: Comparing across categories shows a notice and skips the verdict
+    Given I visit "/compare?slugs=macbook-air-m4-13,iphone-17-pro"
+    Then I should see the comparison grid
+    And I should see the cross-category notice
+    And I should not see the verdict panel

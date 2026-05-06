@@ -127,6 +127,14 @@ Then('I should see the missing-products notice', async ({ page }) => {
 	await expect(page.getByTestId('compare-missing')).toBeVisible();
 });
 
+Then('I should see the cross-category notice', async ({ page }) => {
+	await expect(page.getByTestId('compare-cross-category')).toBeVisible();
+});
+
+Then('I should not see the verdict panel', async ({ page }) => {
+	await expect(page.getByTestId('compare-verdict')).toHaveCount(0);
+});
+
 Then('the compare tray should not be visible', async ({ page }) => {
 	await expect(page.getByTestId('compare-tray')).toHaveCount(0);
 });

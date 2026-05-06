@@ -38,13 +38,20 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}
 
 	const rows = buildSpecRows(products);
+	const categories = Array.from(new Set(products.map((p) => p.categorySlug)));
+	const crossCategory = categories.length > 1;
 
 	return {
 		products,
 		requested,
 		missing,
 		rows,
-		canStreamVerdict: products.length >= MIN_SLUGS
+		categories,
+		crossCategory,
+		// Skip the AI verdict on cross-category compares — there's no useful
+		// "winner" between, say, a phone and a laptop, and forcing the model
+		// to write one tends to produce strained use-case framing.
+		canStreamVerdict: products.length >= MIN_SLUGS && !crossCategory
 	};
 };
 

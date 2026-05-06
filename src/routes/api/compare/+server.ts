@@ -32,6 +32,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		throw error(404, 'One or more products were not found');
 	}
 
+	const distinctCategories = new Set(products.map((p) => p.categorySlug));
+	if (distinctCategories.size > 1) {
+		throw error(
+			422,
+			'Cross-category comparison is not supported — these products serve different needs.'
+		);
+	}
+
 	const result = streamComparison(products);
 	return result.toTextStreamResponse();
 };

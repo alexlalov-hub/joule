@@ -101,6 +101,17 @@
 		</p>
 	{/if}
 
+	{#if data.crossCategory}
+		<p
+			class="mt-4 max-w-prose rounded-sm border border-accent/30 bg-paper-warm p-4 text-sm text-ink"
+			data-testid="compare-cross-category"
+		>
+			You're comparing products from different departments ({data.categories.join(', ')}). They
+			don't really compete — they complement each other. The spec table is below for reference, but
+			a "which one" verdict wouldn't be useful here.
+		</p>
+	{/if}
+
 	{#if data.products.length === 0}
 		<p class="mt-6 max-w-prose text-ink-soft">
 			Open this page with up to three product slugs in the URL — for example,
@@ -203,7 +214,7 @@
 					</p>
 				{/if}
 			</section>
-		{:else}
+		{:else if !data.crossCategory}
 			<p class="mt-8 text-sm text-ink-soft">
 				Add at least one more product to get a written comparison.
 			</p>
