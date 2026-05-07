@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { listWishlist } from '$lib/server/wishlist';
+import { recommendForUser } from '$lib/server/recommendations';
 
 type OrderRow = {
 	id: string;
@@ -15,9 +16,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
 
 	const sb = locals.supabase;
-	if (!sb) return { user: locals.user, orders: [], wishlist: [] };
+	if (!sb) {
+		return { user: locals.user, orders: [], wishlist: [], recommendations: [] };
+	}
 
-	const [ordersResult, wishlist] = await Promise.all([
+	const [ordersResult, wishlist, recommendations] = await Promise.all([
 		sb
 			.from('orders')
 			.select(
@@ -26,10 +29,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			.eq('user_id', locals.user.id)
 			.order('created_at', { ascending: false })
 			.limit(20),
-		listWishlist(sb, locals.user.id)
+		listWishlist(sb, locals.user.id),
+		recommendForUser(sb, locals.user.id)
 	]);
 
 	const orders = (ordersResult.data as unknown as OrderRow[] | null) ?? [];
 
-	return { user: locals.user, orders, wishlist };
+	return { user: locals.user, orders, wishlist, recommendations };
 };
