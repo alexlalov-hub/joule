@@ -21,7 +21,8 @@
 		"db:reset": "supabase db reset",
 		"db:migrate": "supabase migration up",
 		"seed": "tsx scripts/seed.ts",
-		"embed": "tsx scripts/embed-products.ts"
+		"embed": "tsx scripts/embed-products.ts",
+		"experiment:a": "tsx scripts/experiment-a.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/svelte": "^4.0.175",
