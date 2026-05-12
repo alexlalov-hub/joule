@@ -64,7 +64,17 @@ const CATALOG_INDEX: Array<{
 
 const SLUG_RE = /\[([a-z0-9][a-z0-9-]{1,80})\]/gi;
 
+/**
+ * Mixed-intent prompt set. Groups (in order):
+ *  - Direct recommendation by category (laptops, phones, audio, tablets, etc.)
+ *  - Quality-dimension queries that previously tripped up the grounded variant
+ *    (camera, battery, ergonomics, color accuracy)
+ *  - Comparisons (two specific products or families)
+ *  - Gift / use-case prompts
+ *  - Edge cases — products Joule may not stock + an out-of-scope refusal test
+ */
 const PROMPTS = [
+	// Original 8 — kept so run-to-run is comparable.
 	'Recommend a thin laptop under €1500 for travel.',
 	'I need wired headphones for an open-plan office.',
 	'What is the best phone for camera quality you sell?',
@@ -72,7 +82,36 @@ const PROMPTS = [
 	'Compare a small Mac desktop with a small Windows mini PC.',
 	'Show me a noise-cancelling pair of headphones from Sony.',
 	'Pick a tablet for an architect who sketches and reads PDFs.',
-	'I want a smartwatch that lasts more than three days on one charge.'
+	'I want a smartwatch that lasts more than three days on one charge.',
+
+	// Peripherals + ergonomics.
+	"What's a good 4K monitor for color-accurate photo editing?",
+	'Pick a mechanical keyboard for a writer who wants a quiet, low-profile feel.',
+	'I get wrist pain — recommend an ergonomic mouse.',
+
+	// Gaming + entertainment.
+	'I want a gaming setup under €1000 that plays current games at 1440p — laptop or console, whichever fits.',
+	'I want a TV under €2000 for a dark living room used for movies and PS5 gaming.',
+
+	// Direct comparisons.
+	'Compare the iPhone 17 Pro with the Google Pixel 10 Pro.',
+	'Compare two of your most premium laptops.',
+
+	// Budget + value framing.
+	"What's the cheapest decent laptop you carry?",
+	'Show me a portable Bluetooth speaker for picnics under €200.',
+
+	// Niche / use-case.
+	'Show me an action camera I can take diving.',
+	'Pick a smart-home starter set for someone new to it.',
+	'I need fast portable storage for a 4K video editor working on location.',
+	'What networking gear should I buy for a 3-bedroom flat with gigabit internet?',
+	'Recommend a smartwatch focused on health metrics rather than fitness tracking.',
+	"What's a good drone for travel videos?",
+
+	// Off-scope refusal test — should not produce product mentions either way
+	// from the grounded variant; ungrounded will happily wander.
+	'Help me pick a fridge for my new flat.'
 ];
 
 // Use the production system prompt verbatim so the experiment measures what
