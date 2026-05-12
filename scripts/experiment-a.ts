@@ -27,7 +27,7 @@ import path from 'node:path';
 import { generateText, stepCountIs } from 'ai';
 import { createGateway } from '@ai-sdk/gateway';
 import { products as seedProducts, categories as seedCategories } from '../src/lib/catalog/data';
-import { SYSTEM_PROMPT as PRODUCTION_SYSTEM } from '../src/lib/server/ai/assistant';
+import { SYSTEM_PROMPT as PRODUCTION_SYSTEM } from '../src/lib/server/ai/prompts';
 import { z } from 'zod';
 
 loadEnv({ path: '.env.local' });
