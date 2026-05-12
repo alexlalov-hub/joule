@@ -14,7 +14,13 @@
 
 		<nav class="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
 			<a href="/categories" class="transition-colors hover:text-accent">Categories</a>
-			<a href="/search" class="transition-colors hover:text-accent">Search</a>
+			<a
+				href="/assistant"
+				class="inline-flex items-center gap-1.5 transition-colors hover:text-accent"
+				data-testid="nav-assistant"
+			>
+				<span class="text-accent">✨</span> Ask Joule
+			</a>
 			<a href="/category/laptops" class="transition-colors hover:text-accent">Laptops</a>
 			<a href="/category/headphones" class="transition-colors hover:text-accent">Audio</a>
 			<a href="/category/smartphones" class="transition-colors hover:text-accent">Phones</a>

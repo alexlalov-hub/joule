@@ -1,9 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 
+// Layer 2 scenarios (tagged @ai) hit live model endpoints and require an
+// AI_GATEWAY_API_KEY. Skip them when the key isn't configured — CI without
+// a gateway key simply won't run them, while local dev with the key will.
+const aiAvailable = Boolean(process.env.AI_GATEWAY_API_KEY);
+const tagsExpression = aiAvailable ? undefined : 'not @ai';
+
 const testDir = defineBddConfig({
 	features: 'tests/bdd/features/**/*.feature',
-	steps: 'tests/bdd/steps/*.ts'
+	steps: 'tests/bdd/steps/*.ts',
+	tags: tagsExpression
 });
 
 export default defineConfig({

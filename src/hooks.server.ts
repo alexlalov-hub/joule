@@ -11,8 +11,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 	if (!url || !publishable) {
 		// Running without Supabase creds — degrade to anonymous, no session.
 		event.locals.supabase = null as never;
-		event.locals.safeGetSession = async () => ({ session: null, user: null });
-		event.locals.session = null;
+		event.locals.safeGetUser = async () => null;
 		event.locals.user = null;
 		return resolve(event, {
 			filterSerializedResponseHeaders: (name) =>
@@ -31,24 +30,25 @@ const supabase: Handle = async ({ event, resolve }) => {
 		}
 	});
 
-	event.locals.safeGetSession = async () => {
-		const {
-			data: { session }
-		} = await event.locals.supabase.auth.getSession();
-		if (!session) return { session: null, user: null };
-
+	/**
+	 * Authenticate via getUser() (which contacts the Supabase Auth server) rather
+	 * than reading the user off getSession()'s return value, which is unverified
+	 * and triggers the SSR warning.
+	 *
+	 * Short-circuit when no Supabase auth cookie is present on the request —
+	 * otherwise every anonymous page view costs a round-trip to Supabase Auth.
+	 */
+	event.locals.safeGetUser = async () => {
+		if (!hasSupabaseAuthCookie(event.cookies.getAll())) return null;
 		const {
 			data: { user },
 			error
 		} = await event.locals.supabase.auth.getUser();
-		if (error) return { session: null, user: null };
-
-		return { session, user };
+		if (error) return null;
+		return user;
 	};
 
-	const { session, user } = await event.locals.safeGetSession();
-	event.locals.session = session;
-	event.locals.user = user;
+	event.locals.user = await event.locals.safeGetUser();
 
 	// Silence unused in case private env isn't used here yet
 	void privateEnv;
@@ -60,3 +60,15 @@ const supabase: Handle = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(supabase);
+
+/**
+ * Supabase SSR sets cookies named `sb-<project-ref>-auth-token`. We can't pin
+ * the project ref because it varies per environment, so we look for the
+ * `sb-`...`-auth-token` shape. Anything else means the visitor is anonymous
+ * and we can skip the network round-trip to Supabase Auth.
+ */
+function hasSupabaseAuthCookie(cookies: Array<{ name: string; value: string }>): boolean {
+	return cookies.some(
+		(c) => c.name.startsWith('sb-') && c.name.includes('-auth-token') && c.value.length > 0
+	);
+}

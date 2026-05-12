@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '$lib/server/db/types';
+import { memo } from '$lib/cache';
 import {
 	categories as seedCategories,
 	products as seedProducts,
@@ -8,6 +9,24 @@ import {
 	findProduct as seedFindProduct
 } from './data';
 import type { Category, Product, ProductImage, ProductSpec } from './types';
+
+/**
+ * TTL for cached catalog reads. Catalog data changes via the seed/admin
+ * scripts, not in normal traffic, so a minute of staleness is invisible to
+ * the user but eliminates the bulk of repeat round-trips.
+ */
+const CATALOG_TTL = 60;
+
+function filterKey(f: ProductFilters): string {
+	return [
+		f.category ?? '',
+		f.brand ?? '',
+		f.query ?? '',
+		f.minPrice ?? '',
+		f.maxPrice ?? '',
+		f.sort ?? ''
+	].join('|');
+}
 
 type SB = SupabaseClient<Database> | null;
 
@@ -110,54 +129,61 @@ function sortSeed(list: Product[], sort: ProductFilters['sort']): Product[] {
 
 export async function listCategories(supabase: SB): Promise<Category[]> {
 	if (!supabase) return seedCategories;
-	const { data, error } = await supabase
-		.from('categories')
-		.select('slug, name, blurb')
-		.order('sort_order', { ascending: true });
-	if (error || !data) return seedCategories;
-	return data.map(toCategory);
+	return memo('catalog:categories', CATALOG_TTL, async () => {
+		const { data, error } = await supabase
+			.from('categories')
+			.select('slug, name, blurb')
+			.order('sort_order', { ascending: true });
+		if (error || !data) return seedCategories;
+		return data.map(toCategory);
+	});
 }
 
 export async function listProducts(supabase: SB, filters: ProductFilters = {}): Promise<Product[]> {
 	if (!supabase) return applyFilters(seedProducts, filters);
 
-	let qb = supabase.from('products').select(PRODUCT_SELECT);
+	const cacheKey = `catalog:products:${filterKey(filters)}`;
+	return memo(cacheKey, CATALOG_TTL, async () => {
+		let qb = supabase.from('products').select(PRODUCT_SELECT);
 
-	if (filters.category) qb = qb.eq('categories.slug', filters.category);
-	if (typeof filters.minPrice === 'number') qb = qb.gte('price_cents', filters.minPrice);
-	if (typeof filters.maxPrice === 'number') qb = qb.lte('price_cents', filters.maxPrice);
-	if (filters.brand) qb = qb.ilike('brand', filters.brand);
-	if (filters.query) qb = qb.textSearch('search_tsv', filters.query, { type: 'websearch' });
+		if (filters.category) qb = qb.eq('categories.slug', filters.category);
+		if (typeof filters.minPrice === 'number') qb = qb.gte('price_cents', filters.minPrice);
+		if (typeof filters.maxPrice === 'number') qb = qb.lte('price_cents', filters.maxPrice);
+		if (filters.brand) qb = qb.ilike('brand', filters.brand);
+		if (filters.query) qb = qb.textSearch('search_tsv', filters.query, { type: 'websearch' });
 
-	switch (filters.sort) {
-		case 'price_asc':
-			qb = qb.order('price_cents', { ascending: true });
-			break;
-		case 'price_desc':
-			qb = qb.order('price_cents', { ascending: false });
-			break;
-		case 'name':
-			qb = qb.order('name', { ascending: true });
-			break;
-		case 'featured':
-		default:
-			qb = qb.order('featured', { ascending: false }).order('name', { ascending: true });
-	}
+		switch (filters.sort) {
+			case 'price_asc':
+				qb = qb.order('price_cents', { ascending: true });
+				break;
+			case 'price_desc':
+				qb = qb.order('price_cents', { ascending: false });
+				break;
+			case 'name':
+				qb = qb.order('name', { ascending: true });
+				break;
+			case 'featured':
+			default:
+				qb = qb.order('featured', { ascending: false }).order('name', { ascending: true });
+		}
 
-	const { data, error } = await qb;
-	if (error || !data) return applyFilters(seedProducts, filters);
-	return (data as unknown as DbProductRow[]).map(toProduct);
+		const { data, error } = await qb;
+		if (error || !data) return applyFilters(seedProducts, filters);
+		return (data as unknown as DbProductRow[]).map(toProduct);
+	});
 }
 
 export async function listFeatured(supabase: SB, limit = 6): Promise<Product[]> {
 	if (!supabase) return seedProducts.filter((p) => p.featured).slice(0, limit);
-	const { data, error } = await supabase
-		.from('products')
-		.select(PRODUCT_SELECT)
-		.eq('featured', true)
-		.limit(limit);
-	if (error || !data) return seedProducts.filter((p) => p.featured).slice(0, limit);
-	return (data as unknown as DbProductRow[]).map(toProduct);
+	return memo(`catalog:featured:${limit}`, CATALOG_TTL, async () => {
+		const { data, error } = await supabase
+			.from('products')
+			.select(PRODUCT_SELECT)
+			.eq('featured', true)
+			.limit(limit);
+		if (error || !data) return seedProducts.filter((p) => p.featured).slice(0, limit);
+		return (data as unknown as DbProductRow[]).map(toProduct);
+	});
 }
 
 export async function listByCategory(supabase: SB, slug: string): Promise<Product[]> {
@@ -167,24 +193,50 @@ export async function listByCategory(supabase: SB, slug: string): Promise<Produc
 
 export async function getProduct(supabase: SB, slug: string): Promise<Product | null> {
 	if (!supabase) return seedFindProduct(slug) ?? null;
-	const { data, error } = await supabase
-		.from('products')
-		.select(PRODUCT_SELECT)
-		.eq('slug', slug)
-		.maybeSingle();
-	if (error || !data) return seedFindProduct(slug) ?? null;
-	return toProduct(data as unknown as DbProductRow);
+	return memo(`catalog:product:${slug}`, CATALOG_TTL, async () => {
+		const { data, error } = await supabase
+			.from('products')
+			.select(PRODUCT_SELECT)
+			.eq('slug', slug)
+			.maybeSingle();
+		if (error || !data) return seedFindProduct(slug) ?? null;
+		return toProduct(data as unknown as DbProductRow);
+	});
+}
+
+/**
+ * Like getProduct but also returns the database id, which downstream queries
+ * (reviews summary, review pagination) need to filter without re-resolving
+ * the slug each time.
+ */
+export async function getProductWithId(
+	supabase: SB,
+	slug: string
+): Promise<{ id: string | null; product: Product | null }> {
+	if (!supabase) return { id: null, product: seedFindProduct(slug) ?? null };
+	return memo(`catalog:product-id:${slug}`, CATALOG_TTL, async () => {
+		const { data, error } = await supabase
+			.from('products')
+			.select(`id, ${PRODUCT_SELECT}`)
+			.eq('slug', slug)
+			.maybeSingle();
+		if (error || !data) return { id: null, product: seedFindProduct(slug) ?? null };
+		const row = data as unknown as DbProductRow & { id: string };
+		return { id: row.id, product: toProduct(row) };
+	});
 }
 
 export async function getCategory(supabase: SB, slug: string): Promise<Category | null> {
 	if (!supabase) return seedFindCategory(slug) ?? null;
-	const { data, error } = await supabase
-		.from('categories')
-		.select('slug, name, blurb')
-		.eq('slug', slug)
-		.maybeSingle();
-	if (error || !data) return seedFindCategory(slug) ?? null;
-	return toCategory(data);
+	return memo(`catalog:category:${slug}`, CATALOG_TTL, async () => {
+		const { data, error } = await supabase
+			.from('categories')
+			.select('slug, name, blurb')
+			.eq('slug', slug)
+			.maybeSingle();
+		if (error || !data) return seedFindCategory(slug) ?? null;
+		return toCategory(data);
+	});
 }
 
 export async function listBrands(supabase: SB, category?: string): Promise<string[]> {
@@ -192,11 +244,13 @@ export async function listBrands(supabase: SB, category?: string): Promise<strin
 		const scope = category ? seedProducts.filter((p) => p.categorySlug === category) : seedProducts;
 		return Array.from(new Set(scope.map((p) => p.brand))).sort();
 	}
-	let qb = supabase.from('products').select('brand, categories!inner(slug)');
-	if (category) qb = qb.eq('categories.slug', category);
-	const { data, error } = await qb;
-	if (error || !data) return [];
-	return Array.from(new Set(data.map((r) => (r as { brand: string }).brand))).sort();
+	return memo(`catalog:brands:${category ?? ''}`, CATALOG_TTL, async () => {
+		let qb = supabase.from('products').select('brand, categories!inner(slug)');
+		if (category) qb = qb.eq('categories.slug', category);
+		const { data, error } = await qb;
+		if (error || !data) return [];
+		return Array.from(new Set(data.map((r) => (r as { brand: string }).brand))).sort();
+	});
 }
 
 /**

@@ -106,10 +106,81 @@ Then('I should not see a cart count badge', async ({ page }) => {
 	await expect(page.getByTestId('cart-count')).toHaveCount(0);
 });
 
+// ---------- generic ----------
+
+Given('I visit {string}', async ({ page }, path: string) => {
+	await page.goto(path);
+});
+
+// ---------- compare ----------
+
+Then('I should see the comparison grid', async ({ page }) => {
+	await expect(page.getByTestId('compare-grid')).toBeVisible();
+});
+
+Then('the comparison should list {int} products', async ({ page }, n: number) => {
+	const count = await page.getByTestId('compare-product-name').count();
+	expect(count).toBe(n);
+});
+
+Then('I should see the missing-products notice', async ({ page }) => {
+	await expect(page.getByTestId('compare-missing')).toBeVisible();
+});
+
+Then('I should see the cross-category notice', async ({ page }) => {
+	await expect(page.getByTestId('compare-cross-category')).toBeVisible();
+});
+
+Then('I should not see the verdict panel', async ({ page }) => {
+	await expect(page.getByTestId('compare-verdict')).toHaveCount(0);
+});
+
+Then('the compare tray should not be visible', async ({ page }) => {
+	await expect(page.getByTestId('compare-tray')).toHaveCount(0);
+});
+
+When('I click the add-to-compare button', async ({ page }) => {
+	await page.getByTestId('compare-toggle').click();
+});
+
+Then('the compare tray should be visible', async ({ page }) => {
+	await expect(page.getByTestId('compare-tray')).toBeVisible();
+});
+
+Then(
+	'the compare tray should show {int} of {int}',
+	async ({ page }, current: number, max: number) => {
+		await expect(page.getByTestId('compare-tray-count')).toHaveText(`${current} / ${max}`);
+	}
+);
+
 // ---------- search ----------
 
 Then('I should see the search mode indicator', async ({ page }) => {
 	await expect(page.getByTestId('search-mode')).toBeVisible();
+});
+
+// ---------- assistant ----------
+
+Given('I visit the assistant page', async ({ page }) => {
+	await page.goto('/assistant');
+});
+
+Then('I should see the assistant input', async ({ page }) => {
+	await expect(page.getByTestId('assistant-input')).toBeVisible();
+});
+
+Then('I should see the assistant send button', async ({ page }) => {
+	await expect(page.getByTestId('assistant-send')).toBeVisible();
+});
+
+Then('I should see at least {int} assistant suggestions', async ({ page }, n: number) => {
+	const count = await page.getByTestId('assistant-suggestions').locator('button').count();
+	expect(count).toBeGreaterThanOrEqual(n);
+});
+
+Then('I should see an Ask Joule nav link', async ({ page }) => {
+	await expect(page.getByTestId('nav-assistant')).toBeVisible();
 });
 
 // ---------- catalog filters ----------
@@ -163,4 +234,28 @@ Then('the product rating should link to the reviews section', async ({ page }) =
 	const exists = (await rating.count()) > 0;
 	if (!exists) return;
 	await expect(rating).toHaveAttribute('href', '#reviews');
+});
+
+// ---------- review intelligence ----------
+
+Then('the review-intelligence panel should be visible', async ({ page }) => {
+	await expect(page.getByTestId('review-intelligence')).toBeVisible();
+});
+
+Then('the review-intelligence summary should be collapsed', async ({ page }) => {
+	await expect(page.getByTestId('review-intelligence-output')).toHaveCount(0);
+	await expect(page.getByTestId('review-intelligence-toggle')).toHaveAttribute(
+		'aria-expanded',
+		'false'
+	);
+});
+
+Then('each review item should expose its review number', async ({ page }) => {
+	const items = page.getByTestId('review-item');
+	const count = await items.count();
+	expect(count).toBeGreaterThan(0);
+	for (let i = 0; i < count; i++) {
+		const attr = await items.nth(i).getAttribute('data-review-number');
+		expect(attr).toMatch(/^\d+$/);
+	}
 });

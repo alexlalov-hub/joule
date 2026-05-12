@@ -2,6 +2,7 @@
 	import '../app.css';
 	import Header from '$lib/components/site/Header.svelte';
 	import Footer from '$lib/components/site/Footer.svelte';
+	import CompareTray from '$lib/components/compare/CompareTray.svelte';
 
 	let { data, children } = $props();
 </script>
@@ -13,3 +14,5 @@
 	</main>
 	<Footer />
 </div>
+
+<CompareTray />

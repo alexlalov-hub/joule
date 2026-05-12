@@ -104,8 +104,12 @@
 
 	<div class="grid gap-10 lg:grid-cols-[1fr_360px]">
 		<ul class="space-y-6" data-testid="review-list">
-			{#each reviews as r (r.id)}
-				<li class="border-b border-ink/10 pb-6 last:border-b-0" data-testid="review-item">
+			{#each reviews as r, i (r.id)}
+				<li
+					class="border-b border-ink/10 pb-6 transition-shadow last:border-b-0"
+					data-testid="review-item"
+					data-review-number={(page - 1) * pageSize + i + 1}
+				>
 					<div class="flex items-baseline justify-between gap-3">
 						<div class="font-medium" data-testid="review-author">{r.authorName}</div>
 						<div class="font-mono text-xs text-ink-faint">{fmtDate(r.createdAt)}</div>

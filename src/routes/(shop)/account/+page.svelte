@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/catalog/types';
+	import { reasonText } from '$lib/recommendations/types';
 
 	let { data } = $props();
 
@@ -89,6 +90,58 @@
 			</ul>
 		{/if}
 	</section>
+
+	{#if data.recommendations.length > 0}
+		<section class="mt-14" data-testid="recommendations">
+			<div class="mb-4 flex items-baseline justify-between">
+				<h2 class="font-serif text-2xl font-normal">Picked for you</h2>
+				<span class="font-mono text-xs tracking-widest text-ink-faint uppercase">
+					{data.recommendations.length} ideas
+				</span>
+			</div>
+			<p class="mb-5 max-w-prose text-sm text-ink-soft">
+				Based on what you've bought and saved. Every suggestion shows the exact reason — no opaque
+				"you might also like" here.
+			</p>
+			<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{#each data.recommendations as rec (rec.product.slug)}
+					<li
+						class="rounded-sm border border-ink/10 bg-paper-warm p-3"
+						data-testid="recommendation"
+					>
+						<a href="/product/{rec.product.slug}" class="block">
+							<div class="aspect-[4/3] overflow-hidden rounded-sm bg-paper">
+								{#if rec.product.images[0]}
+									<img
+										src={rec.product.images[0].url}
+										alt={rec.product.images[0].alt}
+										class="h-full w-full object-cover"
+										loading="lazy"
+									/>
+								{/if}
+							</div>
+							<div class="mt-3 kicker text-ink-faint">{rec.product.brand}</div>
+							<div class="mt-1 font-serif text-base leading-snug">{rec.product.name}</div>
+							<div class="mt-2 font-mono text-sm">{formatPrice(rec.product.priceCents)}</div>
+						</a>
+						<p
+							class="mt-3 border-t border-ink/10 pt-3 text-xs leading-snug text-ink-soft"
+							data-testid="recommendation-reason"
+						>
+							<span class="text-accent">↳</span>
+							{reasonText(rec.reason)}
+							<a
+								href="/product/{rec.reason.anchorSlug}"
+								class="ml-1 font-mono text-[11px] text-ink-faint hover:text-accent"
+							>
+								[{rec.reason.anchorSlug}]
+							</a>
+						</p>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 
 	<section class="mt-14">
 		<div class="mb-4 flex items-baseline justify-between">
