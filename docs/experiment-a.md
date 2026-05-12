@@ -1,20 +1,30 @@
 # Experiment A — Grounded vs Ungrounded Shopping Responses
 
-Run at 2026-05-07T09:15:40.566Z against `openai/gpt-4.1-mini`.
+Run at 2026-05-12T09:12:23.870Z against `openai/gpt-4.1-mini`.
 Catalog oracle: 73 product slugs from the seed.
 
 ## Method
 
 8 shopping prompts run twice each: once with the production system prompt and the three catalog tools (GROUNDED), once with no system prompt and no tools (UNGROUNDED). Both variants use the same model and temperature.
 
-For each response we extract every `[slug]` citation, then label each citation as REAL (in the catalog) or FAKE (not in the catalog — a hallucinated product slug).
+For each response we measure two things:
 
-## Aggregate
+1. **`[slug]` citations** — products explicitly cited with our slug convention. Real (in the seed) vs fake (hallucinated). This only catches grounded misbehaviour because the ungrounded model has no system prompt teaching it the slug format.
+2. **Prose product mentions** — bold/heading/list-item product names extracted from the body text. For each one we classify it as **real** (catalog brand + matching model), **wrong model** (catalog brand but a model Joule doesn't stock), or **wrong brand** (a brand Joule doesn't carry at all). This is the metric that catches the ungrounded variant recommending products the store doesn't sell.
+
+## Aggregate — slug citations
 
 | Variant    | Total slug citations | Real | Fake | Hallucination rate |
 | ---------- | -------------------: | ---: | ---: | -----------------: |
-| Grounded   |                   11 |   11 |    0 |               0.0% |
+| Grounded   |                   12 |   12 |    0 |               0.0% |
 | Ungrounded |                    0 |    0 |    0 |               0.0% |
+
+## Aggregate — prose product mentions
+
+| Variant    | Total mentions | Real (Joule) | Wrong model | Wrong brand | Not-Joule rate |
+| ---------- | -------------: | -----------: | ----------: | ----------: | -------------: |
+| Grounded   |              9 |            3 |           0 |           6 |          66.7% |
+| Ungrounded |             96 |           17 |           6 |          73 |          82.3% |
 
 ## Per-prompt
 
@@ -24,10 +34,14 @@ For each response we extract every `[slug]` citation, then label each citation a
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Dell XPS 13 (9310) ✓ (`xps-13-plus`) · Display **✗ wrong brand** · Processor **✗ wrong brand** · Storage **✗ wrong brand** · Weight **✗ wrong brand** · Battery Life **✗ wrong brand** · ASUS ZenBook 14 **✗ wrong model** · HP Envy 13 **✗ wrong brand** · Lenovo ThinkPad X1 Carbon Gen 9 (Refurbished or Base Model) ✓ (`thinkpad-x1-carbon-gen13`) · 1. Dell XPS 13 (9310) ✓ (`xps-13-plus`) · 2. ASUS ZenBook 14 **✗ wrong model** · 3. HP Envy 13 **✗ wrong brand** · 4. Lenovo ThinkPad X1 Carbon Gen 9 (Refurbished or Base Model) ✓ (`thinkpad-x1-carbon-gen13`) · Tips for Travel Laptops **✗ wrong brand** · Aim for weight under 1.3 kg for easy portability. **✗ wrong brand** · Battery life of 8+ hours is ideal. **✗ wrong brand** · SSD storage for speed and durability. **✗ wrong brand** · Consider a model with good build quality to withstand travel. **✗ wrong brand**
+
 <details><summary>Grounded response</summary>
 
 ```
-For a thin laptop under €1500 suitable for travel, I recommend the MacBook Air 13" (M4) [macbook-air-m4-13] priced at €1299. It is silent, fanless, and offers all-day battery life, making it very travel-friendly. Another option is the Dell XPS 13 Plus (9340) [xps-13-plus] at €1449, which features an edge-to-edge keyboard and an OLED display option. Both are slim and lightweight for easy portability.
+For a thin laptop under €1500 suitable for travel, you can consider the MacBook Air 13" (M4) [macbook-air-m4-13] priced at €1299 or the Dell XPS 13 Plus (9340) [xps-13-plus] priced at €1449. Both are lightweight and portable options.
 ```
 
 </details>
@@ -40,48 +54,48 @@ Certainly! Here are some excellent thin and lightweight laptops under €1500 th
 ### 1. **Dell XPS 13 (9310)**
 - **Display:** 13.4" FHD+ or UHD+ InfinityEdge
 - **Processor:** Intel Core i5 or i7 (11th or 12th Gen)
-- **RAM:** 8GB or 16GB LPDDR4x
+- **RAM:** 8GB or 16GB
 - **Storage:** 256GB to 1TB SSD
 - **Weight:** ~1.2 kg
-- **Battery:** Up to 12 hours
-- **Why:** Extremely portable, premium build, great display, and solid performance.
+- **Battery Life:** Up to 12 hours
+- **Why:** Ultra-portable, excellent build quality, great display, and good battery life.
 
 ### 2. **ASUS ZenBook 14**
-- **Display:** 14" FHD or OLED options
-- **Processor:** AMD Ryzen 5/7 or Intel Core i5/i7 (latest gen)
+- **Display:** 14" FHD
+- **Processor:** Intel Core i5/i7 or AMD Ryzen 5/7 (latest gen)
 - **RAM:** 8GB or 16GB
 - **Storage:** 512GB SSD
 - **Weight:** ~1.1 kg
-- **Battery:** Around 10-12 hours
-- **Why:** Lightweight, good battery life, and excellent value for the price.
+- **Battery Life:** Up to 10-12 hours
+- **Why:** Lightweight, solid performance, good keyboard, and affordable.
 
-### 3. **HP Spectre x360 14**
-- **Display:** 13.5" 3K2K OLED or FHD touch
-- **Processor:** Intel Core i5 or i7 (11th or 12th Gen)
+### 3. **HP Envy 13**
+- **Display:** 13.3" FHD or UHD
+- **Processor:** Intel Core i5/i7 (11th or 12th Gen)
 - **RAM:** 8GB or 16GB
-- **Storage:** 256GB to 1TB SSD
+- **Storage:** 256GB to 512GB SSD
 - **Weight:** ~1.3 kg
-- **Battery:** Up to 10-12 hours
-- **Why:** Convertible design, premium build, great for productivity and media.
+- **Battery Life:** Up to 10 hours
+- **Why:** Stylish design, good performance, and solid battery life.
 
-### 4. **Lenovo Yoga Slim 7**
-- **Display:** 14" FHD or 2.2K
-- **Processor:** AMD Ryzen 5/7 or Intel Core i5/i7
+### 4. **Lenovo ThinkPad X1 Carbon Gen 9 (Refurbished or Base Model)**
+- **Display:** 14" FHD or UHD
+- **Processor:** Intel Core i5/i7 (11th Gen)
 - **RAM:** 8GB or 16GB
-- **Storage:** 512GB SSD
-- **Weight:** ~1.3 kg
-- **Battery:** Around 12 hours
-- **Why:** Slim, lightweight, good performance, and excellent keyboard.
+- **Storage:** 256GB to 512GB SSD
+- **Weight:** ~1.1 kg
+- **Battery Life:** Around 10 hours
+- **Why:** Durable, excellent keyboard, lightweight, business-class laptop.
 
 ---
 
 ### Tips for Travel Laptops:
-- Aim for **weight under 1.3 kg** for easy portability.
-- Battery life of **at least 8-10 hours** is ideal.
+- Aim for weight under 1.3 kg for easy portability.
+- Battery life of 8+ hours is ideal.
 - SSD storage for speed and durability.
-- Durable build quality (metal chassis preferred).
+- Consider a model with good build quality to withstand travel.
 
-If you want, I can help you find specific models available in your country or online stores. Would you like that?
+If you want, I can help you find specific deals or models available in your region!
 ```
 
 </details>
@@ -92,10 +106,14 @@ If you want, I can help you find specific models available in your country or on
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Audio **✗ wrong brand** · Type **✗ wrong brand** · Pros **✗ wrong brand** · Cons **✗ wrong brand** · Sony MDR **✗ wrong model** · Sennheiser HD 280 Pro ✓ (`sennheiser-hd660s2`) · Beyerdynamic DT 240 Pro **✗ wrong brand** · Closed **✗ wrong brand** · comfortable padding **✗ wrong brand** · cable length **✗ wrong brand** · Bose QuietComfort 25 ✓ (`bose-qc-ultra`) · 1. Audio **✗ wrong brand** · 2. Sony MDR **✗ wrong model** · 3. Sennheiser HD 280 Pro ✓ (`sennheiser-hd660s2`) · 4. Beyerdynamic DT 240 Pro **✗ wrong brand** · Additional Tips **✗ wrong brand** · Look for comfortable padding since you’ll be wearing them for long periods. **✗ wrong brand** · Consider the cable length and whether you need a straight or coiled cable depending on your desk setup. **✗ wrong brand**
+
 <details><summary>Grounded response</summary>
 
 ```
-I couldn't find any wired headphones in the audio category of Joule's catalog. Would you like me to look for wireless headphones instead, or perhaps other types of headphones suitable for an open-plan office?
+I couldn't find any wired headphones in the audio category. Would you like me to check for wired earphones or headphones in a broader category or for wireless options that might suit an open-plan office?
 ```
 
 </details>
@@ -103,47 +121,37 @@ I couldn't find any wired headphones in the audio category of Joule's catalog. W
 <details><summary>Ungrounded response</summary>
 
 ```
-For an open-plan office, wired headphones with good noise isolation or noise-canceling features are ideal to help you focus without disturbing others. Here are some recommendations:
+For an open-plan office, wired headphones can be a good choice if you want to avoid battery issues and ensure a stable connection. However, since open-plan offices tend to be noisy, you’ll want headphones that provide good noise isolation or passive noise cancellation to help you focus.
 
-### Key Features to Look For:
-- **Closed-back design:** Helps block out ambient noise.
-- **Comfortable fit:** Since you'll wear them for long periods.
-- **Good sound quality:** For clear audio during calls or music.
-- **Built-in microphone:** If you need to take calls.
-- **Durable cable:** Preferably with a tangle-free design.
+Here are some recommendations for wired headphones suitable for open-plan offices:
 
-### Recommended Wired Headphones:
-1. **Audio-Technica ATH-M40x**
-   - Closed-back, over-ear design.
-   - Excellent sound isolation.
-   - Durable build and comfortable ear pads.
-   - Detachable cable for convenience.
+### 1. **Audio-Technica ATH-M40x**
+- **Type:** Over-ear, closed-back
+- **Pros:** Excellent sound quality, good noise isolation, comfortable for long use
+- **Cons:** Not active noise cancelling, but passive isolation is solid
 
-2. **Sony MDR-7506**
-   - Industry-standard for professional use.
-   - Closed-back, over-ear for noise isolation.
-   - Clear, detailed sound.
-   - Foldable design for portability.
+### 2. **Sony MDR-7506**
+- **Type:** Over-ear, closed-back
+- **Pros:** Industry standard for clear sound, good noise isolation, foldable and portable
+- **Cons:** Slightly less comfortable for very long sessions compared to some others
 
-3. **Sennheiser HD 280 Pro**
-   - Closed-back, circumaural headphones.
-   - Great passive noise isolation.
-   - Comfortable for long use.
-   - Robust and durable.
+### 3. **Sennheiser HD 280 Pro**
+- **Type:** Over-ear, closed-back
+- **Pros:** Great noise isolation, durable, comfortable, clear sound
+- **Cons:** Bulky design
 
-4. **Beyerdynamic DT 240 Pro**
-   - Closed-back, compact design.
-   - Good noise isolation.
-   - Comfortable with replaceable ear pads.
-   - Clear sound for both music and calls.
+### 4. **Beyerdynamic DT 240 Pro**
+- **Type:** Over-ear, closed-back
+- **Pros:** Compact, excellent noise isolation, good sound quality, comfortable
+- **Cons:** Slightly pricier
 
-5. **Jabra Evolve 40**
-   - Specifically designed for office use.
-   - Closed-back with noise isolation.
-   - Integrated microphone for calls.
-   - USB and 3.5mm connectivity options.
+### Additional Tips:
+- **Closed-back design** is essential to block out background noise.
+- Look for **comfortable padding** since you’ll be wearing them for long periods.
+- Consider the **cable length** and whether you need a straight or coiled cable depending on your desk setup.
+- If you want some active noise cancellation, wired options are limited but some models like the **Bose QuietComfort 25** offer wired ANC.
 
-If you want me to help you find options within a specific budget or for a particular use (like calls vs. music), just let me know!
+Would you like recommendations for a specific budget or additional features like a microphone for calls?
 ```
 
 </details>
@@ -154,10 +162,14 @@ If you want me to help you find options within a specific budget or for a partic
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Apple iPhone 15 Pro / Pro Max ✓ (`iphone-17-pro`) · Samsung Galaxy S23 Ultra ✓ (`samsung-galaxy-s25-ultra`) · Google Pixel 8 Pro ✓ (`google-pixel-10-pro`) · Sony Xperia 1 V **✗ wrong model**
+
 <details><summary>Grounded response</summary>
 
 ```
-I couldn't find phones specifically highlighting camera quality in the catalog. Would you like me to find phones with the best overall ratings or latest models instead?
+I couldn't find any phones listed in the catalog with camera quality details. Would you like me to check for phones with the best overall features instead?
 ```
 
 </details>
@@ -165,38 +177,42 @@ I couldn't find phones specifically highlighting camera quality in the catalog. 
 <details><summary>Ungrounded response</summary>
 
 ```
-I don't sell products directly, but I can definitely help you find the best phone for camera quality based on the latest models available! As of mid-2024, some of the top smartphones known for exceptional camera performance include:
+I don't sell products directly, but I can help you identify some of the best smartphones known for their camera quality as of 2024. Here are a few top contenders:
 
-1. **Apple iPhone 15 Pro Max**
-   - Features a versatile triple-camera system with advanced computational photography.
-   - Excellent for video recording with ProRes and Cinematic mode.
-   - Great color accuracy and low-light performance.
+1. **Apple iPhone 15 Pro / Pro Max**
+   - Excellent computational photography
+   - ProRAW and ProRes video capabilities
+   - Versatile triple-camera system with LiDAR scanner
 
 2. **Samsung Galaxy S23 Ultra**
-   - Equipped with a 200MP main sensor, offering incredible detail.
-   - Versatile zoom capabilities up to 100x Space Zoom.
-   - Strong in both daylight and low-light photography.
+   - 200 MP main sensor
+   - 10x optical zoom periscope lens
+   - Advanced night mode and video stabilization
 
 3. **Google Pixel 8 Pro**
-   - Known for outstanding computational photography and AI enhancements.
-   - Excellent portrait mode and night sight.
-   - Clean, natural image processing.
+   - Outstanding computational photography
+   - Great for low-light and portrait shots
+   - Clean Android experience with frequent software updates
 
 4. **Sony Xperia 1 V**
-   - Focuses on professional-grade photography and videography.
-   - Offers manual controls similar to Sony’s Alpha cameras.
-   - 4K OLED display for accurate photo and video review.
+   - Professional-grade manual controls
+   - Zeiss optics
+   - 4K OLED display for accurate photo and video preview
 
-If you tell me your budget and preferences (e.g., video vs. photo, zoom capability, brand preference), I can help narrow down the best option for you!
+If you tell me your preferences (e.g., budget, preferred brand, specific camera features), I can help narrow down the best option for you!
 ```
 
 </details>
 
 ### Prompt — _I'm shopping for a Christmas gift for someone who edits video. Budget €2500._
 
-**Grounded slugs cited:** `macbook-pro-m4-pro-14` ✓, `macbook-air-m4-13` ✓, `mac-mini-m4-pro` ✓, `imac-m4-24` ✓, `dell-u2725qe` ✓, `lg-27gr95qe` ✓
+**Grounded slugs cited:** `macbook-pro-m4-pro-14` ✓, `thinkpad-x1-carbon-gen13` ✓, `mac-mini-m4-pro` ✓, `imac-m4-24` ✓, `dell-u2725qe` ✓, `lg-27gr95qe` ✓
 
 **Ungrounded slugs cited:** _none_
+
+**Grounded prose mentions:** MacBook Pro 14" (M4 Pro) at €2399 [macbook **✗ wrong brand** · ThinkPad X1 Carbon Gen 13 at €1899 [thinkpad **✗ wrong brand** · Mac mini (M4 Pro) at €1499 [mac **✗ wrong brand** · iMac 24" (M4) at €1599 [imac **✗ wrong brand** · Dell UltraSharp 27 4K (U2725QE) at €829 [dell ✓ (`dell-u2725qe`) · LG UltraGear 27GR95QE (OLED) at €999 [lg ✓ (`lg-27gr95qe`)
+
+**Ungrounded prose mentions:** Do they primarily edit on a desktop or laptop? **✗ wrong brand** · What software do they use (e.g., Adobe Premiere Pro, Final Cut Pro, DaVinci Resolve)? **✗ wrong brand** · Are they more focused on color grading, effects, or general editing? **✗ wrong brand** · Do they already have key gear like monitors, external drives, or audio equipment? **✗ wrong brand** · Would you prefer hardware (like a new monitor, storage, or peripherals) or software/plugins/licenses? **✗ wrong brand**
 
 <details><summary>Grounded response</summary>
 
@@ -205,17 +221,17 @@ For video editing within your €2500 budget, here are some options:
 
 Laptops:
 - MacBook Pro 14" (M4 Pro) at €2399 [macbook-pro-m4-pro-14]
-- MacBook Air 13" (M4) at €1299 [macbook-air-m4-13]
+- ThinkPad X1 Carbon Gen 13 at €1899 [thinkpad-x1-carbon-gen13]
 
 Desktops:
 - Mac mini (M4 Pro) at €1499 [mac-mini-m4-pro]
 - iMac 24" (M4) at €1599 [imac-m4-24]
 
-Monitors (to pair with a desktop):
+Monitors (if you want to add a good external display):
 - Dell UltraSharp 27 4K (U2725QE) at €829 [dell-u2725qe]
-- LG UltraGear 27GR95QE OLED at €999 [lg-27gr95qe]
+- LG UltraGear 27GR95QE (OLED) at €999 [lg-27gr95qe]
 
-You could get a MacBook Pro or a Mac mini plus a good monitor and stay around your budget. Would you like details on any of these or help combining a desktop and monitor?
+You could pair a Mac mini or iMac with one of the monitors and stay within budget or get a powerful laptop alone. Would you like recommendations for accessories or storage too?
 ```
 
 </details>
@@ -223,63 +239,15 @@ You could get a MacBook Pro or a Mac mini plus a good monitor and stay around yo
 <details><summary>Ungrounded response</summary>
 
 ```
-Great! With a budget of €2500 for someone who edits video, you have a lot of excellent options to choose from. Here are some thoughtful gift ideas that would be very useful for a video editor:
+Great! With a budget of €2500 for a video editor, you have a lot of excellent options. To help narrow down the best gift, could you tell me a bit more about their setup or preferences? For example:
 
-### 1. **High-Performance External SSD**
-- Video editors need fast storage for large video files.
-- Example: Samsung T7 Shield or SanDisk Extreme Pro Portable SSD (2TB or more).
-- Price: Around €250-€400.
+- Do they primarily edit on a desktop or laptop?
+- What software do they use (e.g., Adobe Premiere Pro, Final Cut Pro, DaVinci Resolve)?
+- Are they more focused on color grading, effects, or general editing?
+- Do they already have key gear like monitors, external drives, or audio equipment?
+- Would you prefer hardware (like a new monitor, storage, or peripherals) or software/plugins/licenses?
 
-### 2. **Professional Video Editing Software License**
-- If they don’t have it or want an upgrade.
-- Adobe Premiere Pro subscription (annual), Final Cut Pro (Mac only), or DaVinci Resolve Studio.
-- Price: Premiere Pro annual subscription ~€250, DaVinci Resolve Studio ~€300 (one-time).
-
-### 3. **Color Grading Panel**
-- For more precise color correction.
-- Example: Loupedeck CT or DaVinci Resolve Mini Panel.
-- Price: Loupedeck CT ~€500-€600, DaVinci Resolve Mini Panel ~€1000+.
-
-### 4. **High-Quality Monitor for Video Editing**
-- A color-accurate 4K monitor with good color gamut (100% sRGB, AdobeRGB, or DCI-P3).
-- Examples: BenQ PD3200U, Eizo ColorEdge, LG UltraFine 4K.
-- Price: €800-€1500.
-
-### 5. **Ergonomic Editing Console or Keyboard**
-- Customizable keyboards or consoles for shortcuts.
-- Examples: Loupedeck Live, Elgato Stream Deck.
-- Price: €150-€300.
-
-### 6. **Professional Headphones or Studio Monitors**
-- For accurate audio editing.
-- Headphones: Audio-Technica ATH-M50x, Beyerdynamic DT 770 Pro.
-- Studio monitors: KRK Rokit 5, Yamaha HS5.
-- Price: €150-€400.
-
-### 7. **High-End Computer Components or Accessories**
-- If they build their own PC, consider a powerful GPU or CPU upgrade.
-- Or a professional color calibration tool like X-Rite i1Display Pro (€200-€300).
-
----
-
-### Example Bundles Within €2500 Budget:
-
-**Bundle A:**
-- BenQ PD3200U 32" 4K Monitor (€900)
-- Samsung T7 Shield 2TB SSD (€300)
-- Loupedeck CT (€600)
-- Audio-Technica ATH-M50x Headphones (€150)
-- X-Rite i1Display Pro (€250)
-- Total: ~€2200
-
-**Bundle B:**
-- LG UltraFine 27" 5K Monitor (€1300)
-- SanDisk Extreme Pro 2TB SSD (€350)
-- Elgato Stream Deck (€160)
-- DaVinci Resolve Studio license (€300)
-- Total: ~€2110
-
-Would you like recommendations tailored to a specific type of video editing (e.g., YouTube, film, color grading) or platform (Mac/Windows)?
+If you want, I can suggest some top-tier gifts across different categories that would fit your budget and make their workflow smoother or more enjoyable.
 ```
 
 </details>
@@ -290,6 +258,10 @@ Would you like recommendations tailored to a specific type of video editing (e.g
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Form Factor & Design **✗ wrong brand** · Mac Mini / Mac Studio **✗ wrong brand** · Windows Mini PC **✗ wrong brand** · Operating System **✗ wrong brand** · Performance **✗ wrong brand** · Ports and Connectivity **✗ wrong brand** · Software Ecosystem **✗ wrong brand** · Upgradeability **✗ wrong brand** · Price **✗ wrong brand** · 1. Form Factor & Design **✗ wrong brand** · 2. Operating System **✗ wrong brand** · 3. Performance **✗ wrong brand** · 4. Ports and Connectivity **✗ wrong brand** · 5. Software Ecosystem **✗ wrong brand** · 6. Upgradeability **✗ wrong brand** · 7. Price **✗ wrong brand** · Summary Table **✗ wrong brand**
+
 <details><summary>Grounded response</summary>
 
 ```
@@ -301,98 +273,88 @@ Would you like recommendations tailored to a specific type of video editing (e.g
 <details><summary>Ungrounded response</summary>
 
 ```
-Certainly! Here's a comparison between a small Mac desktop (such as the Mac Mini) and a small Windows mini PC, focusing on key aspects like design, performance, operating system, expandability, and price.
+Certainly! Here's a comparison between a small Mac desktop (like the Mac Studio or Mac Mini) and a small Windows mini PC, focusing on key aspects:
 
----
-
-### 1. **Design and Form Factor**
-- **Mac Mini:**
-  - Compact, sleek aluminum unibody design.
-  - Dimensions: Approximately 7.7 x 7.7 x 1.4 inches.
+### 1. **Form Factor & Design**
+- **Mac Mini / Mac Studio**:
+  - Compact, sleek aluminum design.
   - Minimalistic and premium build quality.
-- **Windows Mini PC:**
-  - Varies widely by manufacturer (Intel NUC, ASUS PN series, HP EliteDesk, etc.).
-  - Typically small and compact but with more variation in design.
-  - Often plastic or metal chassis, sometimes bulkier than Mac Mini.
-
----
+  - Mac Studio is slightly larger but still small compared to traditional desktops.
+- **Windows Mini PC**:
+  - Varies widely by manufacturer.
+  - Often plastic or metal cases, some very compact (like Intel NUC, ASUS PN series).
+  - Design ranges from utilitarian to stylish depending on brand.
 
 ### 2. **Operating System**
-- **Mac Mini:**
-  - Runs macOS (latest versions like macOS Ventura or later).
-  - Seamless integration with Apple ecosystem (iPhone, iPad, Apple Watch, etc.).
-  - Optimized for creative software (Final Cut Pro, Logic Pro) and development (Xcode).
-- **Windows Mini PC:**
-  - Runs Windows 10 or Windows 11.
-  - Broad compatibility with a wide range of software and games.
-  - Better suited for enterprise environments and legacy applications.
-
----
+- **Mac Mini / Mac Studio**:
+  - Runs macOS, known for smooth integration with Apple ecosystem (iPhone, iPad, Apple Watch).
+  - Optimized for creative software (Final Cut Pro, Logic Pro).
+- **Windows Mini PC**:
+  - Runs Windows 10 or 11.
+  - Broad software compatibility, especially for gaming, business, and legacy applications.
+  - More customizable OS environment.
 
 ### 3. **Performance**
-- **Mac Mini:**
-  - Latest models use Apple Silicon (M2 or M2 Pro chips).
-  - Excellent power efficiency and performance per watt.
-  - Unified memory architecture enhances speed for certain tasks.
-  - Limited to integrated GPU, but very capable for most productivity and creative workflows.
-- **Windows Mini PC:**
-  - Offers a wider range of CPU options (Intel Core i3/i5/i7/i9, AMD Ryzen).
-  - Can include discrete GPUs in some models for better gaming or professional graphics.
-  - Performance varies widely depending on configuration.
+- **Mac Mini / Mac Studio**:
+  - Uses Apple Silicon chips (M2, M2 Pro, M2 Max, etc.), delivering excellent performance per watt.
+  - Great for video editing, music production, software development.
+  - Limited to Apple’s hardware configurations.
+- **Windows Mini PC**:
+  - Uses Intel or AMD processors, with options ranging from low-power Celerons to high-end Core i7/i9 or Ryzen 7/9.
+  - Can be configured with discrete GPUs in some models.
+  - More flexible hardware choices.
 
----
+### 4. **Ports and Connectivity**
+- **Mac Mini / Mac Studio**:
+  - Mac Mini offers Thunderbolt 4, USB-C, USB-A, HDMI, Ethernet.
+  - Mac Studio has more ports, including multiple Thunderbolt 4, USB-A, SD card slot, and audio jacks.
+  - Supports Wi-Fi 6/6E and Bluetooth.
+- **Windows Mini PC**:
+  - Varies by model but often includes USB-C, USB-A, HDMI/DisplayPort, Ethernet, audio jacks.
+  - Some include SD card readers, multiple display outputs.
+  - Wi-Fi 6 and Bluetooth common.
 
-### 4. **Expandability and Ports**
-- **Mac Mini:**
-  - Limited internal expandability (RAM and storage are soldered).
-  - Ports include Thunderbolt 4/USB4, USB-A, HDMI, Ethernet, and audio jack.
-  - External expansion possible via Thunderbolt docks.
-- **Windows Mini PC:**
+### 5. **Software Ecosystem**
+- **Mac Mini / Mac Studio**:
+  - Strong for creative professionals.
+  - Limited gaming support.
+  - Seamless integration with iCloud, Apple services.
+- **Windows Mini PC**:
+  - Broad software support including enterprise, gaming, and legacy apps.
+  - Supports a wider range of peripherals and software.
+
+### 6. **Upgradeability**
+- **Mac Mini / Mac Studio**:
+  - Limited upgrade options; RAM and storage usually soldered or fixed at purchase.
+- **Windows Mini PC**:
   - Some models allow RAM and storage upgrades.
-  - More variety in ports depending on model (USB-C, USB-A, HDMI, DisplayPort, Ethernet, audio).
-  - Some can support multiple displays and external GPUs.
+  - Easier to customize or repair.
 
----
-
-### 5. **Price**
-- **Mac Mini:**
-  - Starts around $599 for base M2 model.
-  - Higher configurations can go up to $1,299 or more.
-- **Windows Mini PC:**
-  - Wide price range from budget models around $200-$300 to high-end models $1,000+.
+### 7. **Price**
+- **Mac Mini / Mac Studio**:
+  - Generally higher starting price, especially for Mac Studio.
+  - Good value for performance in Apple ecosystem.
+- **Windows Mini PC**:
+  - Wide price range from budget to high-end.
   - More options for budget-conscious buyers.
-
----
-
-### 6. **Use Cases**
-- **Mac Mini:**
-  - Ideal for users invested in the Apple ecosystem.
-  - Great for creative professionals, developers, and general productivity.
-  - Good for compact home office setups.
-- **Windows Mini PC:**
-  - Suitable for general-purpose computing, gaming (with discrete GPU models), and business use.
-  - Flexible hardware options for different needs and budgets.
-  - Often used in kiosks, digital signage, and enterprise environments.
 
 ---
 
 ### Summary Table
 
-| Feature           | Mac Mini (Apple Silicon)            | Windows Mini PC                          |
-|-------------------|------------------------------------|----------------------------------------|
-| OS                | macOS                             | Windows 10/11                          |
-| CPU               | Apple M2 / M2 Pro                 | Intel Core / AMD Ryzen (varies)       |
-| GPU               | Integrated Apple GPU              | Integrated or discrete GPU (varies)   |
-| RAM               | Unified memory, not user-upgradable | Usually user-upgradable                |
-| Storage           | SSD, not user-upgradable          | Usually user-upgradable SSD/HDD        |
-| Ports             | Thunderbolt 4, USB-A, HDMI, Ethernet | Varies, often USB-C, USB-A, HDMI, DP  |
-| Price Range       | $599 - $1,299+                   | $200 - $1,500+                        |
-| Ecosystem         | Apple ecosystem integration       | Broad software and hardware compatibility |
-| Best For          | Creative work, Apple users         | Versatile use, gaming, business       |
+| Feature           | Mac Mini / Mac Studio            | Windows Mini PC                    |
+|-------------------|---------------------------------|----------------------------------|
+| Design            | Premium, compact aluminum        | Varies, compact but diverse       |
+| OS                | macOS                           | Windows 10/11                    |
+| Performance       | Apple Silicon (M2 series)       | Intel/AMD CPUs, optional GPUs    |
+| Ports             | Thunderbolt, USB-C, HDMI, Ethernet | USB-C, USB-A, HDMI/DP, Ethernet  |
+| Software Support  | Creative apps, Apple ecosystem  | Broad software including games   |
+| Upgradeability    | Limited                        | Often upgradeable RAM/Storage    |
+| Price             | Mid to high                    | Wide range, budget to premium    |
 
 ---
 
-If you have a specific Windows mini PC model or Mac Mini configuration in mind, I can provide a more detailed comparison!
+If you have a specific model or use case in mind, I can provide a more tailored comparison!
 ```
 
 </details>
@@ -403,10 +365,14 @@ If you have a specific Windows mini PC model or Mac Mini configuration in mind, 
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Sony WH ✓ (`sony-wh-1000xm6`) · Industry **✗ wrong brand** · Up to 30 hours of battery life **✗ wrong brand** · Touch controls for playback and calls **✗ wrong brand** · Comfortable over **✗ wrong brand** · High **✗ wrong brand** · Adaptive Sound Control that adjusts to your environment **✗ wrong brand**
+
 <details><summary>Grounded response</summary>
 
 ```
-There are no Sony noise-cancelling headphones available in Joule's catalog right now. Would you like me to look for noise-cancelling headphones from other brands?
+There are no Sony noise-cancelling headphones currently available in Joule's catalog. Would you like me to find noise-cancelling headphones from other brands instead?
 ```
 
 </details>
@@ -423,6 +389,7 @@ Here is a popular noise-cancelling pair of headphones from Sony:
 - Touch controls for playback and calls
 - Comfortable over-ear design
 - High-resolution audio support
+- Adaptive Sound Control that adjusts to your environment
 
 Would you like more details or information on where to buy them?
 ```
@@ -431,14 +398,24 @@ Would you like more details or information on where to buy them?
 
 ### Prompt — _Pick a tablet for an architect who sketches and reads PDFs._
 
-**Grounded slugs cited:** `ipad-pro-m5-13` ✓, `galaxy-tab-s10-ultra` ✓, `remarkable-paper-pro` ✓
+**Grounded slugs cited:** `ipad-pro-m5-13` ✓, `galaxy-tab-s10-ultra` ✓, `remarkable-paper-pro` ✓, `ipad-air-m3-11` ✓
 
 **Ungrounded slugs cited:** _none_
+
+**Grounded prose mentions:** iPad Pro 13" (M4) [ipad **✗ wrong brand** · Galaxy Tab S10 Ultra [galaxy **✗ wrong brand** · reMarkable Paper Pro [remarkable ✓ (`remarkable-paper-pro`)
+
+**Ungrounded prose mentions:** Apple iPad Pro (12.9 ✓ (`ipad-pro-m5-13`) · Display **✗ wrong brand** · Stylus **✗ wrong brand** · Performance **✗ wrong brand** · Software **✗ wrong brand** · Battery **✗ wrong brand** · Pros **✗ wrong brand** · Cons **✗ wrong brand** · Microsoft Surface Pro 9 ✓ (`surface-laptop-7`) · Samsung Galaxy Tab S9 Ultra ✓ (`samsung-galaxy-s25-ultra`) · For best sketching and reading PDFs with a creative focus **✗ wrong brand** · Apple iPad Pro 12.9" + Apple Pencil 2 ✓ (`ipad-pro-m5-13`) · For full desktop CAD/BIM software and flexibility **✗ wrong brand** · Microsoft Surface Pro 9 + Surface Slim Pen 2 ✓ (`surface-laptop-7`) · For a large Android tablet with included stylus **✗ wrong brand** · Top Recommendations **✗ wrong brand** · Summary **✗ wrong brand** · A large, high **✗ wrong brand** · Stylus support with low latency and pressure sensitivity for precise sketching. **✗ wrong brand** · Good PDF annotation tools. **✗ wrong brand** · Strong performance and battery life for extended use. **✗ wrong brand** · Portability and durability. **✗ wrong brand**
 
 <details><summary>Grounded response</summary>
 
 ```
-For an architect who sketches and reads PDFs, I recommend the iPad Pro 13" (M4) [ipad-pro-m5-13]. It offers a large, high-quality OLED screen and supports precise sketching with the Apple Pencil. Another option is the Galaxy Tab S10 Ultra [galaxy-tab-s10-ultra], which has a 14.6-inch screen suitable for drawing and reading. If you prefer a device focused on note-taking and sketching with a paper-like feel, the reMarkable Paper Pro [remarkable-paper-pro] is also a good choice. Let me know if you want details on any of these.
+For an architect who sketches and reads PDFs, I recommend these tablets:
+
+- iPad Pro 13" (M4) [ipad-pro-m5-13], which has a Tandem OLED display and pencil haptics, suitable for detailed sketching.
+- Galaxy Tab S10 Ultra [galaxy-tab-s10-ultra], a 14.6-inch Android tablet with a large canvas for drawing.
+- reMarkable Paper Pro [remarkable-paper-pro], designed to feel like paper, good for sketching and reading documents.
+
+If you want a balance of price and capability, the iPad Air 11" (M3) [ipad-air-m3-11] is also a solid option. Would you like details on any of these?
 ```
 
 </details>
@@ -446,47 +423,52 @@ For an architect who sketches and reads PDFs, I recommend the iPad Pro 13" (M4) 
 <details><summary>Ungrounded response</summary>
 
 ```
-For an architect who sketches and reads PDFs, I recommend a tablet that offers:
+For an architect who sketches and reads PDFs, the ideal tablet should have:
 
-- **High precision stylus support** for detailed sketching
-- **Large, high-resolution display** for clear viewing of blueprints and PDFs
-- **Good PDF annotation tools**
-- **Strong performance** to handle large files smoothly
-- **Long battery life** for extended use on the go
+- A large, high-resolution screen for detailed drawings and comfortable reading.
+- Stylus support with low latency and pressure sensitivity for precise sketching.
+- Good PDF annotation tools.
+- Strong performance and battery life for extended use.
+- Portability and durability.
 
 ### Top Recommendations:
 
 1. **Apple iPad Pro (12.9-inch)**
-   - Display: 12.9-inch Liquid Retina XDR display, 2732 x 2048 pixels
-   - Stylus: Apple Pencil (2nd generation) with excellent pressure sensitivity and tilt support
-   - Performance: M2 chip, very fast and smooth
-   - Software: Wide range of professional apps like Morpholio Trace, Concepts, and Adobe Acrobat
-   - PDF handling: Great annotation and multitasking features
-   - Bonus: Lightweight and portable with excellent build quality
+   - **Display:** 12.9-inch Liquid Retina XDR display, 2732 x 2048 pixels.
+   - **Stylus:** Apple Pencil (2nd generation) with excellent pressure sensitivity and tilt support.
+   - **Performance:** M2 chip (latest model) for smooth multitasking.
+   - **Software:** Wide range of apps like Procreate, Concepts, GoodNotes, and PDF Expert.
+   - **Battery:** Up to 10 hours.
+   - **Pros:** Industry standard for creative professionals, superb display, excellent stylus experience.
+   - **Cons:** Expensive, iPadOS limitations compared to desktop OS.
 
-2. **Samsung Galaxy Tab S9 Ultra**
-   - Display: 14.6-inch AMOLED, 2960 x 1848 pixels
-   - Stylus: S Pen included, very precise with low latency
-   - Performance: Snapdragon 8 Gen 2, powerful and efficient
-   - Software: Samsung Notes, Autodesk SketchBook, and other Android apps for architects
-   - PDF handling: Good annotation tools and multitasking
-   - Bonus: Larger screen ideal for detailed work
+2. **Microsoft Surface Pro 9**
+   - **Display:** 13-inch PixelSense Flow display, 2880 x 1920 pixels, 120Hz refresh rate.
+   - **Stylus:** Surface Slim Pen 2 with haptic feedback and pressure sensitivity.
+   - **Performance:** Intel Core i5/i7 or ARM options, full Windows 11 OS.
+   - **Software:** Runs full desktop apps like AutoCAD, Revit, Bluebeam Revu, etc.
+   - **Battery:** Around 10-15 hours depending on usage.
+   - **Pros:** Full Windows experience, great for architects who use desktop CAD/BIM software.
+   - **Cons:** Heavier than iPad, stylus sold separately, pricier.
 
-3. **Microsoft Surface Pro 9**
-   - Display: 13-inch PixelSense Flow Display, 2880 x 1920 pixels
-   - Stylus: Surface Slim Pen 2 (sold separately), great for sketching
-   - Performance: Intel or ARM processors, runs full Windows apps like AutoCAD and Adobe Acrobat
-   - Software: Full desktop apps for architecture and PDF management
-   - Bonus: Can function as a full laptop replacement
+3. **Samsung Galaxy Tab S9 Ultra**
+   - **Display:** 14.6-inch AMOLED, 2960 x 1848 pixels.
+   - **Stylus:** S Pen included, low latency and pressure sensitivity.
+   - **Performance:** Snapdragon 8 Gen 2, Android OS.
+   - **Software:** Good sketching apps (Autodesk SketchBook, Adobe apps), PDF readers.
+   - **Battery:** Long-lasting.
+   - **Pros:** Large vibrant screen, included stylus, great for sketching and media consumption.
+   - **Cons:** Android apps for architecture are less robust than Windows or iPadOS.
 
 ---
 
 ### Summary:
-- If you want the best sketching experience and app ecosystem, **iPad Pro 12.9-inch** is the top choice.
-- For a larger screen with AMOLED and included stylus, **Samsung Galaxy Tab S9 Ultra** is excellent.
-- If you need full desktop software compatibility, **Surface Pro 9** is the way to go.
 
-Would you like me to help you find the best deals or accessories for any of these?
+- **For best sketching and reading PDFs with a creative focus:** **Apple iPad Pro 12.9" + Apple Pencil 2**
+- **For full desktop CAD/BIM software and flexibility:** **Microsoft Surface Pro 9 + Surface Slim Pen 2**
+- **For a large Android tablet with included stylus:** **Samsung Galaxy Tab S9 Ultra**
+
+If you want me to help you pick based on your budget or preferred OS, just let me know!
 ```
 
 </details>
@@ -497,10 +479,14 @@ Would you like me to help you find the best deals or accessories for any of thes
 
 **Ungrounded slugs cited:** _none_
 
+**Grounded prose mentions:** _none_
+
+**Ungrounded prose mentions:** Amazfit Bip U Pro / Bip 3 Pro **✗ wrong brand** · Garmin Venu Sq / Garmin Forerunner Series **✗ wrong model** · Fitbit Versa 3 / Fitbit Charge 5 **✗ wrong brand** · Samsung Galaxy Watch 5 (in battery saver mode) ✓ (`samsung-galaxy-s25-ultra`) · Withings ScanWatch **✗ wrong brand**
+
 <details><summary>Grounded response</summary>
 
 ```
-Joule's catalog does not currently list any smartwatches with a battery life of more than three days. Would you like me to check for other types of wearable devices or accessories?
+Joule's catalog currently does not have smartwatches listed under wearables or related categories. Would you like me to search for other types of wearable devices or accessories?
 ```
 
 </details>
@@ -508,29 +494,28 @@ Joule's catalog does not currently list any smartwatches with a battery life of 
 <details><summary>Ungrounded response</summary>
 
 ```
-If you're looking for a smartwatch with a battery life that lasts more than three days on a single charge, here are some popular options to consider:
+If you're looking for a smartwatch with a battery life lasting more than three days on a single charge, here are some options you might consider:
 
-1. **Garmin Venu 2 Plus**
-   - Battery Life: Up to 9 days in smartwatch mode
-   - Features: GPS, heart rate monitoring, music storage, health tracking, and smart notifications.
+1. **Amazfit Bip U Pro / Bip 3 Pro**
+   - Battery life: Around 9-14 days
+   - Features: GPS, heart rate monitoring, SpO2, sleep tracking, and basic smartwatch functions.
 
-2. **Amazfit GTR 3**
-   - Battery Life: Up to 21 days
-   - Features: AMOLED display, GPS, SpO2 monitoring, sleep tracking, and Alexa built-in.
+2. **Garmin Venu Sq / Garmin Forerunner Series**
+   - Battery life: 6+ days in smartwatch mode
+   - Features: Advanced fitness tracking, GPS, heart rate, and smart notifications.
 
-3. **Fitbit Versa 3**
-   - Battery Life: Around 6+ days
-   - Features: Built-in GPS, heart rate tracking, sleep tracking, voice assistant support.
+3. **Fitbit Versa 3 / Fitbit Charge 5**
+   - Battery life: Around 6+ days
+   - Features: Fitness and health tracking, GPS, heart rate, sleep tracking.
 
-4. **Samsung Galaxy Watch 5**
-   - Battery Life: Around 3-4 days depending on usage
-   - Features: AMOLED display, GPS, health monitoring, LTE option.
+4. **Samsung Galaxy Watch 5 (in battery saver mode)**
+   - Battery life: Up to 3-4 days depending on usage and settings.
 
 5. **Withings ScanWatch**
-   - Battery Life: Up to 30 days
-   - Features: Hybrid smartwatch with analog hands, ECG, SpO2, sleep tracking.
+   - Battery life: Up to 30 days (hybrid smartwatch with analog watch face)
+   - Features: Health tracking including ECG, SpO2, heart rate.
 
-If battery life is your top priority, the **Withings ScanWatch** or **Amazfit GTR 3** are excellent choices. If you want a balance of features and battery life, Garmin and Fitbit models are great too.
+If you want the longest battery life, hybrid smartwatches (analog watch with smart features) or fitness-focused watches like Amazfit and Garmin tend to last longer than full-featured smartwatches from Apple or Samsung.
 
 Would you like recommendations based on specific features or budget?
 ```

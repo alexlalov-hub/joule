@@ -27,6 +27,7 @@ import path from 'node:path';
 import { generateText, stepCountIs } from 'ai';
 import { createGateway } from '@ai-sdk/gateway';
 import { products as seedProducts, categories as seedCategories } from '../src/lib/catalog/data';
+import { SYSTEM_PROMPT as PRODUCTION_SYSTEM } from '../src/lib/server/ai/assistant';
 import { z } from 'zod';
 
 loadEnv({ path: '.env.local' });
@@ -74,14 +75,10 @@ const PROMPTS = [
 	'I want a smartwatch that lasts more than three days on one charge.'
 ];
 
-// Same-shape system prompt as production. Kept inline so the experiment is
-// self-contained — if the production prompt changes, the experiment number
-// reflects the variant being shipped at run-time.
-const GROUNDED_SYSTEM = `You are Joule's shopping assistant. Joule sells laptops, phones, audio, and peripherals.
-
-Use only products in Joule's catalog. Use the tools to find them. Cite product slugs in [brackets] the first time you mention a product. Never invent a product, brand, model number, spec, or price. If you don't have data, call a tool. If a tool result is empty for a category Joule advertises, broaden your search instead of claiming nothing exists.
-
-Reply concisely, plain English, no marketing fluff.`;
+// Use the production system prompt verbatim so the experiment measures what
+// actually ships. If the prompt changes, re-run the experiment to record the
+// new behaviour.
+const GROUNDED_SYSTEM = PRODUCTION_SYSTEM;
 
 // Catalog tools — same shape as production but defined locally so we can
 // run without spinning up SvelteKit. Reads against the seed list, which
@@ -210,9 +207,90 @@ const STOP_TOKENS = new Set([
 ]);
 
 /**
+ * Words that look like product mentions but aren't — section labels, spec
+ * dimensions, generic hedges. Anything whose normalised form is in this set
+ * gets dropped.
+ */
+const NON_PRODUCT_PHRASES = new Set([
+	'display',
+	'processor',
+	'storage',
+	'weight',
+	'battery',
+	'battery life',
+	'memory',
+	'ram',
+	'graphics',
+	'gpu',
+	'cpu',
+	'price',
+	'performance',
+	'design',
+	'form factor',
+	'form factor & design',
+	'ports',
+	'ports and connectivity',
+	'connectivity',
+	'operating system',
+	'os',
+	'software',
+	'software ecosystem',
+	'upgradeability',
+	'pros',
+	'cons',
+	'type',
+	'features',
+	'key features',
+	'specs',
+	'specifications',
+	'summary',
+	'summary table',
+	'top recommendations',
+	'recommended',
+	'recommendations',
+	'recommendation',
+	'additional tips',
+	'tips',
+	'tips for travel laptops',
+	'why',
+	'overview',
+	'audio',
+	'industry',
+	'high'
+]);
+
+const PRODUCT_BLACKLIST_PREFIXES = [
+	/^aim\b/i,
+	/^look\b/i,
+	/^consider\b/i,
+	/^if you\b/i,
+	/^closed\b/i,
+	/^do they\b/i,
+	/^what software\b/i,
+	/^are they\b/i,
+	/^would you\b/i,
+	/^battery life of\b/i,
+	/^ssd storage\b/i,
+	/^a large\b/i,
+	/^stylus support\b/i,
+	/^good pdf\b/i,
+	/^strong performance\b/i,
+	/^portability\b/i,
+	/^comfortable padding\b/i,
+	/^cable length\b/i,
+	/^adaptive sound\b/i,
+	/^up to \d/i,
+	/^touch controls\b/i,
+	/^for (best|full|a large)\b/i
+];
+
+/**
  * Pull candidate product mentions out of free-text. Looks at bolded spans,
- * markdown headings, and numbered/bulleted list items — those are where the
- * ungrounded model puts its recommendations. Returns the raw mention strings.
+ * markdown headings, and numbered/bulleted list items, then aggressively
+ * discards things that look like section labels, spec dimensions, or
+ * generic tips. The goal is high precision (few false positives) at the
+ * cost of recall — if we extract something we should be confident it's a
+ * product mention.
  */
 function extractProductMentions(text: string): string[] {
 	const candidates = new Set<string>();
@@ -224,22 +302,50 @@ function extractProductMentions(text: string): string[] {
 	for (const re of patterns) {
 		let m: RegExpExecArray | null;
 		while ((m = re.exec(text)) !== null) {
-			const cleaned = m[1]
-				.replace(/\*\*/g, '')
-				.replace(/[:—-].*$/, '') // strip trailing "— description"
-				.trim();
-			if (cleaned.length >= 4) candidates.add(cleaned);
+			const cleaned = cleanMention(m[1]);
+			if (cleaned && isProductLike(cleaned)) candidates.add(cleaned);
 		}
 	}
 	return [...candidates];
 }
 
+function cleanMention(raw: string): string | null {
+	const cleaned = raw
+		.replace(/\*\*/g, '')
+		.replace(/\[[a-z0-9-]+\]?/gi, '') // strip [slug] or trailing [slug-fragment
+		.replace(/[:—-].*$/, '') // strip "— description" after the name
+		.replace(/^\d+\.\s*/, '') // drop "1. "
+		.replace(/\s+/g, ' ')
+		.trim();
+	return cleaned.length >= 4 ? cleaned : null;
+}
+
+function isProductLike(s: string): boolean {
+	const lower = s.toLowerCase();
+	if (NON_PRODUCT_PHRASES.has(lower)) return false;
+	if (PRODUCT_BLACKLIST_PREFIXES.some((re) => re.test(s))) return false;
+	// A real product mention is either multi-word OR contains a digit/version
+	// token. Single capitalised words like "Industry" don't count.
+	const tokens = s.split(/\s+/);
+	const hasDigit = /\d/.test(s);
+	if (!hasDigit && tokens.length < 2) return false;
+	// Must contain at least one capitalised word — product names start with a
+	// brand or model in title case. Filters out lowercased fragments.
+	const hasCap = tokens.some((t) => /^[A-Z]/.test(t));
+	if (!hasCap) return false;
+	return true;
+}
+
 /**
  * Decide whether a prose mention matches a catalog product.
- *  - 'real' if a catalog entry has the same brand AND enough overlapping
- *    distinctive tokens (after stripping common ones like "pro" / "plus").
- *  - 'wrong_model' if a catalog brand appears but no catalog model in that
- *    brand matches — e.g. "Dell XPS 13 9310" when we only have the "Plus".
+ *
+ *  - 'real' if a catalog entry has the same brand AND model-identifier
+ *    tokens (digit-bearing tokens like "13", "m4", "9340", "s25") all
+ *    appear in the mention. This is what stops "iPhone 15 Pro Max" from
+ *    matching against [iphone-17-pro].
+ *  - 'wrong_model' if a catalog brand appears but no model in that brand
+ *    passes the digit-token check — e.g. "Dell XPS 13 9310" when we
+ *    actually stock the Plus (9340).
  *  - 'wrong_brand' if no catalog brand appears in the mention at all.
  */
 function classifyMention(mention: string): {
@@ -249,20 +355,24 @@ function classifyMention(mention: string): {
 	const mTokens = tokenize(mention);
 	const mentionedBrands = [...CATALOG_BRANDS].filter((b) => mention.toLowerCase().includes(b));
 
-	// No catalog brand at all → an entirely off-Joule recommendation.
 	if (mentionedBrands.length === 0) return { verdict: 'wrong_brand' };
 
-	// Otherwise: look for a catalog product whose brand matches and whose
-	// distinctive tokens overlap enough with the mention's tokens.
 	for (const entry of CATALOG_INDEX) {
 		if (!mentionedBrands.includes(entry.brand.toLowerCase())) continue;
 		const distinctive = [...entry.tokens].filter((t) => !STOP_TOKENS.has(t));
-		const overlap = distinctive.filter((t) => mTokens.has(t)).length;
-		// Require either a strong overlap of distinctive tokens, or that every
-		// distinctive token in the catalog name is present in the mention.
-		const required = Math.max(2, Math.ceil(distinctive.length * 0.5));
-		if (overlap >= required) {
-			return { verdict: 'real', matchedSlug: entry.slug };
+		const digitTokens = distinctive.filter((t) => /\d/.test(t));
+
+		if (digitTokens.length > 0) {
+			// All digit-bearing tokens in the catalog name must appear in the
+			// mention. Strict, but that's the whole point: model numbers are
+			// what distinguishes one generation from the next.
+			const allDigitMatch = digitTokens.every((t) => mTokens.has(t));
+			if (allDigitMatch) return { verdict: 'real', matchedSlug: entry.slug };
+		} else {
+			// No digit tokens in the catalog name — fall back to broad overlap.
+			const overlap = distinctive.filter((t) => mTokens.has(t)).length;
+			const required = Math.max(1, Math.ceil(distinctive.length * 0.6));
+			if (overlap >= required) return { verdict: 'real', matchedSlug: entry.slug };
 		}
 	}
 	return { verdict: 'wrong_model' };
