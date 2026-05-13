@@ -5,12 +5,13 @@
  * no tables, no images, no colour. They read like something a student
  * wrote in Word, which is the point.
  *
- * Run: node scripts/build-docs.cjs
+ * Run: node scripts/build-docs.js
  */
 
-const fs = require('node:fs');
-const path = require('node:path');
-const {
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
 	Document,
 	Packer,
 	Paragraph,
@@ -18,8 +19,9 @@ const {
 	HeadingLevel,
 	LevelFormat,
 	AlignmentType
-} = require('docx');
+} from 'docx';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_ROOT = path.join(__dirname, '..', 'docs');
 
 // ---------- helpers ----------
@@ -46,10 +48,6 @@ function bullet(text) {
 		children: [new TextRun(text)],
 		spacing: { after: 80 }
 	});
-}
-
-function blank() {
-	return new Paragraph({ children: [new TextRun('')] });
 }
 
 function writeDoc(relativePath, children) {
@@ -221,9 +219,7 @@ const ADR_0003 = [
 	bullet(
 		'Pure embedding: find products closest to a user vector in pgvector space, ignore everything else.'
 	),
-	bullet(
-		'Collaborative filter: trickier with a small user base, and harder to explain.'
-	),
+	bullet('Collaborative filter: trickier with a small user base, and harder to explain.'),
 	h('Decision', 2),
 	p(
 		'Hybrid. Build a user vector by weight-averaging the embeddings of bought (weight 3) and saved (weight 2) products. Retrieve top 20 candidates via the match_products RPC over pgvector. Re-rank with a small linear model: cosine similarity, brand-affinity match, price-band match, featured boost, and a per-category overflow penalty so one heavy category cannot monopolise the slate.'
@@ -272,7 +268,9 @@ const ADR_0004 = [
 	bullet(
 		'Pagination clicks are full navigations rather than client-side state changes. Acceptable: the rest of the page is cached so the navigation is fast.'
 	),
-	bullet('Five per page is a UX call to keep the section short enough that the spec list above does not get pushed below the fold.')
+	bullet(
+		'Five per page is a UX call to keep the section short enough that the spec list above does not get pushed below the fold.'
+	)
 ];
 
 const ADR_0005 = [
@@ -304,9 +302,7 @@ const WEEK_01 = [
 	p('Branch: week-01-foundation', { bold: true }),
 	p('Tags: shipped, slipped, rescoped', { bold: true }),
 	h('Shipped', 2),
-	bullet(
-		'SvelteKit 2 + Svelte 5 scaffold with TypeScript, Vitest, Playwright, ESLint, Prettier.'
-	),
+	bullet('SvelteKit 2 + Svelte 5 scaffold with TypeScript, Vitest, Playwright, ESLint, Prettier.'),
 	bullet('Tailwind v4 with custom palette and typography.'),
 	bullet(
 		'Supabase project: schema migration for categories, products, product_images, reviews, carts, cart_items, orders, order_items, wishlists; pgvector embedding column on products; RLS policies on day one.'
@@ -314,7 +310,9 @@ const WEEK_01 = [
 	bullet('Seed script importing the initial catalog.'),
 	bullet('Public catalog pages: /, /categories, /category/[slug], /product/[slug].'),
 	bullet('SSR-first rendering with category and price filters.'),
-	bullet('Email + password auth via Supabase, with cookie-based SSR sessions through @supabase/ssr.'),
+	bullet(
+		'Email + password auth via Supabase, with cookie-based SSR sessions through @supabase/ssr.'
+	),
 	bullet('GitHub Actions CI: typecheck, lint, unit, Playwright BDD layer-1 placeholder.'),
 	bullet('Playwright-BDD skeleton with first three scenarios.'),
 	bullet('Vercel project linked, preview deploys per PR, production on main.'),
@@ -326,7 +324,7 @@ const WEEK_01 = [
 	),
 	h('Reflection', 2),
 	p(
-		'The Supabase + SvelteKit + Tailwind combination paid off. Almost all of the week\'s time went into actual catalog work rather than infrastructure plumbing. The single decision I would not change is enabling RLS from the first migration — later weeks would have been painful otherwise.'
+		"The Supabase + SvelteKit + Tailwind combination paid off. Almost all of the week's time went into actual catalog work rather than infrastructure plumbing. The single decision I would not change is enabling RLS from the first migration — later weeks would have been painful otherwise."
 	)
 ];
 
@@ -348,7 +346,9 @@ const WEEK_02 = [
 	bullet(
 		'Semantic search via pgvector: match_products RPC and an embed script. /search falls back to tsvector when no OPENAI_API_KEY is configured.'
 	),
-	bullet('Order history on /account with status pills and Resume payment buttons for pending orders.'),
+	bullet(
+		'Order history on /account with status pills and Resume payment buttons for pending orders.'
+	),
 	bullet('Reset filters control in the catalog sidebar.'),
 	bullet('L1 BDD scenario count: 16. Target was at least 12.'),
 	h('Slipped', 2),
@@ -400,7 +400,7 @@ const WEEK_03 = [
 	),
 	h('Rescoped', 2),
 	p(
-		'The recommender was originally a Week 4 deliverable. It moved into Week 3 because once product embeddings were populated (Week 2\'s semantic-search work), the embedding-hybrid path was a small lift on top of the rule-based version. Brought forward to keep Week 4 focused on the experiment write-ups and the first production deploy.'
+		"The recommender was originally a Week 4 deliverable. It moved into Week 3 because once product embeddings were populated (Week 2's semantic-search work), the embedding-hybrid path was a small lift on top of the rule-based version. Brought forward to keep Week 4 focused on the experiment write-ups and the first production deploy."
 	),
 	h('Reflection', 2),
 	p(
