@@ -9,9 +9,13 @@ name: SonarCloud
 # (Administration → Analysis Method) for the scan from this workflow to
 # show up. Automatic analysis would otherwise overwrite it.
 
+# Free SonarCloud only scans `main` for non-PR pushes — branch analysis
+# is a paid feature. Week branches are scanned indirectly via the
+# pull_request trigger, which produces a PR-diff report and a comment
+# on the PR. After merge, the next push to main picks up everything.
 on:
   push:
-    branches: [main, 'week-*']
+    branches: [main]
   pull_request:
     branches: [main]
 
