@@ -50,6 +50,16 @@ function bullet(text) {
 	});
 }
 
+// Bullet with a bold lead label, used for the learning-outcome mappings:
+//   • Engineering Approach — Informed decision on Supabase (ADR 0001)...
+function bulletLead(lead, body) {
+	return new Paragraph({
+		numbering: { reference: 'bullets', level: 0 },
+		children: [new TextRun({ text: lead, bold: true }), new TextRun({ text: ' — ' + body })],
+		spacing: { after: 80 }
+	});
+}
+
 function writeDoc(relativePath, children) {
 	const doc = new Document({
 		styles: {
@@ -117,11 +127,19 @@ function writeDoc(relativePath, children) {
 const README = [
 	h('Joule — internal docs', 1),
 	p(
-		'This folder holds the working documentation for the Joule project. Two documents live here, plus the weekly retros.'
+		'This folder holds the working documentation for the Joule project. Three documents at the top level, plus the weekly retros.'
 	),
 	h('architecture-decisions.docx', 2),
 	p(
 		'A single document collecting every non-trivial decision made during the build, in the order they were made. Each entry gives the context, says what was decided, and lists the consequences I expect to live with. New decisions are appended to the end of the same document rather than starting separate files.'
+	),
+	h('sprint-1-retro.docx', 2),
+	p(
+		'End-of-sprint rollup covering Weeks 1–4. What shipped across the sprint, what the experiments said, what I would and would not change about the process, and the numbers that fed the portfolio.'
+	),
+	h('portfolio-summary.docx', 2),
+	p(
+		'Single entry point for a reviewer. Lists every artefact in the repo with one or two sentences on what each one shows. Read this first.'
 	),
 	h('weekly/', 2),
 	p(
@@ -130,9 +148,10 @@ const README = [
 	bullet('week-01-foundation.docx'),
 	bullet('week-02-commerce-core.docx'),
 	bullet('week-03-intelligence.docx'),
+	bullet('week-04-sprint1-close.docx'),
 	h('How to use this folder', 2),
 	p(
-		'The decisions doc and the retros are reference material, not gates. Pull requests can cite them. Older decisions are not rewritten — a new entry that supersedes an older one says so explicitly.'
+		'The decisions doc, the sprint retro, and the weekly retros are reference material, not gates. Pull requests can cite them. Older decisions are not rewritten — a new entry that supersedes an older one says so explicitly.'
 	)
 ];
 
@@ -315,6 +334,23 @@ const WEEK_01 = [
 	h('Reflection', 2),
 	p(
 		"The Supabase + SvelteKit + Tailwind combination paid off. Almost all of the week's time went into actual catalog work rather than infrastructure plumbing. The single decision I would not change is enabling RLS from the first migration — later weeks would have been painful otherwise."
+	),
+	h('Learning outcomes', 2),
+	bulletLead(
+		'Engineering Approach',
+		'Informed decision to use Supabase over Firebase / Auth0 / bare Postgres, logged with reasoning in ADR 0001. Progressive steps from schema to RLS to auth to catalog browse to CI rather than a big-bang setup. System thinking visible in the schema: orders, order_items, and wishlists were created in Week 1 even though they would not be exercised until Week 2 — anticipating the data flows ahead.'
+	),
+	bulletLead(
+		'Software Quality',
+		'Established the testing harness as a baseline: vitest + Playwright + BDD layer 1 with the first three scenarios. RLS policies on every user-scoped table from the first migration — security as an ISO 25010 quality attribute built into the data layer, not bolted on.'
+	),
+	bulletLead(
+		'Software Maintenance',
+		'GitHub Actions CI from day one: typecheck, lint, unit, BDD smoke. Vercel preview deploys per PR, production on main. The "automate all" loop established in week 1.'
+	),
+	bulletLead(
+		'Professional Standard',
+		'Stack choice motivated by stakeholder context (solo developer, eight-week portfolio project, public-facing demo). Trade-offs around lock-in noted in the ADR rather than ignored.'
 	)
 ];
 
@@ -350,6 +386,23 @@ const WEEK_02 = [
 	h('Reflection', 2),
 	p(
 		'The trickiest part of the week was the post-Stripe flow. Clearing the cart on the success page is too late — the layout server load that renders the cart badge has already run by then. The fix was an intermediate /checkout/reconcile endpoint that marks the order paid, clears the cart, then 303-redirects to the success page. Worth documenting because the symptom (stale cart badge after a clean payment) was non-obvious.'
+	),
+	h('Learning outcomes', 2),
+	bulletLead(
+		'Engineering Approach',
+		'Feedback loops via BDD caught the cart-badge-stale-after-checkout bug because the scenario asserted on layout state, not just payment success. System thinking led to /checkout/reconcile as a deliberate hop between Stripe and the success page — recognising that the layout query runs before the success page load and therefore needs the data ready earlier.'
+	),
+	bulletLead(
+		'Software Quality',
+		'16 layer-1 BDD scenarios (target was at least 12). Aspect ratings on reviews push the model beyond "did it persist" into "did the right facet get rated". Semantic search via pgvector is a deliberate trade between functional suitability and performance efficiency (ISO 25010) — slower than tsvector but more useful for natural-language queries.'
+	),
+	bulletLead(
+		'Software Maintenance',
+		'Stripe webhook with signature verification and order-status idempotency — production-shaped change management. Schema changes kept as separate migration files under supabase/migrations/ so the database history is auditable.'
+	),
+	bulletLead(
+		'Professional Standard',
+		'Mid-week rebrand from TechnoMarket 2.0 to Joule documented transparently in the retro rather than papered over. Scope changes are surfaced so the stakeholder (the assessor) can see the decision being made.'
 	)
 ];
 
@@ -395,6 +448,27 @@ const WEEK_03 = [
 	h('Reflection', 2),
 	p(
 		'The most useful artefact of the week was not the assistant itself — it was the second metric in Experiment A. The slug-citation count alone made the experiment look like a tie (both variants at 0% "hallucination") because the ungrounded variant does not know about slug brackets. Adding the prose-mention scorer made the actual difference visible: ungrounded confidently recommends products Joule does not sell (75% wrong brand, 20% wrong generation). The lesson for the next experiment is to think about whether the metric symmetrically applies to both variants before running.'
+	),
+	h('Learning outcomes', 2),
+	bulletLead(
+		'Engineering Approach',
+		'Experiment A is direct evidence-based experimentation: scripted prompts × two variants × quantitative scoring. Progressive steps within the week — assistant in slice 1, compare in slice 2, review intelligence in slice 3, recommender in slice 4 — each shipped and measured before moving on. System thinking visible in the AI stack: assistant, compare, and review-intel share one prompt module, one gateway helper, and one tool set rather than three parallel integrations.'
+	),
+	bulletLead(
+		'Software Quality',
+		'Layer-2 BDD invariants run live AI calls and assert structural properties — the "every claim traces to the catalog" quality benchmark from the brief is now an automated gate, not an aspiration. Embedding-hybrid recommender falls back to rule-based when no embeddings are populated — graceful degradation as a reliability attribute.'
+	),
+	bulletLead(
+		'Software Maintenance',
+		'60-second memo cache on hot catalog reads + short-circuited auth lookup when no session cookie is present — performance-shaped maintenance with measurable round-trip savings. Hardening pass (separately authored) added typed Supabase client, security headers, and idempotent webhook handling.'
+	),
+	bulletLead(
+		'Professional Standard',
+		'Applied research at the centre of the week. Hard scope guard on every system prompt treats human-language text in tool results as data, not instructions — a concrete AI-Act-aligned discipline against prompt injection and off-topic output. The assistant is explicit about refusing to invent products, which is also the brief\'s "honesty over confidence" ethical line.'
+	),
+	bulletLead(
+		'Personal Leadership',
+		'Caught the misleading slug-only metric in Experiment A v1 during my own analysis (not because the test framework complained) and reworked the metric with the prose-mention scorer. Acted on feedback I gave myself — a small example of the feedback-and-adjust loop the learning outcome asks for.'
 	)
 ];
 
@@ -417,6 +491,207 @@ const ARCHITECTURE_DECISIONS = [
 	...ADR_0005
 ];
 
+const WEEK_04 = [
+	h('Week 04 — Sprint 1 close', 1),
+	p('Branch: week-04-sprint1-close', { bold: true }),
+	h('Shipped', 2),
+	bullet(
+		'SonarCloud integration: sonar-project.properties + .github/workflows/sonar.yml. Coverage from vitest in lcov, scanned on push to main and on PRs. Project is on the free tier so feature branches scan only via their PR diff.'
+	),
+	bullet(
+		'Vitest coverage: new test:coverage script + @vitest/coverage-v8. Reports go to /coverage (text + html + lcov). Same lcov file feeds SonarCloud.'
+	),
+	bullet(
+		'k6 load tests under tests/load/: a smoke test (1 VU, 30 s, used by the post-deploy step) and a sustained run (0 → 20 → 0 VUs over 3 min). Both hit only the public read routes — AI endpoints are excluded because the rate limiter would just produce 429s.'
+	),
+	bullet(
+		'docs/load-test.md explaining the scripts, thresholds, and how to run locally vs against Vercel.'
+	),
+	bullet(
+		'Experiment B: visible vs hidden recommendation reasoning, LLM-judge scored. scripts/experiment-b.ts generates one response per prompt then evaluates it both with [slug] brackets intact (visible) and stripped (hidden). Judge sees them in randomised order and scores trust / clarity / usefulness + a forced preference. Writes docs/experiment-b.md.'
+	),
+	bullet(
+		'Sprint-1 retro (this document) + portfolio summary that links every Sprint-1 artefact in one place.'
+	),
+	h('Slipped', 2),
+	p(
+		'The Sonar workflow needed two correction passes after the first push. (1) GitHub Actions blocks `secrets.*` references inside step `if` conditions, so the "skip if SONAR_TOKEN missing" guard I wrote made the workflow file fail to parse outright. (2) Free SonarCloud rejects pushes from non-main branches with "Organization is not allowed to access data from non main branches", so the workflow had to be retargeted to `main` + PRs only. Both fixed in the same week; small irritation rather than a real slip.'
+	),
+	h('Rescoped', 2),
+	p(
+		'Originally intended to do a "first production deploy" as a discrete step. Vercel was already auto-deploying every push to main, so the "first prod deploy" had effectively happened weeks ago. Replaced with a smoke-test action that runs the k6 smoke against the prod URL post-deploy, which is a more useful artefact.'
+	),
+	h('Reflection', 2),
+	p(
+		"Experiment B produced the most interesting finding of the sprint, and it ran against the brief's own assumption. The brief expected visible reasoning to improve trust; the LLM judge said the opposite: trust was a tie (4.90 both sides) but the markdown brackets dragged clarity down (4.30 vs 5.00). The right read isn't \"ship the hidden variant\" — it's that the value of slug citations lives in their being interactive (clickable chips that scroll or link), not in their being literally present in the prose. A real user study with the rendered UI would settle it; the experiment can't."
+	),
+	p(
+		'The other lesson is operational: every "infrastructure" piece this week (Sonar, k6, the smoke action) took longer than the code change. Setting up the SonarCloud organisation, switching from automatic to CI-based analysis, finding the secrets policy on `if`, learning that free-tier rejects non-main pushes — none of that is in the README of any tool. Worth budgeting more time for the setup loop on similar tooling in Sprint 2.'
+	),
+	h('Learning outcomes', 2),
+	bulletLead(
+		'Engineering Approach',
+		'Experiment B with an explicit hypothesis (visible reasoning increases trust) and a result that challenged the hypothesis — the cycle "form a hypothesis, run the test, accept what the data says even when it disagrees with what I expected". Informed decision to use SonarCloud free tier over self-hosted SonarQube, motivated by the solo-developer stakeholder context rather than chosen by default.'
+	),
+	bulletLead(
+		'Software Quality',
+		'SonarCloud measures maintainability, reliability, security, and duplication continuously on every push to main — the quality-attribute coverage the ISO 25010 lens asks for. k6 load tests measure performance under realistic VU counts. Vitest coverage feeds the SonarCloud dashboard via lcov. The quality numbers now have a home outside my own head.'
+	),
+	bulletLead(
+		'Software Maintenance',
+		'The heaviest learning outcome of the week. DORA metrics report + weekly refresh action — deployment frequency, lead time, change failure rate, MTTR all measured automatically. Post-deploy smoke action runs the k6 smoke against the prod URL after every merge to main. SonarCloud CI on every push. The four DORA metrics now serve as the dashboard for delivery-process improvement.'
+	),
+	bulletLead(
+		'Professional Standard',
+		"The sprint-1 retro is the critical reflection on the followed research process the learning outcome describes — what to change, what to keep, what the experiments said and did not say. Experiment B's caveats section explicitly flags same-family judge bias, the small sample, and the gap between raw markdown and rendered UI — methodological transparency over a clean headline."
+	),
+	bulletLead(
+		'Personal Leadership',
+		'Sprint retro forced a "what would I change about the process" question, and the answer fed concrete planning for Sprint 2 (treat infrastructure tickets as full slices, write experiment metrics before running, reason about constraints from the UI down). Feedback acted upon, not just collected.'
+	)
+];
+
+const PORTFOLIO = [
+	h('Joule — portfolio summary', 1),
+	p(
+		'Joule is an AI-augmented electronics store rebuilt as a two-sprint applied-research project. This document is a single entry point — every artefact mentioned below lives in this folder or in the repo.'
+	),
+	h('The work', 2),
+	bullet(
+		'Sprint 1 (Weeks 1–4): foundation, commerce core, intelligence layer, sprint close. Four weekly retros under weekly/, plus a sprint-1 rollup in sprint-1-retro.docx.'
+	),
+	bullet(
+		'Sprint 2 (Weeks 5–8, in progress): admin platform, observability + performance, accessibility + Experiment C, synthesis.'
+	),
+	h('Discipline artefacts', 2),
+	bullet(
+		'architecture-decisions.docx — five ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts).'
+	),
+	bullet(
+		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
+	),
+	bullet(
+		'docs/experiment-a.md — grounded vs ungrounded shopping assistant on 24 prompts. Headline: 51 of 51 grounded slug citations are real (0% hallucination). 254 ungrounded prose mentions, under 5% Joule-correct.'
+	),
+	bullet(
+		"docs/experiment-b.md — visible vs hidden recommendation reasoning, LLM-judge scored on 10 prompts. Counter to the brief's assumption: visible reasoning tied on trust (4.90 each), lost on clarity (4.30 vs 5.00). Caveats noted."
+	),
+	bullet(
+		'docs/dora.md — auto-refreshed weekly by a GitHub Action. Deployment frequency, lead time, change failure rate, MTTR over the last 28 days.'
+	),
+	h('Quality automation', 2),
+	bullet(
+		'GitHub Actions on every push: typecheck (svelte-check), lint (eslint + prettier), unit tests (vitest, 30 tests), BDD layer 1 (16 deterministic scenarios). The @ai-tagged layer-2 and layer-3 scenarios skip cleanly when the AI gateway key is absent.'
+	),
+	bullet(
+		'SonarCloud on push to main and on PRs. Coverage from vitest in lcov, security / reliability / maintainability ratings, duplication tracking. Configured for CI-based analysis, not Automatic.'
+	),
+	bullet(
+		'k6 load tests in tests/load/. Smoke (1 VU, 30 s) runs against the live deploy after every merge to main. Sustained (0 → 20 → 0 VUs over 3 min) available on demand.'
+	),
+	bullet(
+		'Post-deploy smoke action wakes after a push to main, sleeps 90 s for Vercel to settle, then runs the k6 smoke against the prod URL.'
+	),
+	h('What I can show', 2),
+	bullet(
+		'The site itself at the Vercel preview / prod URL. /assistant for the chat experience, /compare for the structured comparison, any product page for reviews + intelligence panel + recommender on the account page.'
+	),
+	bullet('The SonarCloud dashboard for code-quality numbers.'),
+	bullet('The two experiment markdowns for the AI-quality numbers.'),
+	bullet('The DORA report for the delivery-quality numbers.'),
+	bullet('The ADRs and the weekly + sprint retros for the process.'),
+	h('What I would not show without context', 2),
+	bullet(
+		'Experiment B\'s 7-of-10-prefer-hidden result. Sounds like "ship the hidden variant" but is actually "the LLM judge can\'t tell raw markdown brackets from rendered link chips". Worth the caveat every time it comes up.'
+	),
+	bullet(
+		'The DORA failure rate at 0% in early weeks. The heuristic counts fix-prefixed PRs as failures, and Sprint 1 had very few PRs total, so the denominator is small. Sprint 2 numbers will be more meaningful.'
+	)
+];
+
+const SPRINT_1_RETRO = [
+	h('Sprint 1 retro — Weeks 1 to 4', 1),
+	p(
+		'Closing retro for the first sprint. The weekly retros under weekly/ cover each week individually; this document is the four-week rollup with the things that only become visible over the longer arc.'
+	),
+	h('What shipped', 2),
+	bullet('Foundation (Week 1): SvelteKit 2 + Supabase + RLS + the catalog browse experience.'),
+	bullet(
+		'Commerce core (Week 2): cart, wishlist, Stripe test-mode checkout, PDPs with image galleries, reviews with aspect ratings, semantic search over pgvector. 16 L1 BDD scenarios.'
+	),
+	bullet(
+		'Intelligence layer (Week 3): conversational assistant with three catalog tools, comparison synthesiser, review-intelligence panel, embedding-hybrid recommender, L2 grounding invariants, Experiment A.'
+	),
+	bullet(
+		'Sprint close (Week 4): SonarCloud + k6 load tests + Experiment B + post-deploy smoke + portfolio summary. Hardening pass merged from a separate branch (typed Database, security headers, idempotent Stripe webhook, unit tests).'
+	),
+	h('What the experiments said', 2),
+	p(
+		"Experiment A across 24 prompts: the grounded variant produced 51 product citations, all real (0% hallucination). The ungrounded variant produced 254 prose product mentions, of which less than 5% match anything Joule actually carries — 75% are brands we don't stock, 20% are wrong-generation products of brands we do stock (iPhone 15 instead of 17, Pixel 8 instead of 10). The L2 invariant held under stress."
+	),
+	p(
+		'Experiment B on 10 prompts found that visible vs hidden reasoning didn\'t move trust (tied 4.90 / 4.90) but visible cost clarity (4.30 vs 5.00). The judge was the same model family as the writer, which is a known weakness — same biases on both sides. The honest read is "this experiment can\'t distinguish raw markdown brackets from rendered link chips", which is a methodology lesson for Sprint 2 more than a UX finding.'
+	),
+	h('What I would change about the process', 2),
+	bullet(
+		"Write the experiments' metrics BEFORE running them, not after. Experiment A v1's first metric (slug-citation hallucination rate) gave a misleading 0% / 0% tie because the ungrounded variant doesn't emit slug citations at all. The v2 metric (prose product mentions classified by brand and model number) is what made the actual gap visible. Spending an extra hour writing the metric down before pressing run would have saved a day of misleading numbers."
+	),
+	bullet(
+		'Treat "infrastructure" tickets as full slices, not glue. SonarCloud, the DORA report action, the gitattributes pin — each took a real chunk of time. Budgeting them as 30-minute side quests was wrong.'
+	),
+	bullet(
+		'Per-aspect uniqueness on reviews. The schema and UI assume one review per aspect per user; the unique-index hardening migration enforced one review per user period. Caught after deploy. The lesson is that constraints have to be reasoned about from the UI down, not the schema up.'
+	),
+	h('What I would not change', 2),
+	bullet(
+		'RLS from the first migration. Every Sprint-1 feature that involved user-scoped data — orders, wishlist, cart, reviews — could have leaked across users if any single route forgot to filter by auth.uid(). RLS at the DB level meant those mistakes were impossible, not just unlikely.'
+	),
+	bullet(
+		'The catalog-cache + recommender split. Sixty-second in-memory caches on the seven hot reads, plus the embedding-hybrid recommender falling back to rule-based when no embeddings are populated, kept latency and cost both predictable across the four weeks without ever having to revisit them.'
+	),
+	bullet(
+		'Splitting Experiment A from L2. L2 (every slug cited must exist in the catalog) ran in CI as a pass/fail gate and held throughout the sprint. Experiment A was the supporting evidence — quantitative, comparative, but never a merge gate. Keeping the two cleanly separated turned out to matter when the prose-mention metric needed rewriting between v1 and v2.'
+	),
+	h('Numbers for the portfolio', 2),
+	bullet(
+		'Code: 26 source files in src/, around 9 500 lines added net across Sprint 1 (Weeks 1–4).'
+	),
+	bullet(
+		'Tests: 30 unit tests in vitest, 16 layer-1 BDD scenarios, 3 layer-2 invariants, 3 layer-3 tolerance scenarios. All green in CI.'
+	),
+	bullet(
+		'Hallucinations: 0 of 51 product slug citations from the grounded assistant under a 24-prompt stress.'
+	),
+	bullet(
+		'DORA week-of-Sprint-1-close: deploy frequency 1.4 per week, lead time ~10 minutes (PR opened to merge), failure rate 0%, MTTR n/a.'
+	),
+	h('Where Sprint 2 starts', 2),
+	p(
+		'Admin platform (Week 5 in the plan): product management, fulfilment workflow, user admin, review moderation, AI-assisted support drafting, role-based access via RLS. Plus observability + perf (Week 6), accessibility + Experiment C (Week 7), and synthesis (Week 8).'
+	),
+	h('Learning outcomes — sprint rollup', 2),
+	bulletLead(
+		'Engineering Approach',
+		'Two evidence-based experiments end-to-end (A and B) with quantitative scoring. Multiple feedback loops layered on top of each other: BDD layers 1, 2, and 3; DORA metrics; SonarCloud quality gate. System thinking visible in the shared AI stack (one prompt module, one gateway helper, one tool set across three AI features) and in the checkout reconciliation flow.'
+	),
+	bulletLead(
+		'Software Quality',
+		'Five ISO 25010 attributes measured: security via RLS, reliability via L2 invariants, performance efficiency via the cache layer and k6 load tests, maintainability via SonarCloud, functional suitability via the BDD layers. 30 unit tests, 16 layer-1 scenarios, 3 layer-2 invariants, 3 layer-3 tolerance scenarios.'
+	),
+	bulletLead(
+		'Software Maintenance',
+		'CI from Week 1, Vercel preview + prod auto-deploys, hardening pass adding security headers + typed DB client + idempotent Stripe webhook, DORA report auto-refreshed weekly, post-deploy smoke action, SonarCloud-driven quality gate on every push to main. The full "automate all" loop is in place.'
+	),
+	bulletLead(
+		'Professional Standard',
+		'Two applied-research experiments with methodological transparency. Hard scope guard on AI prompts and explicit refusal patterns for off-catalog requests address AI Act-style obligations. Every non-trivial decision logged with context and consequences (5 ADRs). Weekly retros and this sprint retro produced as portable artefacts the stakeholder can audit.'
+	),
+	bulletLead(
+		'Personal Leadership',
+		'Weekly retros every week, sprint retro at sprint close. Explicit "what I would change" lists feeding the next sprint\'s plan. Decision to adopt Spec-Kit as a methodology change in Sprint 2 was made at sprint close — a deliberate growth move rather than continuing on autopilot.'
+	)
+];
+
 // ---------- build ----------
 
 async function main() {
@@ -426,7 +701,10 @@ async function main() {
 		writeDoc('architecture-decisions.docx', ARCHITECTURE_DECISIONS),
 		writeDoc('weekly/week-01-foundation.docx', WEEK_01),
 		writeDoc('weekly/week-02-commerce-core.docx', WEEK_02),
-		writeDoc('weekly/week-03-intelligence.docx', WEEK_03)
+		writeDoc('weekly/week-03-intelligence.docx', WEEK_03),
+		writeDoc('weekly/week-04-sprint1-close.docx', WEEK_04),
+		writeDoc('sprint-1-retro.docx', SPRINT_1_RETRO),
+		writeDoc('portfolio-summary.docx', PORTFOLIO)
 	]);
 	console.log('Done.');
 }

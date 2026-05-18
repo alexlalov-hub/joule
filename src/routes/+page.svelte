@@ -10,21 +10,10 @@
 
 <section class="relative">
 	<div class="mx-auto max-w-7xl px-6 pt-16 pb-10 md:px-10 md:pt-24 md:pb-16">
-		<span
-			class="inline-flex items-center gap-2 rounded-full border border-accent px-3 py-1 kicker text-accent"
-		>
-			New season · Free EU shipping
-		</span>
 		<h1 class="mt-6 font-serif text-5xl leading-[1] font-normal tracking-tight md:text-7xl">
 			The right kit, <em class="text-accent italic">picked with care.</em><br />
 			Not just listed.
 		</h1>
-		<p
-			class="mt-6 max-w-2xl font-serif text-xl leading-snug font-light text-ink-soft italic md:text-2xl"
-		>
-			Laptops, phones, audio, peripherals — chosen, photographed, and described properly. No fluff,
-			no astroturf, no lock-in.
-		</p>
 		<div class="mt-10 flex flex-wrap gap-3">
 			<a
 				href="/categories"

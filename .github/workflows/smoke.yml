@@ -1,0 +1,37 @@
+name: Post-deploy smoke
+
+# After each push to main, Vercel auto-deploys. We give it a minute to
+# come up, then hit the live URL with the k6 smoke test. If any hot
+# route 5xxes or the median latency blows the threshold, the job fails
+# loudly so a regressed deploy doesn't sit there silently.
+#
+# Override the URL with PROD_URL repo variable if the Vercel project
+# alias ever changes. workflow_dispatch is exposed so the smoke can be
+# re-run on demand.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke (k6 against prod)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for Vercel deploy to settle
+        # Vercel kicks off the deploy in parallel with this workflow.
+        # Sleeping is crude but reliable for a small project; a tighter
+        # version would poll a /api/health endpoint. Worth doing later.
+        run: sleep 90
+
+      - name: Install k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run smoke against prod
+        run: k6 run -e BASE_URL=${{ vars.PROD_URL || 'https://joule.vercel.app' }} tests/load/smoke.js

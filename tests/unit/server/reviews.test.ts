@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { listReviewsPage, summarizeProduct, REVIEW_PAGE_SIZE } from './reviews';
+import { listReviewsPage, summarizeProduct, REVIEW_PAGE_SIZE } from '$lib/server/reviews';
 import { seedReviews } from '$lib/reviews/seed';
 import { products as seedProducts } from '$lib/catalog/data';
 

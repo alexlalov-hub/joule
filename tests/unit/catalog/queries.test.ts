@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { listProducts, priceBounds } from './queries';
-import { products as seedProducts } from './data';
+import { listProducts, priceBounds } from '$lib/catalog/queries';
+import { products as seedProducts } from '$lib/catalog/data';
 
 /**
  * These tests run against the in-memory seed fallback (no Supabase client).
