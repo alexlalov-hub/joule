@@ -1,13 +1,13 @@
 name: SonarCloud
 
-# Runs the SonarCloud scanner on every push and PR. The scanner needs:
+# Runs the SonarCloud scanner on every push and PR. Requires SONAR_TOKEN
+# in repo secrets. The scanner needs:
 #   - The source tree (full clone, hence fetch-depth: 0)
 #   - A coverage report in lcov format (vitest emits one with --coverage)
-#   - The SONAR_TOKEN secret (created in SonarCloud, added to GitHub repo
-#     secrets)
 #
-# Until SONAR_TOKEN is wired up, the job no-ops on the secret check rather
-# than failing CI — useful while the SonarCloud project is being set up.
+# In SonarCloud, this project must be set to "CI-based analysis"
+# (Administration → Analysis Method) for the scan from this workflow to
+# show up. Automatic analysis would otherwise overwrite it.
 
 on:
   push:
@@ -20,15 +20,9 @@ jobs:
     name: SonarCloud scan
     runs-on: ubuntu-latest
     steps:
-      - name: Skip if SONAR_TOKEN missing
-        if: ${{ secrets.SONAR_TOKEN == '' }}
-        run: |
-          echo "SONAR_TOKEN is not set in repo secrets — skipping scan."
-          echo "Add it under Settings → Secrets and variables → Actions → New repository secret."
-          exit 0
-
       - uses: actions/checkout@v4
         with:
+          # Sonar needs full git history to compute "new code" deltas.
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -39,6 +33,7 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
-      - uses: SonarSource/sonarqube-scan-action@v4
+      - name: SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
