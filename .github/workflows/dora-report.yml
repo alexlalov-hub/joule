@@ -1,0 +1,41 @@
+name: DORA report (weekly)
+
+# Refreshes docs/dora.md on a schedule so the four-key metrics are
+# always current without anyone remembering to run it locally. Also
+# exposed as workflow_dispatch for ad-hoc runs.
+
+on:
+  schedule:
+    # Sunday 06:00 UTC — quiet time, the previous week is complete.
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - name: Generate DORA report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dora:report
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet docs/dora.md; then
+            echo "No changes to dora.md."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dora.md
+          git commit -m "chore(dora): weekly metrics refresh"
+          git push

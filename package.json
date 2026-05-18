@@ -23,7 +23,8 @@
 		"seed": "tsx scripts/seed.ts",
 		"embed": "tsx scripts/embed-products.ts",
 		"experiment:a": "tsx scripts/experiment-a.ts",
-		"docs:build": "node scripts/build-docs.js"
+		"docs:build": "node scripts/build-docs.js",
+		"dora:report": "tsx scripts/dora-report.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/svelte": "^4.0.175",
