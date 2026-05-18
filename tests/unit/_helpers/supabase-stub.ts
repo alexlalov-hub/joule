@@ -29,12 +29,21 @@
  */
 
 export type StubResult = { data?: unknown; error?: unknown; count?: number };
-export type StubTable = Partial<
-	Record<
-		'maybeSingle' | 'single' | 'select' | 'insert' | 'update' | 'delete' | 'upsert' | 'rpc',
-		StubResult
-	>
-> & {
+
+// Terminal verbs the stub can answer for a given table. Excludes the
+// sequence-helper field below so `entry[op]` always narrows to StubResult,
+// not StubResult | StubResult[].
+export type TerminalOp =
+	| 'maybeSingle'
+	| 'single'
+	| 'select'
+	| 'insert'
+	| 'update'
+	| 'delete'
+	| 'upsert'
+	| 'rpc';
+
+export type StubTable = Partial<Record<TerminalOp, StubResult>> & {
 	// Sequential results for repeated terminal calls against the same table.
 	// If `maybeSingleSequence` is set, each invocation pops the next entry.
 	maybeSingleSequence?: StubResult[];
@@ -57,7 +66,7 @@ export function makeStub(script: StubScript): {
 } {
 	const calls: RecordedCall[] = [];
 
-	function terminal(table: string, op: keyof StubTable, payload?: unknown): Promise<StubResult> {
+	function terminal(table: string, op: TerminalOp, payload?: unknown): Promise<StubResult> {
 		calls.push({ table, op, payload });
 		const entry = script[table];
 		if (!entry) {
@@ -73,13 +82,13 @@ export function makeStub(script: StubScript): {
 		return Promise.resolve(result);
 	}
 
-	function builder(table: string, op: keyof StubTable, payload?: unknown): Any {
+	function builder(table: string, op: TerminalOp, payload?: unknown): Any {
 		// Writes chained through ".select(...).single()" or ".select(...).maybeSingle()"
 		// should still record as the original write op (insert/update/upsert/delete),
 		// not as the terminal verb. Matches how production code is shaped:
 		//   sb.from('x').insert({...}).select('id').single()
 		// is one logical operation — an insert whose result is one row.
-		const writeOps: ReadonlyArray<keyof StubTable> = ['insert', 'update', 'upsert', 'delete'];
+		const writeOps: ReadonlyArray<TerminalOp> = ['insert', 'update', 'upsert', 'delete'];
 		const isWrite = writeOps.includes(op);
 
 		const node: Any = {
