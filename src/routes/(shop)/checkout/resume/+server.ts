@@ -1,15 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 import { getStripe } from '$lib/server/stripe';
 import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
-
-type OrderItemRow = {
-	product_slug: string;
-	product_name: string;
-	unit_price_cents: number;
-	quantity: number;
-};
 
 /**
  * Resume payment for a pending order. Re-uses the original Stripe session if
@@ -23,8 +15,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 	const orderId = String(form.get('orderId') ?? '');
 	if (!orderId) throw error(400, 'Missing order id');
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const admin = getSupabaseAdmin() as SupabaseClient<any, 'public', any>;
+	const admin = getSupabaseAdmin();
 
 	const { data: order } = await admin
 		.from('orders')
@@ -53,7 +44,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 		.from('order_items')
 		.select('product_slug, product_name, unit_price_cents, quantity')
 		.eq('order_id', orderId);
-	const rows = (items as unknown as OrderItemRow[] | null) ?? [];
+	const rows = items ?? [];
 	if (rows.length === 0) throw error(400, 'Order has no items to resume');
 
 	const session = await stripe.checkout.sessions.create({

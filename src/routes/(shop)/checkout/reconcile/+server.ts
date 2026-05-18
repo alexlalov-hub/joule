@@ -1,5 +1,4 @@
 import { redirect } from '@sveltejs/kit';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 import { getStripe } from '$lib/server/stripe';
 import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
@@ -22,8 +21,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const orderId = session.metadata?.order_id ?? null;
 
 		if (session.payment_status === 'paid' && orderId) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const admin = getSupabaseAdmin() as SupabaseClient<any, 'public', any>;
+			const admin = getSupabaseAdmin();
 
 			await admin
 				.from('orders')

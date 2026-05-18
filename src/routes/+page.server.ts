@@ -1,19 +1,19 @@
 import type { PageServerLoad } from './$types';
-import { listCategories, listFeatured, listProducts } from '$lib/catalog/queries';
+import { listCategories, listProducts } from '$lib/catalog/queries';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const [featured, categories, latest] = await Promise.all([
-		listFeatured(locals.supabase, 8),
-		listCategories(locals.supabase),
-		listProducts(locals.supabase, { sort: 'featured' })
+	const [all, categories] = await Promise.all([
+		listProducts(locals.supabase, { sort: 'featured' }),
+		listCategories(locals.supabase)
 	]);
 
-	const brandCount = new Set(latest.map((p) => p.brand)).size;
+	const featured = all.filter((p) => p.featured).slice(0, 8);
+	const brandCount = new Set(all.map((p) => p.brand)).size;
 
 	return {
 		featured,
 		categories,
-		productCount: latest.length,
+		productCount: all.length,
 		brandCount
 	};
 };

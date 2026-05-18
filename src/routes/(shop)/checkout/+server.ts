@@ -1,6 +1,5 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { getCartSummary } from '$lib/server/cart';
 import { getStripe } from '$lib/server/stripe';
 import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
@@ -9,13 +8,10 @@ export const POST: RequestHandler = async ({ locals, url }) => {
 	if (!locals.user || !locals.supabase) {
 		throw redirect(303, `/login?next=${encodeURIComponent('/cart')}`);
 	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const sb = locals.supabase as SupabaseClient<any, 'public', any>;
 	// Orders are insert-server-side per RLS — use the secret-key client.
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const admin = getSupabaseAdmin() as SupabaseClient<any, 'public', any>;
+	const admin = getSupabaseAdmin();
 
-	const cart = await getCartSummary(sb, locals.user.id);
+	const cart = await getCartSummary(locals.supabase, locals.user.id);
 	if (cart.items.length === 0) throw redirect(303, '/cart');
 
 	const { data: orderRow, error: orderErr } = await admin

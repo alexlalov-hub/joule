@@ -4,7 +4,11 @@ import type { Database } from '$lib/server/db/types';
 declare global {
 	namespace App {
 		interface Locals {
-			supabase: SupabaseClient<Database>;
+			/**
+			 * Null when Supabase env isn't configured — the app degrades to
+			 * anonymous, seed-only mode. Always check before use.
+			 */
+			supabase: SupabaseClient<Database> | null;
 			/**
 			 * Returns the authenticated user via supabase.auth.getUser(), which
 			 * round-trips to Supabase Auth. Use this instead of getSession() —

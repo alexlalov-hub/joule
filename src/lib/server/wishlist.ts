@@ -21,10 +21,12 @@ async function resolveProductId(sb: SB, slug: string): Promise<string | null> {
 export async function isWishlistedBySlug(
 	sb: SB | null,
 	userId: string | null,
-	slug: string
+	slug: string,
+	options: { productId?: string | null } = {}
 ): Promise<boolean> {
 	if (!sb || !userId) return false;
-	const productId = await resolveProductId(sb, slug);
+	const productId =
+		options.productId !== undefined ? options.productId : await resolveProductId(sb, slug);
 	if (!productId) return false;
 	const { data } = await sb
 		.from('wishlists')
