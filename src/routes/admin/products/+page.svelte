@@ -8,6 +8,25 @@
 		return (cents / 100).toFixed(2);
 	}
 
+	// Per-row input state. We bind:value to these strings so the inputs are
+	// controlled — a one-way `value={...}` attribute keeps stale typed-but-
+	// unsaved values in the DOM after a save, because Svelte's diff sees the
+	// rendered attribute string as unchanged and skips updating the input.
+	let priceInputs = $state<Record<string, string>>({});
+	let stockInputs = $state<Record<string, string>>({});
+
+	// Sync the inputs from the load data on every change. This handles both
+	// the initial render and re-syncs after a successful save (when update()
+	// re-runs the load and data.products gets fresh values). Mutating the
+	// $state inside $effect is fine — neither input map is read by the
+	// effect, so there's no loop.
+	$effect(() => {
+		for (const p of data.products) {
+			priceInputs[p.id] = poundsFromCents(p.price_cents);
+			stockInputs[p.id] = String(p.stock_qty);
+		}
+	});
+
 	// Per-row "saved a moment ago" flag — flipped on by the successful action
 	// response and cleared by a tiny timeout. Pure visual feedback.
 	let savedIds = $state<Record<string, number>>({});
@@ -92,7 +111,7 @@
 										step="0.01"
 										min="0"
 										max="100000"
-										value={poundsFromCents(p.price_cents)}
+										bind:value={priceInputs[p.id]}
 										class="w-24 rounded border border-slate-300 px-2 py-1 text-right tabular-nums focus:border-slate-500 focus:outline-none"
 									/>
 								</label>
@@ -103,7 +122,7 @@
 										type="number"
 										step="1"
 										min="0"
-										value={p.stock_qty}
+										bind:value={stockInputs[p.id]}
 										class="w-20 rounded border border-slate-300 px-2 py-1 text-right tabular-nums focus:border-slate-500 focus:outline-none"
 									/>
 								</label>
