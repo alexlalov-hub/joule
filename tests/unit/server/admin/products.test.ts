@@ -56,9 +56,9 @@ describe('validateProductPatch', () => {
 	});
 
 	it('rejects non-boolean featured', () => {
-		expect(() =>
-			validateProductPatch({ featured: 'yes' as unknown as boolean })
-		).toThrow(AdminWriteError);
+		expect(() => validateProductPatch({ featured: 'yes' as unknown as boolean })).toThrow(
+			AdminWriteError
+		);
 	});
 
 	it('throws when the patch is empty', () => {
@@ -117,9 +117,9 @@ describe('listAdminProducts', () => {
 
 describe('updateProductScalars', () => {
 	it('throws database error when the client is null', async () => {
-		await expect(
-			updateProductScalars(null, 'admin', 'p1', { price_cents: 100 })
-		).rejects.toThrow(AdminWriteError);
+		await expect(updateProductScalars(null, 'admin', 'p1', { price_cents: 100 })).rejects.toThrow(
+			AdminWriteError
+		);
 	});
 
 	it('updates and returns the new row', async () => {
@@ -131,10 +131,7 @@ describe('updateProductScalars', () => {
 		expect(after.price_cents).toBe(45900);
 		// One select for the before-image, one update.
 		expect(calls.map((c) => c.op)).toEqual(['maybeSingle', 'update']);
-		expect(info).toHaveBeenCalledWith(
-			'[admin]',
-			expect.stringContaining('"by":"admin_uid"')
-		);
+		expect(info).toHaveBeenCalledWith('[admin]', expect.stringContaining('"by":"admin_uid"'));
 		info.mockRestore();
 	});
 

@@ -90,18 +90,18 @@ export async function listAdminProducts(sb: SB | null): Promise<AdminProductRow[
 		.order('slug', { ascending: true });
 	if (error || !data) return [];
 
-	return (data as unknown as Array<Record<string, unknown> & { categories?: { name?: string } }>).map(
-		(row) => ({
-			id: String(row.id),
-			slug: String(row.slug),
-			name: String(row.name),
-			brand: String(row.brand),
-			price_cents: Number(row.price_cents),
-			stock_qty: Number(row.stock_qty),
-			featured: Boolean(row.featured),
-			category_name: row.categories?.name ?? null
-		})
-	);
+	return (
+		data as unknown as Array<Record<string, unknown> & { categories?: { name?: string } }>
+	).map((row) => ({
+		id: String(row.id),
+		slug: String(row.slug),
+		name: String(row.name),
+		brand: String(row.brand),
+		price_cents: Number(row.price_cents),
+		stock_qty: Number(row.stock_qty),
+		featured: Boolean(row.featured),
+		category_name: row.categories?.name ?? null
+	}));
 }
 
 /**

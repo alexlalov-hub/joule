@@ -50,7 +50,7 @@
 {:else}
 	<div class="overflow-x-auto rounded border border-slate-200 bg-white">
 		<table class="min-w-full divide-y divide-slate-200 text-sm">
-			<thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+			<thead class="bg-slate-50 text-left text-xs tracking-wide text-slate-500 uppercase">
 				<tr>
 					<th class="px-4 py-2">Product</th>
 					<th class="px-4 py-2">Brand</th>

@@ -9,3 +9,8 @@ bun.lockb
 /static/
 /.features-gen/
 /scripts/unsplash-cache.json
+
+# Spec-Kit — vendored from github/spec-kit, formatted upstream.
+/.specify/
+/.claude/skills/
+/CLAUDE.md

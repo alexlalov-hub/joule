@@ -133,13 +133,13 @@ Validation happens here (`Number.isFinite`, `>= 0`, integer for stock, `<= 10_00
 
 ```ts
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-  if (!locals.user) {
-    throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
-  }
-  if (!(await isAdmin(locals.supabase, locals.user))) {
-    throw redirect(303, '/');
-  }
-  return { adminUser: locals.user };
+	if (!locals.user) {
+		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
+	}
+	if (!(await isAdmin(locals.supabase, locals.user))) {
+		throw redirect(303, '/');
+	}
+	return { adminUser: locals.user };
 };
 ```
 
@@ -158,12 +158,15 @@ A single helper in `src/lib/server/admin/products.ts`:
 
 ```ts
 function logAdminWrite(adminUserId: string, productId: string, before: Patch, after: Patch) {
-  console.info('[admin]', JSON.stringify({
-    at: new Date().toISOString(),
-    by: adminUserId,
-    product: productId,
-    diff: shallowDiff(before, after)
-  }));
+	console.info(
+		'[admin]',
+		JSON.stringify({
+			at: new Date().toISOString(),
+			by: adminUserId,
+			product: productId,
+			diff: shallowDiff(before, after)
+		})
+	);
 }
 ```
 
@@ -185,5 +188,5 @@ Minimal — Tailwind, no client component library, no DataGrid. The list is a `<
 > Constitution Check above is green. This table stays empty.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| (none)    |            |                                     |
+| --------- | ---------- | ------------------------------------ |
+| (none)    |            |                                      |

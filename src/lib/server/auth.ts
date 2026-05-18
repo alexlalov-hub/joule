@@ -16,11 +16,7 @@ type SB = SupabaseClient<Database> | null;
 
 export async function isAdmin(sb: SB, user: User | null | undefined): Promise<boolean> {
 	if (!sb || !user) return false;
-	const { data, error } = await sb
-		.from('profiles')
-		.select('role')
-		.eq('id', user.id)
-		.maybeSingle();
+	const { data, error } = await sb.from('profiles').select('role').eq('id', user.id).maybeSingle();
 	if (error || !data) return false;
 	return data.role === 'admin';
 }

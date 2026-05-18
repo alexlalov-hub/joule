@@ -1,5 +1,5 @@
 ---
-description: "Tasks: Admin Product Management"
+description: 'Tasks: Admin Product Management'
 ---
 
 # Tasks: Admin Product Management
@@ -126,14 +126,14 @@ Stop and validate after each phase. After Phase 4, an admin should have a workin
 
 ## Traceability
 
-| Task | Story | FR(s) | SC(s) |
-|------|-------|-------|-------|
-| T005, T007 | US3 | FR-005 | SC-002 |
-| T006 | US3 | FR-005, FR-006 | SC-002 |
-| T012, T013, T014 | US1 | FR-001, FR-002, FR-003, FR-007, FR-008, FR-009, FR-010 | SC-001, SC-003, SC-004 |
-| T016, T017, T018 | US2 | FR-004 | SC-001 |
-| T002 (already landed) | US3 | FR-006 | SC-002 |
-| T019 | — | (Principle IV) | — |
+| Task                  | Story | FR(s)                                                  | SC(s)                  |
+| --------------------- | ----- | ------------------------------------------------------ | ---------------------- |
+| T005, T007            | US3   | FR-005                                                 | SC-002                 |
+| T006                  | US3   | FR-005, FR-006                                         | SC-002                 |
+| T012, T013, T014      | US1   | FR-001, FR-002, FR-003, FR-007, FR-008, FR-009, FR-010 | SC-001, SC-003, SC-004 |
+| T016, T017, T018      | US2   | FR-004                                                 | SC-001                 |
+| T002 (already landed) | US3   | FR-006                                                 | SC-002                 |
+| T019                  | —     | (Principle IV)                                         | —                      |
 
 ## Notes
 

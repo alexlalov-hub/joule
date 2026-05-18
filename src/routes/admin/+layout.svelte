@@ -20,7 +20,7 @@
 			<div class="flex items-center gap-3">
 				<a href="/admin" class="text-lg font-semibold">Joule</a>
 				<span
-					class="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-amber-900"
+					class="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium tracking-wide text-amber-900 uppercase"
 				>
 					Admin
 				</span>

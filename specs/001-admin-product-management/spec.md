@@ -8,7 +8,7 @@
 
 **Input**: User description: "Admin product management: list products, toggle featured, edit price and stock from an in-app admin UI"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 — Adjust a product's price and stock (Priority: P1)
 
@@ -66,7 +66,7 @@ A signed-in customer, a signed-out visitor, or a malicious script tries to load 
 - **Negative or absurd input** — negative stock, negative price, price above £100,000. Form-level validation rejects with a clear message; the database CHECK constraint is the second line of defence.
 - **Role change mid-session** — a user is demoted from admin to customer while their tab is open. The next admin write fails at the RLS layer; the UI surfaces the failure as "your session no longer has admin access; please sign in again."
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -87,7 +87,7 @@ A signed-in customer, a signed-out visitor, or a malicious script tries to load 
 - **Profile** — the per-user row that carries the `role` field (`customer` or `admin`). This feature reads it to gate access; it does not write to it. Promote/demote of admins is a separate feature.
 - **Audit log entry** — a per-write record with admin user id, timestamp, product id, field, old value, new value. The first release MAY use server console logs rather than a dedicated table; a follow-up feature can promote it to a queryable table if the volume justifies it.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
