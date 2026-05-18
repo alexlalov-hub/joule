@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { memo, clearCache } from './cache';
+import { memo, clearCache } from '$lib/cache';
 
 describe('memo', () => {
 	afterEach(() => {

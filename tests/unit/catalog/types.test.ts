@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice } from './types';
+import { formatPrice } from '$lib/catalog/types';
 
 describe('formatPrice', () => {
 	it('formats euro cents using en-IE locale', () => {

@@ -12,8 +12,6 @@ export default defineConfig({
 			reportsDirectory: './coverage',
 			include: ['src/**/*.{ts,svelte}'],
 			exclude: [
-				'src/**/*.test.ts',
-				'src/**/*.spec.ts',
 				'src/**/*.d.ts',
 				'src/lib/server/db/types.ts',
 				'src/app.d.ts',
@@ -27,8 +25,12 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
-					include: ['src/**/*.{test,spec}.{js,ts}'],
-					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+					// Unit tests live under tests/unit/ in a layout that mirrors src/.
+					// Anything matching the .svelte test suffix runs as a separate
+					// browser/jsdom project (none currently, but the exclude keeps
+					// the option open).
+					include: ['tests/unit/**/*.{test,spec}.{js,ts}'],
+					exclude: ['tests/unit/**/*.svelte.{test,spec}.{js,ts}']
 				}
 			}
 		]
