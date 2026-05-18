@@ -283,6 +283,38 @@ const ADR_0004 = [
 	)
 ];
 
+const ADR_0006 = [
+	h('ADR 0006 — Admin UI uses request-scoped Supabase client, not service-role', 1),
+	p('Date: May 2026', { bold: true }),
+	h('Context', 2),
+	p(
+		'Week 5 introduced an in-app admin UI for product management. The store already has a service-role Supabase client (getSupabaseAdmin) used by Stripe webhooks and seed scripts, which bypasses row-level security by design. Using that client from the admin pages would have been a fast path to "it works", but it would also have meant the database stopped enforcing the access rule — the only thing standing between a non-admin and a write would have been a SvelteKit route guard.'
+	),
+	p('Options considered:'),
+	bullet('Use getSupabaseAdmin from the admin pages, guard with a route-level isAdmin check.'),
+	bullet(
+		'Use the same request-scoped Supabase client the customer app uses, add admin RLS policies so the database enforces the rule independently.'
+	),
+	bullet('Build a separate admin service with its own auth.'),
+	h('Decision', 2),
+	p(
+		'Option 2. A new migration adds a public.is_admin() SQL function and RLS policies on products that call it (admin update / insert), plus policies on reviews and profiles for the same role. Admin pages run under the user auth cookie via @supabase/ssr, exactly like customer pages. The route guard at /admin/+layout.server.ts is the first line of defence; the RLS policies are the second. A request that slips past the route guard still cannot write — the database refuses.'
+	),
+	h('Consequences', 2),
+	bullet(
+		'Two layers of access control, each load-bearing. The route guard provides the user experience (redirect to /); RLS provides the security (writes refused regardless of how the request arrived).'
+	),
+	bullet(
+		'The admin UI uses the existing session-cookie client. No new auth, no new wiring, no service-role exposure on user-triggered code paths.'
+	),
+	bullet(
+		'Promoting a customer to admin is still a manual SQL write in Supabase Studio for now. Moving that promotion into the UI is a separate, narrower feature.'
+	),
+	bullet(
+		'getSupabaseAdmin stays reserved for system jobs (Stripe webhook, seed scripts, scheduled jobs). The rule "user requests use the request-scoped client" is also Principle I of the Spec-Kit constitution.'
+	)
+];
+
 const ADR_0005 = [
 	h('ADR 0005 — Refuse to write a verdict for cross-category comparisons', 1),
 	p('Date: May 2026', { bold: true }),
@@ -488,7 +520,9 @@ const ARCHITECTURE_DECISIONS = [
 	p(''),
 	...ADR_0004,
 	p(''),
-	...ADR_0005
+	...ADR_0005,
+	p(''),
+	...ADR_0006
 ];
 
 const WEEK_04 = [
@@ -565,7 +599,7 @@ const PORTFOLIO = [
 	),
 	h('Discipline artefacts', 2),
 	bullet(
-		'architecture-decisions.docx — five ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts).'
+		'architecture-decisions.docx — six ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client).'
 	),
 	bullet(
 		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
