@@ -11,7 +11,11 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler"
-	}
+	},
+	// k6 scripts run inside the k6 binary (not Node) and use globals like
+	// __ENV plus a "k6/..." module namespace that isn't on npm. Exclude
+	// them from the SvelteKit typecheck.
+	"exclude": ["tests/load/**"]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//
