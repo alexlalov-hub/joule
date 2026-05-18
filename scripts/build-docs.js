@@ -117,34 +117,28 @@ function writeDoc(relativePath, children) {
 const README = [
 	h('Joule — internal docs', 1),
 	p(
-		'This folder holds the working documentation for the Joule project. Two kinds of documents live here.'
+		'This folder holds the working documentation for the Joule project. Two documents live here, plus the weekly retros.'
 	),
-	h('decisions/', 2),
+	h('architecture-decisions.docx', 2),
 	p(
-		'Architecture decision records (ADRs). One file per non-trivial choice made during the build. Each ADR is dated, gives the context, says what was decided, and lists the consequences I expect to live with.'
+		'A single document collecting every non-trivial decision made during the build, in the order they were made. Each entry gives the context, says what was decided, and lists the consequences I expect to live with. New decisions are appended to the end of the same document rather than starting separate files.'
 	),
-	bullet('0001 — Supabase as the platform'),
-	bullet('0002 — Vercel AI Gateway over the Anthropic SDK directly'),
-	bullet('0003 — Embedding-hybrid recommender'),
-	bullet('0004 — Paginated reviews with URL-based page state'),
-	bullet('0005 — Refuse to write a verdict for cross-category comparisons'),
 	h('weekly/', 2),
 	p(
-		'Short retros at the end of each week. Same three sections in every entry: shipped, slipped, rescoped. Plus a reflection paragraph when something is worth flagging for the next week.'
+		'Short retros at the end of each week. Same four sections in every entry: shipped, slipped, rescoped, reflection.'
 	),
 	bullet('week-01-foundation.docx'),
 	bullet('week-02-commerce-core.docx'),
 	bullet('week-03-intelligence.docx'),
 	h('How to use this folder', 2),
 	p(
-		'The ADRs and retros are reference material, not gates. Pull requests can cite them. New decisions go in as new ADRs rather than rewriting old ones.'
+		'The decisions doc and the retros are reference material, not gates. Pull requests can cite them. Older decisions are not rewritten — a new entry that supersedes an older one says so explicitly.'
 	)
 ];
 
 const ADR_0001 = [
 	h('ADR 0001 — Supabase as the platform', 1),
 	p('Date: April 2026', { bold: true }),
-	p('Status: Accepted', { bold: true }),
 	h('Context', 2),
 	p(
 		'Joule needs an authentication system, a relational database with row-level security, a vector column for semantic search, and storage for product images. Picking one platform that does all of this versus stitching components together affects how much time goes into infrastructure versus features.'
@@ -176,7 +170,6 @@ const ADR_0001 = [
 const ADR_0002 = [
 	h('ADR 0002 — Vercel AI Gateway over the Anthropic SDK directly', 1),
 	p('Date: May 2026', { bold: true }),
-	p('Status: Accepted', { bold: true }),
 	h('Context', 2),
 	p(
 		'Week 3 introduces an LLM for the shopping assistant, the comparison synthesiser, and the review-intelligence panel. I needed a way to call a model from server endpoints, with streaming and tool-calling.'
@@ -207,7 +200,6 @@ const ADR_0002 = [
 const ADR_0003 = [
 	h('ADR 0003 — Embedding-hybrid recommender', 1),
 	p('Date: May 2026', { bold: true }),
-	p('Status: Accepted', { bold: true }),
 	h('Context', 2),
 	p(
 		'The /account page shows a "Picked for you" section. The brief asks for transparent personalisation. Each recommendation needs a visible reason chip so the user can audit "why am I seeing this".'
@@ -245,7 +237,6 @@ const ADR_0003 = [
 const ADR_0004 = [
 	h('ADR 0004 — Paginated reviews with URL-based page state', 1),
 	p('Date: April 2026', { bold: true }),
-	p('Status: Accepted', { bold: true }),
 	h('Context', 2),
 	p(
 		'Reviews on a product page accumulate. Without pagination, a popular product would scroll forever. The reviews module already aggregates aspect ratings, which need to reflect all reviews regardless of which page is visible.'
@@ -276,7 +267,6 @@ const ADR_0004 = [
 const ADR_0005 = [
 	h('ADR 0005 — Refuse to write a verdict for cross-category comparisons', 1),
 	p('Date: May 2026', { bold: true }),
-	p('Status: Accepted', { bold: true }),
 	h('Context', 2),
 	p(
 		'The /compare route accepts up to three product slugs in the URL and shows them side by side. The first cut produced a streamed AI verdict ("which one and why") for any comparison, including across categories. When a user compared a phone with a laptop, the model dutifully picked a winner per use-case, but the result was strained — phones and laptops are complements, not alternatives.'
@@ -408,17 +398,32 @@ const WEEK_03 = [
 	)
 ];
 
+// ---------- assemble single architecture-decisions doc ----------
+
+const ARCHITECTURE_DECISIONS = [
+	h('Joule — architecture decisions', 1),
+	p(
+		'A running record of the non-trivial choices made during the build. Each entry is short: context, decision, consequences. Entries are not rewritten when overtaken by a later choice — a superseding entry says so explicitly.'
+	),
+	p(''),
+	...ADR_0001,
+	p(''),
+	...ADR_0002,
+	p(''),
+	...ADR_0003,
+	p(''),
+	...ADR_0004,
+	p(''),
+	...ADR_0005
+];
+
 // ---------- build ----------
 
 async function main() {
 	console.log('Building docs...');
 	await Promise.all([
 		writeDoc('README.docx', README),
-		writeDoc('decisions/0001-supabase-as-platform.docx', ADR_0001),
-		writeDoc('decisions/0002-vercel-ai-gateway.docx', ADR_0002),
-		writeDoc('decisions/0003-embedding-hybrid-recommender.docx', ADR_0003),
-		writeDoc('decisions/0004-paginated-reviews-url-state.docx', ADR_0004),
-		writeDoc('decisions/0005-no-cross-category-verdict.docx', ADR_0005),
+		writeDoc('architecture-decisions.docx', ARCHITECTURE_DECISIONS),
 		writeDoc('weekly/week-01-foundation.docx', WEEK_01),
 		writeDoc('weekly/week-02-commerce-core.docx', WEEK_02),
 		writeDoc('weekly/week-03-intelligence.docx', WEEK_03)
