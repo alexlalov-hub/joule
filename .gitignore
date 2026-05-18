@@ -168,3 +168,5 @@ playwright-report
 
 # Temporary scaffold workspace (will clean up)
 /.tmp-scaffold
+docs/brief.html
+docs/PLAN.md

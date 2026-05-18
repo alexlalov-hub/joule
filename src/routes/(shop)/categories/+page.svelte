@@ -9,9 +9,6 @@
 <section class="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">
 	<div class="kicker text-accent">Departments</div>
 	<h1 class="mt-2 font-serif text-5xl font-normal">All categories.</h1>
-	<p class="mt-3 max-w-xl font-serif text-lg text-ink-soft italic">
-		Eighteen departments, curated. Faceted search arrives in week 2.
-	</p>
 
 	<ul class="mt-10 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 		{#each data.categories as c (c.slug)}
