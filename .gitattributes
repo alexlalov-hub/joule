@@ -1,0 +1,30 @@
+# Normalise line endings to LF in the repo and the working copy regardless
+# of platform. This stops Windows clones from showing phantom "modified"
+# files in GitHub Desktop whenever a tool rewrites a file — git was
+# (silently) wanting to convert LF to CRLF on checkout because of the
+# `core.autocrlf=true` default on Windows.
+#
+# `text=auto` lets git detect text files; `eol=lf` pins the line ending
+# in the working copy. CI (Linux) and Windows devs now see the same
+# file contents byte-for-byte.
+
+* text=auto eol=lf
+
+# Binary file types — git should never try to normalise these.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.svg   binary
+*.ico   binary
+*.pdf   binary
+*.docx  binary
+*.xlsx  binary
+*.pptx  binary
+*.zip   binary
+*.gz    binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
