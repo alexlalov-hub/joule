@@ -4,10 +4,15 @@ import { getStripe } from '$lib/server/stripe';
 import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
 
 /**
- * Stripe redirects here after checkout. Marks the order paid + clears the
- * cart, then redirects to the success page. Doing the work BEFORE the next
- * page load ensures the layout's cart-count query sees the empty cart on the
- * very first render — no flicker, no stale badge.
+ * Stripe redirects here after checkout. Marks the order paid (and decrements
+ * stock atomically via the mark_order_paid RPC), then clears the cart and
+ * forwards to the success page. Doing the work BEFORE the next page load
+ * ensures the layout's cart-count query sees the empty cart on the very
+ * first render — no flicker, no stale badge.
+ *
+ * The webhook handler runs the same RPC. mark_order_paid is idempotent (only
+ * the first caller flips the status and decrements stock), so it does not
+ * matter which one wins the race.
  */
 export const GET: RequestHandler = async ({ url, locals }) => {
 	if (!locals.user) throw redirect(303, '/login');
@@ -23,16 +28,10 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		if (session.payment_status === 'paid' && orderId) {
 			const admin = getSupabaseAdmin();
 
-			await admin
-				.from('orders')
-				.update({
-					status: 'paid',
-					total_cents: session.amount_total ?? undefined,
-					updated_at: new Date().toISOString()
-				})
-				.eq('id', orderId)
-				.eq('user_id', locals.user.id)
-				.neq('status', 'paid');
+			await admin.rpc('mark_order_paid', {
+				p_order_id: orderId,
+				p_total_cents: session.amount_total ?? null
+			});
 
 			const { data: cart } = await admin
 				.from('carts')
