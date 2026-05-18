@@ -268,16 +268,22 @@ export async function postReview(
 	const productId = await resolveProductId(sb, productSlug);
 	if (!productId) return { ok: false, message: 'Product not found.' };
 
-	// Pre-flight check so we can return a clear "already reviewed" message
-	// instead of a 23505 unique-violation. The DB constraint is still the
-	// source of truth — see migrations/...reviews_unique_per_user.sql.
+	// Block double-posting of the same aspect by the same user. Different
+	// aspects (overall vs build vs performance vs value) are allowed —
+	// that's what the "Add another aspect rating" affordance is for in the
+	// PDP review section. No DB constraint to back this up; the check is
+	// best-effort and a race can let two rows through.
 	const { count } = await sb
 		.from('reviews')
 		.select('id', { count: 'exact', head: true })
 		.eq('product_id', productId)
-		.eq('user_id', userId);
+		.eq('user_id', userId)
+		.eq('aspect', input.aspect);
 	if ((count ?? 0) > 0) {
-		return { ok: false, message: 'You have already reviewed this product.' };
+		return {
+			ok: false,
+			message: `You've already left a "${input.aspect}" review for this product.`
+		};
 	}
 
 	const { error } = await sb.from('reviews').insert({
@@ -288,11 +294,6 @@ export async function postReview(
 		title: input.title.trim().slice(0, 120),
 		body: input.body.trim().slice(0, 4000)
 	});
-	if (error) {
-		if (error.code === '23505') {
-			return { ok: false, message: 'You have already reviewed this product.' };
-		}
-		return { ok: false, message: error.message };
-	}
+	if (error) return { ok: false, message: error.message };
 	return { ok: true };
 }
