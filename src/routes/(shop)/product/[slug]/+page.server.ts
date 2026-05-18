@@ -18,11 +18,13 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const reviewPage = Math.max(1, Number(url.searchParams.get('rp') ?? '1') || 1);
 	const justPostedReview = url.searchParams.get('review') === 'posted';
 
-	// Pass productId through so review queries don't each re-resolve the slug.
+	// Pass productId through so review/wishlist queries don't each re-resolve the slug.
 	const [category, siblings, wishlisted, reviewsPage, summary, userReviewed] = await Promise.all([
 		getCategory(locals.supabase, product.categorySlug),
 		listByCategory(locals.supabase, product.categorySlug),
-		isWishlistedBySlug(locals.supabase ?? null, locals.user?.id ?? null, product.slug),
+		isWishlistedBySlug(locals.supabase ?? null, locals.user?.id ?? null, product.slug, {
+			productId
+		}),
 		listReviewsPage(locals.supabase ?? null, product.slug, { page: reviewPage, productId }),
 		summarizeProduct(locals.supabase ?? null, product.slug, { productId }),
 		userHasReviewed(locals.supabase ?? null, locals.user?.id ?? null, product.slug, { productId })

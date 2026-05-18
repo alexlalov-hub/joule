@@ -11,6 +11,17 @@ import {
 import type { Category, Product, ProductImage, ProductSpec } from './types';
 
 /**
+ * Log a warning when we have a live Supabase client but had to fall back to
+ * seed data because a query failed. Calling this with `error == null` is a
+ * no-op so callers can use one helper for both the "no result" and "error"
+ * branches without filtering at the call site.
+ */
+function warnSeedFallback(where: string, error: unknown): void {
+	if (!error) return;
+	console.warn(`[catalog] ${where} failed, falling back to seed:`, error);
+}
+
+/**
  * TTL for cached catalog reads. Catalog data changes via the seed/admin
  * scripts, not in normal traffic, so a minute of staleness is invisible to
  * the user but eliminates the bulk of repeat round-trips.
@@ -134,7 +145,10 @@ export async function listCategories(supabase: SB): Promise<Category[]> {
 			.from('categories')
 			.select('slug, name, blurb')
 			.order('sort_order', { ascending: true });
-		if (error || !data) return seedCategories;
+		if (error || !data) {
+			warnSeedFallback('listCategories', error);
+			return seedCategories;
+		}
 		return data.map(toCategory);
 	});
 }
@@ -168,7 +182,10 @@ export async function listProducts(supabase: SB, filters: ProductFilters = {}): 
 		}
 
 		const { data, error } = await qb;
-		if (error || !data) return applyFilters(seedProducts, filters);
+		if (error || !data) {
+			warnSeedFallback('listProducts', error);
+			return applyFilters(seedProducts, filters);
+		}
 		return (data as unknown as DbProductRow[]).map(toProduct);
 	});
 }
@@ -181,7 +198,10 @@ export async function listFeatured(supabase: SB, limit = 6): Promise<Product[]> 
 			.select(PRODUCT_SELECT)
 			.eq('featured', true)
 			.limit(limit);
-		if (error || !data) return seedProducts.filter((p) => p.featured).slice(0, limit);
+		if (error || !data) {
+			warnSeedFallback('listFeatured', error);
+			return seedProducts.filter((p) => p.featured).slice(0, limit);
+		}
 		return (data as unknown as DbProductRow[]).map(toProduct);
 	});
 }
@@ -199,7 +219,11 @@ export async function getProduct(supabase: SB, slug: string): Promise<Product | 
 			.select(PRODUCT_SELECT)
 			.eq('slug', slug)
 			.maybeSingle();
-		if (error || !data) return seedFindProduct(slug) ?? null;
+		if (error) {
+			warnSeedFallback('getProduct', error);
+			return seedFindProduct(slug) ?? null;
+		}
+		if (!data) return null;
 		return toProduct(data as unknown as DbProductRow);
 	});
 }
@@ -220,7 +244,11 @@ export async function getProductWithId(
 			.select(`id, ${PRODUCT_SELECT}`)
 			.eq('slug', slug)
 			.maybeSingle();
-		if (error || !data) return { id: null, product: seedFindProduct(slug) ?? null };
+		if (error) {
+			warnSeedFallback('getProductWithId', error);
+			return { id: null, product: seedFindProduct(slug) ?? null };
+		}
+		if (!data) return { id: null, product: null };
 		const row = data as unknown as DbProductRow & { id: string };
 		return { id: row.id, product: toProduct(row) };
 	});
@@ -234,7 +262,11 @@ export async function getCategory(supabase: SB, slug: string): Promise<Category 
 			.select('slug, name, blurb')
 			.eq('slug', slug)
 			.maybeSingle();
-		if (error || !data) return seedFindCategory(slug) ?? null;
+		if (error) {
+			warnSeedFallback('getCategory', error);
+			return seedFindCategory(slug) ?? null;
+		}
+		if (!data) return null;
 		return toCategory(data);
 	});
 }
@@ -248,7 +280,10 @@ export async function listBrands(supabase: SB, category?: string): Promise<strin
 		let qb = supabase.from('products').select('brand, categories!inner(slug)');
 		if (category) qb = qb.eq('categories.slug', category);
 		const { data, error } = await qb;
-		if (error || !data) return [];
+		if (error || !data) {
+			warnSeedFallback('listBrands', error);
+			return [];
+		}
 		return Array.from(new Set(data.map((r) => (r as { brand: string }).brand))).sort();
 	});
 }

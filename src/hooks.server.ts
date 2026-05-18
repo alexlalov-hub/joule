@@ -2,7 +2,27 @@ import { createServerClient } from '@supabase/ssr';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { env as publicEnv } from '$env/dynamic/public';
-import { env as privateEnv } from '$env/dynamic/private';
+import type { Database } from '$lib/server/db/types';
+
+/**
+ * Headers applied to every response. Reasonable baseline for an e-commerce
+ * SSR app — tighten CSP once the third-party origins (Stripe, image CDNs)
+ * are pinned down.
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+	'X-Content-Type-Options': 'nosniff',
+	'X-Frame-Options': 'DENY',
+	'Referrer-Policy': 'strict-origin-when-cross-origin',
+	'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+	'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+};
+
+function applySecurityHeaders(response: Response): Response {
+	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+		if (!response.headers.has(name)) response.headers.set(name, value);
+	}
+	return response;
+}
 
 const supabase: Handle = async ({ event, resolve }) => {
 	const url = publicEnv.PUBLIC_SUPABASE_URL;
@@ -10,7 +30,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 
 	if (!url || !publishable) {
 		// Running without Supabase creds — degrade to anonymous, no session.
-		event.locals.supabase = null as never;
+		event.locals.supabase = null;
 		event.locals.safeGetUser = async () => null;
 		event.locals.user = null;
 		return resolve(event, {
@@ -19,7 +39,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 		});
 	}
 
-	event.locals.supabase = createServerClient(url, publishable, {
+	const sb = createServerClient<Database>(url, publishable, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			setAll: (cookiesToSet) => {
@@ -29,6 +49,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 			}
 		}
 	});
+	event.locals.supabase = sb;
 
 	/**
 	 * Authenticate via getUser() (which contacts the Supabase Auth server) rather
@@ -43,15 +64,12 @@ const supabase: Handle = async ({ event, resolve }) => {
 		const {
 			data: { user },
 			error
-		} = await event.locals.supabase.auth.getUser();
+		} = await sb.auth.getUser();
 		if (error) return null;
 		return user;
 	};
 
 	event.locals.user = await event.locals.safeGetUser();
-
-	// Silence unused in case private env isn't used here yet
-	void privateEnv;
 
 	return resolve(event, {
 		filterSerializedResponseHeaders: (name) =>
@@ -59,7 +77,9 @@ const supabase: Handle = async ({ event, resolve }) => {
 	});
 };
 
-export const handle = sequence(supabase);
+const headers: Handle = async ({ event, resolve }) => applySecurityHeaders(await resolve(event));
+
+export const handle = sequence(supabase, headers);
 
 /**
  * Supabase SSR sets cookies named `sb-<project-ref>-auth-token`. We can't pin

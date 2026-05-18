@@ -268,6 +268,18 @@ export async function postReview(
 	const productId = await resolveProductId(sb, productSlug);
 	if (!productId) return { ok: false, message: 'Product not found.' };
 
+	// Pre-flight check so we can return a clear "already reviewed" message
+	// instead of a 23505 unique-violation. The DB constraint is still the
+	// source of truth — see migrations/...reviews_unique_per_user.sql.
+	const { count } = await sb
+		.from('reviews')
+		.select('id', { count: 'exact', head: true })
+		.eq('product_id', productId)
+		.eq('user_id', userId);
+	if ((count ?? 0) > 0) {
+		return { ok: false, message: 'You have already reviewed this product.' };
+	}
+
 	const { error } = await sb.from('reviews').insert({
 		product_id: productId,
 		user_id: userId,
@@ -276,6 +288,11 @@ export async function postReview(
 		title: input.title.trim().slice(0, 120),
 		body: input.body.trim().slice(0, 4000)
 	});
-	if (error) return { ok: false, message: error.message };
+	if (error) {
+		if (error.code === '23505') {
+			return { ok: false, message: 'You have already reviewed this product.' };
+		}
+		return { ok: false, message: error.message };
+	}
 	return { ok: true };
 }
