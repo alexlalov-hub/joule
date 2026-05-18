@@ -9,7 +9,7 @@
  * Deliberately avoids the AI endpoints (they're rate-limited at 20/5min,
  * so any load test against them would just bounce off 429s).
  *
- * Run:  k6 run -e BASE_URL=https://joule.vercel.app tests/load/sustained.js
+ * Run:  k6 run -e BASE_URL=https://joule-lilac.vercel.app tests/load/sustained.js
  */
 
 import http from 'k6/http';

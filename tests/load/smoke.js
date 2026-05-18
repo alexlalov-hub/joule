@@ -3,7 +3,7 @@
  * routes once. Catches "the deploy is broken" without putting any real
  * load on the system. Used by the post-deploy smoke step in CI.
  *
- * Run:  k6 run -e BASE_URL=https://joule.vercel.app tests/load/smoke.js
+ * Run:  k6 run -e BASE_URL=https://joule-lilac.vercel.app tests/load/smoke.js
  */
 
 import http from 'k6/http';

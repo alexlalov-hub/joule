@@ -23,7 +23,7 @@ test off `429` before it produced useful data.
 k6 run tests/load/smoke.js
 
 # Against a Vercel preview or prod:
-k6 run -e BASE_URL=https://joule.vercel.app tests/load/sustained.js
+k6 run -e BASE_URL=https://joule-lilac.vercel.app tests/load/sustained.js
 ```
 
 ## Thresholds
