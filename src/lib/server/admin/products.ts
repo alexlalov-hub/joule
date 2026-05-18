@@ -78,16 +78,37 @@ export function validateProductPatch(patch: ProductPatch): ProductPatch {
 }
 
 /**
- * List every product for the admin grid. The customer-facing catalog query
- * is paginated and filtered; this one isn't, because the catalog is small
- * (~50 rows) and the admin wants the full picture in one view.
+ * Filter modes for the admin product list. Matches the three dashboard
+ * cards: total products, featured products, low-stock (< 5) products.
  */
-export async function listAdminProducts(sb: SB | null): Promise<AdminProductRow[]> {
+export type AdminProductFilter = 'all' | 'featured' | 'low-stock';
+
+/** Threshold for the "low stock" filter and the matching dashboard card. */
+export const LOW_STOCK_THRESHOLD = 5;
+
+/**
+ * List products for the admin grid, optionally narrowed by the dashboard
+ * filter. The customer-facing catalog query is paginated; this one isn't,
+ * because the catalog is small (~50 rows) and the admin wants the full
+ * picture in one view.
+ */
+export async function listAdminProducts(
+	sb: SB | null,
+	filter: AdminProductFilter = 'all'
+): Promise<AdminProductRow[]> {
 	if (!sb) return [];
-	const { data, error } = await sb
+	let query = sb
 		.from('products')
 		.select('id, slug, name, brand, price_cents, stock_qty, featured, categories(name)')
 		.order('slug', { ascending: true });
+
+	if (filter === 'featured') {
+		query = query.eq('featured', true);
+	} else if (filter === 'low-stock') {
+		query = query.lt('stock_qty', LOW_STOCK_THRESHOLD);
+	}
+
+	const { data, error } = await query;
 	if (error || !data) return [];
 
 	return (

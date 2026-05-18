@@ -113,6 +113,23 @@ describe('listAdminProducts', () => {
 		});
 		expect(await listAdminProducts(client)).toEqual([]);
 	});
+
+	it('accepts the featured filter without erroring', async () => {
+		// The stub's chainable .eq() returns itself so this only exercises the
+		// code path that adds the predicate; the actual filter is enforced by
+		// Postgres in production.
+		const { client } = makeStub({
+			products: { select: { data: [], error: null } }
+		});
+		expect(await listAdminProducts(client, 'featured')).toEqual([]);
+	});
+
+	it('accepts the low-stock filter without erroring', async () => {
+		const { client } = makeStub({
+			products: { select: { data: [], error: null } }
+		});
+		expect(await listAdminProducts(client, 'low-stock')).toEqual([]);
+	});
 });
 
 describe('updateProductScalars', () => {

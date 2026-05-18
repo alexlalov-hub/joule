@@ -57,10 +57,38 @@
 	<p class="text-sm text-slate-500">{data.products.length} rows</p>
 </div>
 
-<p class="mb-6 text-sm text-slate-600">
+<p class="mb-4 text-sm text-slate-600">
 	Edit a product's price, stock, or featured flag inline. Changes apply to the public storefront on
 	the next page load.
 </p>
+
+<div class="mb-4 flex flex-wrap items-center gap-2 text-xs">
+	<span class="text-slate-500">Show:</span>
+	<a
+		href="/admin/products"
+		class="rounded px-2 py-1 {data.filter === 'all'
+			? 'bg-slate-900 text-white'
+			: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'}"
+	>
+		All
+	</a>
+	<a
+		href="/admin/products?filter=featured"
+		class="rounded px-2 py-1 {data.filter === 'featured'
+			? 'bg-slate-900 text-white'
+			: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'}"
+	>
+		Featured
+	</a>
+	<a
+		href="/admin/products?filter=low-stock"
+		class="rounded px-2 py-1 {data.filter === 'low-stock'
+			? 'bg-slate-900 text-white'
+			: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100'}"
+	>
+		Low stock (&lt; 5)
+	</a>
+</div>
 
 {#if data.products.length === 0}
 	<div class="rounded border border-slate-200 bg-white p-6 text-center text-slate-500">

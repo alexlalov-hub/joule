@@ -3,7 +3,8 @@ import {
 	AdminWriteError,
 	listAdminProducts,
 	toggleFeatured,
-	updateProductScalars
+	updateProductScalars,
+	type AdminProductFilter
 } from '$lib/server/admin/products';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -12,10 +13,20 @@ import type { Actions, PageServerLoad } from './$types';
  * /admin/+layout.server.ts so by the time we get here, locals.user is
  * defined and is an admin. We still pass the user id through to the
  * write helpers so the audit log records who did what.
+ *
+ * `filter` comes from ?filter=featured or ?filter=low-stock (set by the
+ * dashboard cards). Anything else falls back to "all" so a typo in the
+ * URL doesn't surface as an empty list.
  */
-export const load: PageServerLoad = async ({ locals }) => {
-	const products = await listAdminProducts(locals.supabase ?? null);
-	return { products };
+function parseFilter(raw: string | null): AdminProductFilter {
+	if (raw === 'featured' || raw === 'low-stock') return raw;
+	return 'all';
+}
+
+export const load: PageServerLoad = async ({ locals, url }) => {
+	const filter = parseFilter(url.searchParams.get('filter'));
+	const products = await listAdminProducts(locals.supabase ?? null, filter);
+	return { products, filter };
 };
 
 function parseInteger(input: FormDataEntryValue | null): number | undefined {
