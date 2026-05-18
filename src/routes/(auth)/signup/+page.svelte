@@ -49,6 +49,7 @@
 				name="email"
 				required
 				autocomplete="email"
+				value={form && 'email' in form ? (form.email as string) : ''}
 				class="mt-1 w-full rounded-sm border border-ink/20 bg-paper px-3 py-2 text-sm focus:border-accent"
 			/>
 		</label>

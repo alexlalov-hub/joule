@@ -153,6 +153,13 @@ export type Database = {
 				};
 				Returns: { slug: string; similarity: number }[];
 			};
+			mark_order_paid: {
+				Args: {
+					p_order_id: string;
+					p_total_cents?: number | null;
+				};
+				Returns: boolean;
+			};
 		};
 		Enums: {
 			review_aspect: ReviewAspect;

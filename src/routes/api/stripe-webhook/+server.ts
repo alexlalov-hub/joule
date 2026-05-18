@@ -6,9 +6,11 @@ import { getSupabaseAdmin } from '$lib/server/supabaseAdmin';
 import type Stripe from 'stripe';
 
 /**
- * Stripe webhook. Verifies signature, then marks the order as paid and clears
- * the cart. Idempotent — checkout/reconcile may have already done this work
- * if the user landed on the success URL first.
+ * Stripe webhook. Verifies signature, then marks the order as paid (and
+ * decrements stock atomically via the mark_order_paid RPC) and clears the
+ * cart. Idempotent — checkout/reconcile may have already done this work
+ * if the user landed on the success URL first; mark_order_paid no-ops on
+ * orders already in paid status.
  */
 export const POST: RequestHandler = async ({ request }) => {
 	const sig = request.headers.get('stripe-signature');
@@ -36,15 +38,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const sb = getSupabaseAdmin();
 
-	await sb
-		.from('orders')
-		.update({
-			status: 'paid',
-			total_cents: session.amount_total ?? undefined,
-			updated_at: new Date().toISOString()
-		})
-		.eq('id', orderId)
-		.neq('status', 'paid');
+	await sb.rpc('mark_order_paid', {
+		p_order_id: orderId,
+		p_total_cents: session.amount_total ?? null
+	});
 
 	if (userId) {
 		const { data: cart } = await sb.from('carts').select('id').eq('user_id', userId).maybeSingle();

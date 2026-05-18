@@ -1,8 +1,20 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 
 	let { form } = $props();
 	let loading = $state(false);
+
+	const CALLBACK_ERRORS: Record<string, string> = {
+		callback: 'Could not finish signing you in. Try again.',
+		missing_code: 'That sign-in link was incomplete. Try requesting a fresh one.',
+		exchange_failed:
+			'That sign-in link expired or was already used. Request a new magic link below.',
+		auth_unavailable: 'Auth is not configured on this deployment. Contact the operator.'
+	};
+
+	const callbackError = $derived(CALLBACK_ERRORS[page.url.searchParams.get('error') ?? ''] ?? null);
+	const initialEmail = $derived(form && 'email' in form ? (form.email as string) : '');
 </script>
 
 <svelte:head><title>Sign in — Joule</title></svelte:head>
@@ -29,8 +41,22 @@
 		>
 			{form.error}
 		</div>
+	{:else if callbackError}
+		<div
+			class="mt-6 rounded-sm border border-accent/50 bg-accent/10 px-4 py-3 text-sm text-accent-deep"
+			role="alert"
+		>
+			{callbackError}
+		</div>
 	{/if}
 
+	<!--
+		Single form so the email input is shared by both the password and the
+		magic-link submit. Each submit uses formaction to pick the action.
+		Password is intentionally not `required` at the HTML level — the
+		magic-link submit doesn't need one, and the password action validates
+		it server-side.
+	-->
 	<form
 		method="post"
 		action="?/password"
@@ -50,6 +76,7 @@
 				name="email"
 				required
 				autocomplete="email"
+				value={initialEmail}
 				class="mt-1 w-full rounded-sm border border-ink/20 bg-paper px-3 py-2 text-sm focus:border-accent"
 			/>
 		</label>
@@ -58,10 +85,12 @@
 			<input
 				type="password"
 				name="password"
-				required
 				autocomplete="current-password"
 				class="mt-1 w-full rounded-sm border border-ink/20 bg-paper px-3 py-2 text-sm focus:border-accent"
 			/>
+			<span class="mt-1 block text-xs text-ink-faint">
+				Leave blank and use “Email me a magic link” for password-less sign-in.
+			</span>
 		</label>
 		<button
 			type="submit"
@@ -70,12 +99,11 @@
 		>
 			{loading ? 'Signing in…' : 'Sign in'}
 		</button>
-	</form>
-
-	<form method="post" action="?/magic" class="mt-3" use:enhance>
 		<button
 			type="submit"
-			class="w-full rounded-sm border border-ink px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper"
+			formaction="?/magic"
+			disabled={loading}
+			class="w-full rounded-sm border border-ink px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-paper disabled:opacity-60"
 		>
 			Email me a magic link
 		</button>
