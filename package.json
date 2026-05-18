@@ -22,7 +22,9 @@
 		"db:migrate": "supabase migration up",
 		"seed": "tsx scripts/seed.ts",
 		"embed": "tsx scripts/embed-products.ts",
-		"experiment:a": "tsx scripts/experiment-a.ts"
+		"experiment:a": "tsx scripts/experiment-a.ts",
+		"docs:build": "node scripts/build-docs.js",
+		"dora:report": "tsx scripts/dora-report.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/svelte": "^4.0.175",
@@ -42,6 +44,7 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/node": "^24",
+		"docx": "^9.6.1",
 		"dotenv": "^16.4.7",
 		"eslint": "^10.2.0",
 		"eslint-config-prettier": "^10.1.8",
