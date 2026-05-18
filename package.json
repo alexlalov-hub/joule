@@ -24,6 +24,7 @@
 		"seed": "tsx scripts/seed.ts",
 		"embed": "tsx scripts/embed-products.ts",
 		"experiment:a": "tsx scripts/experiment-a.ts",
+		"experiment:b": "tsx scripts/experiment-b.ts",
 		"docs:build": "node scripts/build-docs.js",
 		"dora:report": "tsx scripts/dora-report.ts"
 	},
