@@ -100,6 +100,7 @@ export function makeStub(script: StubScript): {
 			lte: () => node,
 			in: () => node,
 			is: () => node,
+			not: () => node,
 			ilike: () => node,
 			like: () => node,
 			or: () => node,

@@ -18,3 +18,7 @@ Feature: Admin access control (admin — layer 1)
   Scenario: Signed-out visitor hitting /admin/products is redirected to login
     Given I visit "/admin/products"
     Then I should be redirected to the login page
+
+  Scenario: Signed-out visitor hitting /admin/reviews is redirected to login
+    Given I visit "/admin/reviews"
+    Then I should be redirected to the login page

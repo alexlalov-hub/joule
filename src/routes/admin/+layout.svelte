@@ -10,7 +10,8 @@
 
 	const navLinks = [
 		{ href: '/admin', label: 'Dashboard' },
-		{ href: '/admin/products', label: 'Products' }
+		{ href: '/admin/products', label: 'Products' },
+		{ href: '/admin/reviews', label: 'Reviews' }
 	];
 </script>
 
