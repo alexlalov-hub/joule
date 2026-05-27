@@ -182,11 +182,35 @@ async function applyToProject() {
 	}
 }
 
+// In the ephemeral CI flow, scripts/sonar-setup.js runs BEFORE the first
+// scan — so the `joule` project doesn't exist yet and applyToProject's
+// /api/qualitygates/select returns 404. SonarQube assigns a quality gate
+// to a new project based on the instance-wide default, so promoting the
+// Joule gate to default here is what makes the gate-as-code property
+// actually fire on the first scan.
+//
+// Safe in the throwaway-server case CI uses; if you're pointing at a
+// persistent SonarQube with other projects, set DEFAULT_GATE=false in
+// the env to skip this step and use applyToProject's per-project select
+// instead (run sonar:scan once first, then sonar:setup).
+async function setAsDefault() {
+	if (process.env.DEFAULT_GATE === 'false') {
+		console.log('[sonar-setup] DEFAULT_GATE=false — leaving the instance default alone');
+		return;
+	}
+	await api('/api/qualitygates/set_as_default', {
+		method: 'POST',
+		body: form({ name: GATE_NAME })
+	});
+	console.log(`[sonar-setup] "${GATE_NAME}" is now the default gate on this server`);
+}
+
 async function main() {
 	console.log(`[sonar-setup] target: ${HOST}`);
 	await ensureGate();
 	await clearConditions();
 	await applyConditions();
+	await setAsDefault();
 	await applyToProject();
 	console.log('[sonar-setup] done.');
 }
