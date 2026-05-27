@@ -75,6 +75,7 @@ type ReviewsRow = {
 	title: string;
 	body: string;
 	created_at: string;
+	hidden_at: string | null;
 };
 
 type CartsRow = {
