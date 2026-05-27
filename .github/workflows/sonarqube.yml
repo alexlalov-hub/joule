@@ -79,12 +79,20 @@ jobs:
 
       - name: Force-change default admin password
         # First-run SonarQube ships with admin/admin and refuses API calls
-        # that rely on the default password. Change it to a throwaway that
-        # meets SonarQube's password policy (12+ chars, mixed case, digit,
-        # special) so the rest of the job can authenticate.
-        env:
-          NEW_ADMIN_PASSWORD: 'Ephemeral-CI-Pwd-2026!'
+        # that rely on the default password. We change it to a per-run
+        # generated value that meets SonarQube's password policy (12+
+        # chars, mixed case, digit, special).
+        #
+        # The password is generated here (not hard-coded) so each CI run
+        # gets a unique throwaway. It never leaves this runner — the
+        # SonarQube instance is torn down at the end of the job — and is
+        # masked in logs so it can't leak via run output either. This
+        # also keeps secret-scanners (GitGuardian etc.) quiet, since
+        # there's no static credential in the repo to flag.
         run: |
+          NEW_ADMIN_PASSWORD="Ci-$(openssl rand -hex 16)-Aa1!"
+          echo "::add-mask::${NEW_ADMIN_PASSWORD}"
+
           status=$(curl -sS -u admin:admin -o /tmp/resp.txt -w '%{http_code}' \
             -X POST "http://localhost:9000/api/users/change_password" \
             --data-urlencode "login=admin" \
@@ -96,9 +104,8 @@ jobs:
             exit 1
           fi
           echo "Admin password changed."
-          # Stash the new password for the next step. Masked in logs so
-          # the value doesn't leak.
-          echo "::add-mask::${NEW_ADMIN_PASSWORD}"
+          # Pass forward to the next step. GITHUB_ENV values show in
+          # subsequent step logs unless masked, hence the add-mask above.
           echo "ADMIN_PASS=${NEW_ADMIN_PASSWORD}" >> "$GITHUB_ENV"
 
       - name: Generate an admin token for this run
