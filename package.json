@@ -26,7 +26,12 @@
 		"experiment:a": "tsx scripts/experiment-a.ts",
 		"experiment:b": "tsx scripts/experiment-b.ts",
 		"docs:build": "node scripts/build-docs.js",
-		"dora:report": "tsx scripts/dora-report.ts"
+		"dora:report": "tsx scripts/dora-report.ts",
+		"sonar:up": "docker compose -f docker-compose.sonarqube.yml up -d",
+		"sonar:down": "docker compose -f docker-compose.sonarqube.yml down",
+		"sonar:logs": "docker compose -f docker-compose.sonarqube.yml logs -f sonarqube",
+		"sonar:setup": "node scripts/sonar-setup.js",
+		"sonar:scan": "npm run test:coverage && sonar-scanner"
 	},
 	"dependencies": {
 		"@ai-sdk/svelte": "^4.0.175",
@@ -57,6 +62,7 @@
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
+		"sonarqube-scanner": "^4.3.6",
 		"supabase": "^2.95.1",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",

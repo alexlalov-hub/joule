@@ -1,0 +1,148 @@
+name: SonarQube
+
+# Spins up SonarQube + Postgres inside the runner via docker-compose,
+# provisions the quality gate from scripts/sonar-setup.js, runs the
+# scan, fails the job if the gate fails, tears everything down at the
+# end. Same shape as a Java/Gradle pipeline that does
+#   docker run sonarqube:community ... && ./gradlew sonar
+# against http://localhost:9000.
+#
+# No repo secrets or vars required — the workflow stands up its own
+# SonarQube and generates a throwaway admin token per run.
+#
+# Trade-off: no persistence. The SonarQube dashboard only exists during
+# the job; you read the gate verdict and any failing conditions from
+# the job log. Boot adds ~2 min per run; SonarQube + Postgres take
+# ~2 GB of the runner's 7 GB.
+#
+# Triggers:
+#   - push to main          — gate check on every merge.
+#   - workflow_dispatch     — manual trigger from the Actions tab.
+#     (Use this to test the workflow on any branch without committing
+#     a trigger change.)
+#   - PRs touching Sonar    — auto-validates Sonar config changes
+#     config files            without burning ~2 min on unrelated PRs.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/sonarqube.yml'
+      - 'sonar-project.properties'
+      - 'scripts/sonar-setup.js'
+      - 'docker-compose.sonarqube.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scan:
+    name: SonarQube scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sonar needs full git history to compute "new code" deltas.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Start SonarQube
+        run: docker compose -f docker-compose.sonarqube.yml up -d
+
+      - name: Wait for SonarQube to be ready
+        # First boot can take 60-90s as it migrates the empty Postgres
+        # schema. /api/system/status returns "UP" only when it's actually
+        # ready to accept analysis. Bail after 3 minutes.
+        run: |
+          for i in $(seq 1 36); do
+            status=$(curl -s http://localhost:9000/api/system/status | jq -r '.status' || true)
+            echo "[$i/36] status=$status"
+            if [ "$status" = "UP" ]; then
+              echo "SonarQube is up."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "SonarQube did not become ready in time."
+          docker compose -f docker-compose.sonarqube.yml logs sonarqube
+          exit 1
+
+      - name: Force-change default admin password
+        # First-run SonarQube ships with admin/admin and refuses API calls
+        # that rely on the default password. Change it to a throwaway so
+        # the rest of the job can authenticate.
+        run: |
+          curl -sS -u admin:admin \
+            -X POST "http://localhost:9000/api/users/change_password" \
+            -d "login=admin&previousPassword=admin&password=ephemeral-ci-password-only"
+
+      - name: Generate an admin token for this run
+        id: token
+        run: |
+          TOKEN=$(curl -sS -u admin:ephemeral-ci-password-only \
+            -X POST "http://localhost:9000/api/user_tokens/generate?name=ci-$GITHUB_RUN_ID" \
+            | jq -r '.token')
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Failed to generate token"
+            exit 1
+          fi
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Provision the Joule quality gate
+        env:
+          SONAR_HOST_URL: http://localhost:9000
+          SONAR_TOKEN: ${{ steps.token.outputs.token }}
+        run: node scripts/sonar-setup.js
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_HOST_URL: http://localhost:9000
+          SONAR_TOKEN: ${{ steps.token.outputs.token }}
+
+      - name: Check quality gate result
+        # The scan task is processed asynchronously by the server, so
+        # poll the gate endpoint until it returns a verdict (OK / ERROR
+        # / WARN). Bail after 60 seconds — gate computation is usually
+        # under 10s for a project this size.
+        env:
+          SONAR_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          for i in $(seq 1 30); do
+            verdict=$(curl -sS -u "$SONAR_TOKEN:" \
+              "http://localhost:9000/api/qualitygates/project_status?projectKey=joule" \
+              | jq -r '.projectStatus.status' || true)
+            echo "[$i/30] gate verdict=$verdict"
+            if [ "$verdict" = "OK" ]; then
+              echo "Quality gate passed."
+              exit 0
+            fi
+            if [ "$verdict" = "ERROR" ]; then
+              echo "Quality gate FAILED."
+              curl -sS -u "$SONAR_TOKEN:" \
+                "http://localhost:9000/api/qualitygates/project_status?projectKey=joule" \
+                | jq '.projectStatus.conditions'
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "Quality gate did not return a verdict in time."
+          exit 1
+
+      - name: Tear down SonarQube
+        if: always()
+        run: docker compose -f docker-compose.sonarqube.yml down -v
