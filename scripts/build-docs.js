@@ -149,6 +149,7 @@ const README = [
 	bullet('week-02-commerce-core.docx'),
 	bullet('week-03-intelligence.docx'),
 	bullet('week-04-sprint1-close.docx'),
+	bullet('week-05-admin.docx'),
 	h('How to use this folder', 2),
 	p(
 		'The decisions doc, the sprint retro, and the weekly retros are reference material, not gates. Pull requests can cite them. Older decisions are not rewritten — a new entry that supersedes an older one says so explicitly.'
@@ -585,6 +586,79 @@ const WEEK_04 = [
 	)
 ];
 
+const WEEK_05 = [
+	h('Week 05 — admin platform + Spec-Kit + local SonarQube', 1),
+	p('Branch: week-05-admin', { bold: true }),
+	p('Tags: shipped, slipped, rescoped', { bold: true }),
+	h('Shipped', 2),
+	bullet(
+		'Spec-Kit installed and adopted as the Sprint 2 workflow: .specify/ scaffolding (templates, scripts, integrations), a Joule constitution with five named principles, and .claude/skills/speckit-* slash commands tracked in the repo so the methodology ships with it. The first commit on the branch was the spec-and-plan for the admin slice, not code.'
+	),
+	bullet(
+		'Feature 001 — admin product management. specs/001-admin-product-management/ holds spec.md (3 user stories, 10 FRs, 5 SCs), plan.md (constitution check green, phase-0 research, phase-1 design), tasks.md (24 tasks with FR/SC traceability), and a green requirements checklist. Implementation: /admin route shell with role guard, /admin/products with inline price/stock edit and featured toggle, filter chips (All / Featured / Low stock < 5). Two-layer access control — SvelteKit route guard + Supabase RLS — written down in ADR 0006.'
+	),
+	bullet(
+		'Feature 002 — admin review moderation. specs/002-admin-review-moderation/ follows the same shape. Migration 20260519140000_reviews_hidden.sql adds a hidden_at timestamp and tightens the "reviews readable" RLS policy to "hidden_at is null or public.is_admin()", so the database does the visibility filtering and the customer-facing query needs no change. /admin/reviews page with hide / show / permanent-delete (delete is gated by a confirmation prompt at both the client and the action handler).'
+	),
+	bullet(
+		"isAdmin() helper at src/lib/server/auth.ts. Public.is_admin() SQL function (security definer) so RLS policies can call it without recursion. Migration 20260519130000 fixed a pre-existing recursive policy on profiles that the admin work surfaced — auth.uid() = id or exists (select 1 from profiles ...) inside its own policy meant Postgres returned 42P17 and isAdmin() couldn't read its row. Replaced the subquery with a call to is_admin()."
+	),
+	bullet(
+		"Unit-coverage backfill to 96.58% lines / 95.97% functions / 94.28% statements / 85.88% branches against an 85 / 75 / 80 / 85 gate in vite.config.ts. New tests target src/lib/server/admin/* (products + reviews helpers — 100% lines), src/lib/server/auth.ts (100% lines), and the supabase-stub helper got a .not() method to match Postgrest's filter syntax. The earlier 8% line coverage that triggered the backfill is gone."
+	),
+	bullet(
+		'k6 load suite expanded from two scripts to five: smoke (now with content-marker assertions, not just status / body-length), sustained (weighted route mix + per-route p95 thresholds), journey (three realistic user flows with traffic-matching weights), spike (2 → 50 VUs burst + recovery assertion), stress (5-stage VU climb up to 120 with per-stage thresholds). Each script is pointed at a specific question; the docs at docs/load-test.md explain which one answers what.'
+	),
+	bullet(
+		'Local SonarQube replacing SonarCloud. docker-compose.sonarqube.yml stands up the Community Edition server with a Postgres backend. scripts/sonar-setup.js provisions the "Joule" quality gate via SonarQube\'s REST API (gate-as-code — the QUALITY_GATE array in the script is the source of truth, idempotent). New CI workflow .github/workflows/sonarqube.yml spins SonarQube + Postgres up inside the runner via the same compose file, provisions the gate, runs the scan, fails the job if the gate fails, tears down. Mirrors the docker-run-then-./gradlew-sonar shape from the previous Java pipeline.'
+	),
+	bullet(
+		'ADR 0006 — admin UI uses the request-scoped Supabase client, not service-role. Captures the choice to make RLS the load-bearing access-control layer rather than relying on the route guard alone. docs/sonar.md added with full local + CI walkthrough, three-token-types reference, and the gate-as-code reasoning.'
+	),
+	h('Slipped', 2),
+	p(
+		"Two operator-side surprises cost half a day each. (1) SonarCloud's free tier doesn't let you customise the quality gate at all — the assumption that the cloud version would scale to a real project was wrong, and discovering it after the fact meant rebuilding the whole SonarQube setup locally with docker-compose, a setup script, and a new workflow. (2) The recursive \"profile read self\" RLS policy from Week 1's init migration had been broken the whole time but never tripped because nothing in the customer code reads the profiles table directly. Building the admin UI was the first thing that did, and it hit the 42P17 wall immediately — required a fix migration plus a sign-out / sign-back-in to clear the session cache."
+	),
+	h('Rescoped', 2),
+	p(
+		'Original Sprint-2 brief included fulfilment, user admin, analytics, and AI-assisted support drafting alongside product management and review moderation. Cut to just the two — RBAC + product management + review moderation — because each one carries enough net-new surface (migration + server module + route + tests + BDD + ADR) that doing three more in the same week would have been shallow. The other four move to Weeks 6 / 7 where they can each get the same treatment.'
+	),
+	p(
+		'Inside the admin UI, the original plan was a Supabase pagination on the products list. Scope cut after looking at the data — 73 rows, fits on one page without scrolling on a normal monitor, pagination would have added complexity for no user benefit. The plan.md was updated to record the rescope so the spec stays honest.'
+	),
+	h('Reflection', 2),
+	p(
+		'Spec-Kit changed the rhythm of the week. The two implementation slices each ran "spec → plan → tasks → tests → code → commit" in that order, with the spec and plan committed first as their own artifact. The change shows up most in code review: the diff for slice 001 is ~1300 lines, but the spec and plan answer "what is this for and why" in 250 lines before you read the diff. The week-04 retrospective complained that "Stripe webhook integration touched seven files and the reviewer couldn\'t tell what it was supposed to do without reading every file." Spec-first means that\'s no longer the failure mode.'
+	),
+	p(
+		'The recursive RLS bug is the kind of latent issue that only surfaces when the surface area widens. The migration that fixed it documents the cause clearly enough that nobody adding a future profiles read should hit the same problem. Worth adopting as a habit: every time a long-standing RLS policy gets exercised by new code, sanity-check it against the recursion case in advance.'
+	),
+	p(
+		"Moving Sonar from cloud to self-hosted was rescoped mid-week and ate more time than the original SonarCloud setup did in Week 4 — but the result is fundamentally different. The quality gate is now defined in code (scripts/sonar-setup.js), provisioned by an idempotent script, and re-applied on every push to main via CI. That's the gate-as-code property the project actually needed, and it would have been impossible on the free SonarCloud tier no matter how much time was spent configuring it."
+	),
+	h('Learning outcomes', 2),
+	bulletLead(
+		'Engineering Approach',
+		"Adopted Spec-Kit as the Sprint-2 design discipline — every feature larger than a single file ships with spec.md / plan.md / tasks.md / checklists/requirements.md before any code lands. The first ADR of the week (0006) documents the architectural choice to use RLS as the load-bearing access-control layer rather than relying on the route guard; the constitution's Principle I formalises that as a project-wide rule. Decisions made deliberately and recorded, not assumed."
+	),
+	bulletLead(
+		'Software Quality',
+		'Coverage gate raised from a notional 8% to an enforced 85% lines / 75% branches / 80% functions / 85% statements via vite.config.ts thresholds. Quality-gate-as-code: the QUALITY_GATE array in scripts/sonar-setup.js defines the SonarQube conditions, the setup runs idempotently against any SonarQube instance (local docker, CI ephemeral, or external host), and the gate is reconciled on every push to main. The K6 suite grew from two scripts to five, each pointed at a specific question about a different quality attribute (correctness, latency under load, latency under realistic flow, behaviour under spike, capacity ceiling).'
+	),
+	bulletLead(
+		'Software Maintenance',
+		"Two layers of access-control redundancy — a route guard AND row-level security policies — so a regression in either layer doesn't compromise the system. The recursive RLS policy fix migration shows the same maintenance mindset in reverse: a latent bug in shipped code, found via new feature work, fixed in a tracked migration with the cause explained in the SQL comments so it doesn't recur. The new sonarqube.yml workflow validates Sonar configuration changes on every relevant PR without requiring any external infrastructure, so the gate-as-code property stays maintainable."
+	),
+	bulletLead(
+		'Professional Standard',
+		'Spec-Kit\'s spec / plan / tasks discipline matches GitHub\'s public methodology, applied verbatim rather than reinvented. The constitution.md adopts the language of "principles", "violations", "complexity tracking", and "amendment versioning" — vocabulary borrowed from the framework rather than improvised — so the code review process speaks the same idiom as the documentation. Critical reflection on the cloud-vs-self-hosted Sonar trade-off is documented in this retro rather than papered over; the SonarCloud setup from Week 4 wasn\'t wrong-at-the-time, but Sprint 2\'s needs outgrew it and the change is justified in writing.'
+	),
+	bulletLead(
+		'Personal Leadership',
+		'Two examples of acted-upon feedback. (1) The DORA report from earlier in the week showed change-failure-rate at 20% after PR #7 ("fix: auth audit + stock decrement") merged — recognising the fix as a failure (not a feature) is the kind of honesty the metric depends on. (2) When the local SonarQube setup hit a 401 then a 403 during validation, both errors were diagnosed and documented in docs/sonar.md as "three token types, which one each command needs" — turning a setup mistake into a permanent piece of documentation rather than a tribal-knowledge gotcha.'
+	)
+];
+
 const PORTFOLIO = [
 	h('Joule — portfolio summary', 1),
 	p(
@@ -615,13 +689,13 @@ const PORTFOLIO = [
 	),
 	h('Quality automation', 2),
 	bullet(
-		'GitHub Actions on every push: typecheck (svelte-check), lint (eslint + prettier), unit tests (vitest, 30 tests), BDD layer 1 (16 deterministic scenarios). The @ai-tagged layer-2 and layer-3 scenarios skip cleanly when the AI gateway key is absent.'
+		'GitHub Actions on every push: typecheck (svelte-check), lint (eslint + prettier), unit tests (vitest, 218 tests at 96.58% lines), BDD layer 1 (16 deterministic scenarios). The @ai-tagged layer-2 and layer-3 scenarios skip cleanly when the AI gateway key is absent.'
 	),
 	bullet(
-		'SonarCloud on push to main and on PRs. Coverage from vitest in lcov, security / reliability / maintainability ratings, duplication tracking. Configured for CI-based analysis, not Automatic.'
+		'Self-hosted SonarQube Community Edition. Spun up inside the GitHub Actions runner via docker-compose, scanned, gate-checked, torn down — no external Sonar host required. The Joule quality gate is defined as code in scripts/sonar-setup.js (line coverage ≥ 85%, branch ≥ 75%, no new bugs / vulnerabilities / code smells) and reconciled on every push to main.'
 	),
 	bullet(
-		'k6 load tests in tests/load/. Smoke (1 VU, 30 s) runs against the live deploy after every merge to main. Sustained (0 → 20 → 0 VUs over 3 min) available on demand.'
+		'k6 load suite of five scripts in tests/load/. Smoke (1 VU, 30 s, with content-marker assertions) runs against the live deploy after every merge to main. Sustained, journey, spike, and stress are available on demand for the questions each one answers.'
 	),
 	bullet(
 		'Post-deploy smoke action wakes after a push to main, sleeps 90 s for Vercel to settle, then runs the k6 smoke against the prod URL.'
@@ -630,7 +704,9 @@ const PORTFOLIO = [
 	bullet(
 		'The site itself at the Vercel preview / prod URL. /assistant for the chat experience, /compare for the structured comparison, any product page for reviews + intelligence panel + recommender on the account page.'
 	),
-	bullet('The SonarCloud dashboard for code-quality numbers.'),
+	bullet(
+		'The local SonarQube dashboard for code-quality numbers (docker compose up, then http://localhost:9000). The same gate is enforced in CI.'
+	),
 	bullet('The two experiment markdowns for the AI-quality numbers.'),
 	bullet('The DORA report for the delivery-quality numbers.'),
 	bullet('The ADRs and the weekly + sprint retros for the process.'),
@@ -737,6 +813,7 @@ async function main() {
 		writeDoc('weekly/week-02-commerce-core.docx', WEEK_02),
 		writeDoc('weekly/week-03-intelligence.docx', WEEK_03),
 		writeDoc('weekly/week-04-sprint1-close.docx', WEEK_04),
+		writeDoc('weekly/week-05-admin.docx', WEEK_05),
 		writeDoc('sprint-1-retro.docx', SPRINT_1_RETRO),
 		writeDoc('portfolio-summary.docx', PORTFOLIO)
 	]);
