@@ -183,8 +183,13 @@ function buildReport(allPRs: MergedPR[]): string {
 	lines.push(
 		`| Lead time for changes (median) | ${formatHours(medianLead)} | PR opened → PR merged. |`
 	);
+	// Escape pipes in the regex source — markdown tables treat | as a
+	// column separator, and prettier's table-aware reformatter splits the
+	// row at every unescaped pipe, which makes the file fail prettier --check
+	// in CI even when it parses fine locally.
+	const fixRegexEscaped = FIX_REGEX.source.replace(/\|/g, '\\|');
 	lines.push(
-		`| Change failure rate | ${(failureRate * 100).toFixed(0)}% (${failures.length} of ${deploys}) | PRs whose title matches \`${FIX_REGEX.source}\` or carrying a \`bug\`/\`regression\`/\`hotfix\`/\`revert\` label. |`
+		`| Change failure rate | ${(failureRate * 100).toFixed(0)}% (${failures.length} of ${deploys}) | PRs whose title matches \`${fixRegexEscaped}\` or carrying a \`bug\`/\`regression\`/\`hotfix\`/\`revert\` label. |`
 	);
 	lines.push(
 		`| Mean time to recovery (median) | ${pairs.length > 0 ? formatHours(medianRecovery) : 'n/a — no paired failures'} | For each fix PR, time back to the previous non-fix merge within ${FIX_LOOKBACK_DAYS} days. |`

@@ -79,17 +79,32 @@ jobs:
 
       - name: Force-change default admin password
         # First-run SonarQube ships with admin/admin and refuses API calls
-        # that rely on the default password. Change it to a throwaway so
-        # the rest of the job can authenticate.
+        # that rely on the default password. Change it to a throwaway that
+        # meets SonarQube's password policy (12+ chars, mixed case, digit,
+        # special) so the rest of the job can authenticate.
+        env:
+          NEW_ADMIN_PASSWORD: 'Ephemeral-CI-Pwd-2026!'
         run: |
-          curl -sS -u admin:admin \
+          status=$(curl -sS -u admin:admin -o /tmp/resp.txt -w '%{http_code}' \
             -X POST "http://localhost:9000/api/users/change_password" \
-            -d "login=admin&previousPassword=admin&password=ephemeral-ci-password-only"
+            --data-urlencode "login=admin" \
+            --data-urlencode "previousPassword=admin" \
+            --data-urlencode "password=${NEW_ADMIN_PASSWORD}")
+          if [ "$status" != "204" ] && [ "$status" != "200" ]; then
+            echo "Failed to change admin password (HTTP $status):"
+            cat /tmp/resp.txt
+            exit 1
+          fi
+          echo "Admin password changed."
+          # Stash the new password for the next step. Masked in logs so
+          # the value doesn't leak.
+          echo "::add-mask::${NEW_ADMIN_PASSWORD}"
+          echo "ADMIN_PASS=${NEW_ADMIN_PASSWORD}" >> "$GITHUB_ENV"
 
       - name: Generate an admin token for this run
         id: token
         run: |
-          TOKEN=$(curl -sS -u admin:ephemeral-ci-password-only \
+          TOKEN=$(curl -sS -u "admin:${ADMIN_PASS}" \
             -X POST "http://localhost:9000/api/user_tokens/generate?name=ci-$GITHUB_RUN_ID" \
             | jq -r '.token')
           if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
