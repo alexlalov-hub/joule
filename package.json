@@ -37,7 +37,10 @@
 		"@ai-sdk/svelte": "^4.0.175",
 		"@supabase/ssr": "^0.7.0",
 		"@supabase/supabase-js": "^2.47.10",
+		"@vercel/analytics": "^2.0.1",
+		"@vercel/speed-insights": "^2.0.0",
 		"ai": "^6.0.175",
+		"posthog-js": "^1.376.3",
 		"stripe": "^22.1.0",
 		"zod": "^4.4.3"
 	},

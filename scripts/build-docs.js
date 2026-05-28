@@ -284,6 +284,45 @@ const ADR_0004 = [
 	)
 ];
 
+const ADR_0007 = [
+	h(
+		'ADR 0007 — Platform-first observability (Vercel Analytics + PostHog) over a custom admin dashboard',
+		1
+	),
+	p('Date: May 2026', { bold: true }),
+	h('Context', 2),
+	p(
+		'Week 5 close raised the question of how an operator (and a portfolio reviewer) sees the app being used in real time. The first instinct was to build an admin page listing recent requests, backed by an audit_events table and Supabase Realtime subscriptions. The problem with that path is that two of the three observability questions — "what is the server doing right now" and "what are users doing" — are already answered by tools that exist for free on the platform Joule already runs on.'
+	),
+	p('Options considered:'),
+	bullet(
+		'Build an in-house admin page on top of a new audit_events table, fed by every request via a hooks.server.ts handler, displayed via Supabase Realtime. Two slices of new code, a retention policy to maintain, PII redaction to get right.'
+	),
+	bullet(
+		'Use Vercel Logs (already on) for system-side observability; add Vercel Analytics + Speed Insights for traffic and Web Vitals; add PostHog for product analytics (custom events, funnels, session recording). Zero new tables, zero custom UI to maintain.'
+	),
+	bullet(
+		'Self-host a logging pipeline (Loki, Promtail, Grafana) or buy an external aggregator (Logtail, Axiom). Right tool one tier of complexity up; overkill for the volume.'
+	),
+	h('Decision', 2),
+	p(
+		"Option 2. Vercel Logs cover server-side ('did anyone hit /admin/products, why did it 500'); Vercel Analytics covers page-view traffic ('top routes, referrers, geographies') with no cookies and so no consent UI; Vercel Speed Insights covers real-user Web Vitals per route; PostHog covers product analytics ('how many people added to cart but did not check out', session recordings). Each tool is initialised in src/routes/+layout.svelte and src/routes/+layout.ts in under twenty lines combined."
+	),
+	h('Consequences', 2),
+	bullet(
+		"Four sources of observability, each with its own dashboard, each free at Joule's scale. No custom UI to maintain, no PII redaction code to write, no audit_events retention cron."
+	),
+	bullet(
+		'The "real-time" demo experience comes from PostHog\'s built-in live events view and from Vercel\'s log tail page. Neither is shareable to a teacher without Vercel team access, so a portfolio review still needs a screen-share; that is acceptable.'
+	),
+	bullet(
+		'Three vendor dependencies (Vercel, PostHog) that the project did not previously have. Migration cost if any of them changes pricing or product direction: replace one client SDK call in the layout. The data is in their platforms, not ours, so we cannot do retrospective queries we did not plan for. Acceptable for current scale; revisit if traffic justifies self-hosting.'
+	),
+	bullet(
+		'The engineering judgment recorded here — "don\'t build what you can integrate, unless the building is the learning outcome" — is the same principle that drove ADR 0006 (admin UI on request-scoped client, not service-role) and the SonarQube swap in Week 5. Pattern is now explicit.'
+	)
+];
+
 const ADR_0006 = [
 	h('ADR 0006 — Admin UI uses request-scoped Supabase client, not service-role', 1),
 	p('Date: May 2026', { bold: true }),
@@ -523,7 +562,9 @@ const ARCHITECTURE_DECISIONS = [
 	p(''),
 	...ADR_0005,
 	p(''),
-	...ADR_0006
+	...ADR_0006,
+	p(''),
+	...ADR_0007
 ];
 
 const WEEK_04 = [
@@ -673,7 +714,7 @@ const PORTFOLIO = [
 	),
 	h('Discipline artefacts', 2),
 	bullet(
-		'architecture-decisions.docx — six ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client).'
+		'architecture-decisions.docx — seven ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard).'
 	),
 	bullet(
 		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
