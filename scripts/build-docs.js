@@ -285,38 +285,38 @@ const ADR_0004 = [
 ];
 
 const ADR_0007 = [
-	h(
-		'ADR 0007 — Platform-first observability (Vercel Analytics + PostHog) over a custom admin dashboard',
-		1
-	),
+	h('ADR 0007 — Platform-first observability over a custom admin dashboard', 1),
 	p('Date: May 2026', { bold: true }),
 	h('Context', 2),
 	p(
-		'Week 5 close raised the question of how an operator (and a portfolio reviewer) sees the app being used in real time. The first instinct was to build an admin page listing recent requests, backed by an audit_events table and Supabase Realtime subscriptions. The problem with that path is that two of the three observability questions — "what is the server doing right now" and "what are users doing" — are already answered by tools that exist for free on the platform Joule already runs on.'
+		'Week 5 close raised the question of how an operator (and a portfolio reviewer) sees the app being used in real time. The first instinct was to build an admin page listing recent requests, backed by an audit_events table and Supabase Realtime subscriptions. The problem with that path is that the operational questions — "what is the server doing", "where does traffic come from", "is the home page slow on mobile" — are already answered by tools that exist for free on the platform Joule already runs on.'
 	),
 	p('Options considered:'),
 	bullet(
 		'Build an in-house admin page on top of a new audit_events table, fed by every request via a hooks.server.ts handler, displayed via Supabase Realtime. Two slices of new code, a retention policy to maintain, PII redaction to get right.'
 	),
 	bullet(
-		'Use Vercel Logs (already on) for system-side observability; add Vercel Analytics + Speed Insights for traffic and Web Vitals; add PostHog for product analytics (custom events, funnels, session recording). Zero new tables, zero custom UI to maintain.'
+		'Use Vercel Logs (already on) for system-side observability and add Vercel Analytics + Speed Insights for traffic and Web Vitals. Zero new tables, zero custom UI to maintain.'
 	),
 	bullet(
 		'Self-host a logging pipeline (Loki, Promtail, Grafana) or buy an external aggregator (Logtail, Axiom). Right tool one tier of complexity up; overkill for the volume.'
 	),
+	bullet(
+		'Add a product-analytics platform (PostHog or similar) for funnels, custom events, and session recording. Considered and tried briefly; rejected for now because it requires public env vars that must be set in every environment, and the build fails closed when they are missing. The cost-of-mistake outweighs the benefit at a stage where no real product-analytics work is yet planned.'
+	),
 	h('Decision', 2),
 	p(
-		"Option 2. Vercel Logs cover server-side ('did anyone hit /admin/products, why did it 500'); Vercel Analytics covers page-view traffic ('top routes, referrers, geographies') with no cookies and so no consent UI; Vercel Speed Insights covers real-user Web Vitals per route; PostHog covers product analytics ('how many people added to cart but did not check out', session recordings). Each tool is initialised in src/routes/+layout.svelte and src/routes/+layout.ts in under twenty lines combined."
+		'Option 2. Vercel Logs cover server-side (did anyone hit /admin/products, why did it 500); Vercel Analytics covers page-view traffic (top routes, referrers, geographies) with no cookies and so no consent UI; Vercel Speed Insights covers real-user Web Vitals per route. Both Vercel SDKs initialise in src/routes/+layout.svelte in under ten lines and require nothing more than enabling the toggle in the Vercel project settings — no public env vars to manage, no build-fail-closed surprises.'
 	),
 	h('Consequences', 2),
 	bullet(
-		"Four sources of observability, each with its own dashboard, each free at Joule's scale. No custom UI to maintain, no PII redaction code to write, no audit_events retention cron."
+		"Three sources of observability (Vercel Logs, Vercel Analytics, Vercel Speed Insights), each with its own dashboard, each free at Joule's scale. No custom UI to maintain, no PII redaction code to write, no audit_events retention cron."
 	),
 	bullet(
-		'The "real-time" demo experience comes from PostHog\'s built-in live events view and from Vercel\'s log tail page. Neither is shareable to a teacher without Vercel team access, so a portfolio review still needs a screen-share; that is acceptable.'
+		'Funnel analysis and session recording are unavailable for now. Acceptable because no work currently needs them; revisit when there is a specific question (e.g., "where do users abandon checkout") that the existing tools cannot answer.'
 	),
 	bullet(
-		'Three vendor dependencies (Vercel, PostHog) that the project did not previously have. Migration cost if any of them changes pricing or product direction: replace one client SDK call in the layout. The data is in their platforms, not ours, so we cannot do retrospective queries we did not plan for. Acceptable for current scale; revisit if traffic justifies self-hosting.'
+		"All three dashboards are gated by Vercel team access. A portfolio reviewer can't open the URLs directly, so demos still need a screen-share. Acceptable trade-off versus building and maintaining a custom UI."
 	),
 	bullet(
 		'The engineering judgment recorded here — "don\'t build what you can integrate, unless the building is the learning outcome" — is the same principle that drove ADR 0006 (admin UI on request-scoped client, not service-role) and the SonarQube swap in Week 5. Pattern is now explicit.'
