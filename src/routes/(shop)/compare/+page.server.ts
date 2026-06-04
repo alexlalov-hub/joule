@@ -6,7 +6,14 @@ import type { Product } from '$lib/catalog/types';
 const MIN_SLUGS = 2;
 const MAX_SLUGS = 3;
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+	// Edge cache — short TTL because the compare URL space is open-ended
+	// (any 2-3 slugs the user picks). Cache per exact ?slugs= URL; the
+	// AI verdict stream lives on a separate endpoint and is not cached.
+	setHeaders({
+		'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+	});
+
 	const raw = (url.searchParams.get('slugs') ?? '').trim();
 	const requested = raw
 		? Array.from(
