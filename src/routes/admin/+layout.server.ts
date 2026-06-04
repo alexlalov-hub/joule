@@ -18,7 +18,15 @@ import type { LayoutServerLoad } from './$types';
  * passed down to nested pages via `data.adminUser`, so /admin/products doesn't
  * need to repeat the role check.
  */
-export const load: LayoutServerLoad = async ({ locals, url }) => {
+export const load: LayoutServerLoad = async ({ locals, url, setHeaders }) => {
+	// Admin pages are never cacheable. Explicit no-store keeps the edge
+	// from accidentally caching a redirect or a partial response and
+	// serving it to a non-admin later. Defense in depth alongside the
+	// route guard below.
+	setHeaders({
+		'Cache-Control': 'private, no-store'
+	});
+
 	if (!locals.user) {
 		throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
 	}

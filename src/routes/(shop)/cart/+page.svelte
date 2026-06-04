@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { formatPrice } from '$lib/catalog/types';
+	import Image from '$lib/components/Image.svelte';
 
 	let { data } = $props();
 	const cart = $derived(data.cart);
@@ -56,11 +57,12 @@
 						<a href="/product/{item.slug}" class="shrink-0">
 							<div class="aspect-[4/3] w-28 overflow-hidden rounded-sm bg-paper-warm">
 								{#if item.image}
-									<img
+									<Image
 										src={item.image}
 										alt={item.name}
+										width={224}
+										height={168}
 										class="h-full w-full object-cover"
-										loading="lazy"
 									/>
 								{/if}
 							</div>

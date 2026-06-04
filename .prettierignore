@@ -10,6 +10,10 @@ bun.lockb
 /.features-gen/
 /scripts/unsplash-cache.json
 
+# Lighthouse / k6 captured artefacts — formatted by their producing tools.
+/docs/lighthouse-*.html
+/docs/k6-runs/
+
 # Spec-Kit — vendored from github/spec-kit, formatted upstream.
 /.specify/
 /.claude/skills/
