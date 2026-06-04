@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/catalog/types';
 	import { reasonText } from '$lib/recommendations/types';
+	import Image from '$lib/components/Image.svelte';
 
 	let { data } = $props();
 
@@ -112,11 +113,12 @@
 						<a href="/product/{rec.product.slug}" class="block">
 							<div class="aspect-[4/3] overflow-hidden rounded-sm bg-paper">
 								{#if rec.product.images[0]}
-									<img
+									<Image
 										src={rec.product.images[0].url}
 										alt={rec.product.images[0].alt}
+										width={400}
+										height={300}
 										class="h-full w-full object-cover"
-										loading="lazy"
 									/>
 								{/if}
 							</div>
@@ -161,11 +163,12 @@
 						<a href="/product/{item.slug}" class="block">
 							<div class="aspect-[4/3] overflow-hidden rounded-sm bg-paper">
 								{#if item.image}
-									<img
+									<Image
 										src={item.image}
 										alt={item.name}
+										width={400}
+										height={300}
 										class="h-full w-full object-cover"
-										loading="lazy"
 									/>
 								{/if}
 							</div>

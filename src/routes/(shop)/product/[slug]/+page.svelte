@@ -2,6 +2,7 @@
 	import ProductGrid from '$lib/components/product/ProductGrid.svelte';
 	import ReviewsSection from '$lib/components/product/ReviewsSection.svelte';
 	import ReviewIntelligence from '$lib/components/product/ReviewIntelligence.svelte';
+	import Image from '$lib/components/Image.svelte';
 	import { formatPrice } from '$lib/catalog/types';
 	import { enhance } from '$app/forms';
 	import { compareStore } from '$lib/compare/store.svelte';
@@ -59,15 +60,20 @@
 		<div>
 			<div class="group relative aspect-[4/3] overflow-hidden rounded-sm bg-paper-warm">
 				{#each data.product.images as image, i}
-					<img
-						src={image.url}
-						alt={image.alt}
-						class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 {activeImage ===
-						i
+					<div
+						class="absolute inset-0 h-full w-full transition-opacity duration-300 {activeImage === i
 							? 'opacity-100'
 							: 'pointer-events-none opacity-0'}"
-						loading={i === 0 ? 'eager' : 'lazy'}
-					/>
+					>
+						<Image
+							src={image.url}
+							alt={image.alt}
+							width={1200}
+							height={900}
+							priority={i === 0}
+							class="h-full w-full object-cover"
+						/>
+					</div>
 				{/each}
 
 				{#if imageCount > 1}
@@ -129,7 +135,13 @@
 							aria-label="View image {i + 1}"
 							aria-current={activeImage === i}
 						>
-							<img src={image.url} alt={image.alt} class="h-full w-full object-cover" />
+							<Image
+								src={image.url}
+								alt={image.alt}
+								width={120}
+								height={90}
+								class="h-full w-full object-cover"
+							/>
 						</button>
 					{/each}
 				</div>

@@ -284,6 +284,48 @@ const ADR_0004 = [
 	)
 ];
 
+const ADR_0009 = [
+	h(
+		'ADR 0009 — Vercel image-optimization endpoint over @sveltejs/enhanced-img and third-party CDNs',
+		1
+	),
+	p('Date: May 2026', { bold: true }),
+	h('Context', 2),
+	p(
+		"Week 6 image-optimization slice needed a transformer that serves product images in AVIF / WebP at the right resolution, with width/height attributes to fix CLS. Joule's product images come from a database at runtime (Unsplash URLs from the seed script), not from imported assets, so the transformer has to handle arbitrary HTTP URLs rather than build-time imports. Three options were considered."
+	),
+	p('Options considered:'),
+	bullet(
+		'@sveltejs/enhanced-img — build-time Vite plugin. Generates multi-resolution AVIF/WebP/JPG at build, emits a <picture> element with srcset. Excellent for static imports (logos, hero illustrations) but does not handle runtime URLs from a database. Misses the headline use case.'
+	),
+	bullet(
+		'Cloudinary or imgix as a third-party transformer. Both handle arbitrary URLs and produce excellent output. Adds a third vendor on top of Vercel and Supabase; both have free tiers but require accounts, API keys, and env vars.'
+	),
+	bullet(
+		"Vercel's built-in /_vercel/image endpoint. Vercel transforms any allowed-listed URL to AVIF / WebP based on the request's Accept header, caches the result at the edge, and serves the right size for the device. Available on every Vercel deployment, configured via vercel.json (no new env vars). Free tier covers 1000 unique source images per month; Joule has 73."
+	),
+	h('Decision', 2),
+	p(
+		"Vercel's image-optimization endpoint. It handles the runtime-URL case (the load-bearing one), needs no new env vars, no new vendor relationship, and is already a paid feature of the platform Joule already uses. Same engineering judgment as ADR 0007 (\"don't build / add what you can already use\") and ADR 0008 (avoid env-var brittleness when an existing tool suffices). A small <Image> wrapper component (src/lib/components/Image.svelte) routes every product image through /_vercel/image and emits the width/height + 1x/2x srcset boilerplate so consumers don't have to remember it. @sveltejs/enhanced-img is left available for future build-time imports if any appear."
+	),
+	h('Consequences', 2),
+	bullet(
+		'Every product image is now served as AVIF / WebP at the displayed resolution, capped at 60-80% smaller payload than the original JPGs. SC-002 target is total image payload on / dropping ≥ 60 %. Numbers in docs/load-test-results.md "Image Vitals" section.'
+	),
+	bullet(
+		'CLS on /, /category/<slug>, /product/<slug> drops to Web Vitals "Good" range because every <Image> hard-codes width and height, so the browser reserves layout space before the image arrives. SC-001 target is < 0.1 CLS measured by Vercel Speed Insights over real-user data.'
+	),
+	bullet(
+		"Vercel free tier covers Joule's scale comfortably (73 source images × ~4 size variants = ~300 transformed images vs. 1000 / month quota). If usage spikes, switching to Cloudinary or paying for a higher Vercel tier is a one-file change in the <Image> component."
+	),
+	bullet(
+		'The dev experience needed a small carve-out: `/_vercel/image` does not exist when running `npm run dev`. The wrapper detects dev mode and passes the source URL through unchanged, so local development still renders. Tested by running `npm run dev` and verifying product cards display correctly.'
+	),
+	bullet(
+		'No new runtime dep, no new env vars. The only new file outside the routes is the wrapper component and vercel.json, both ~30 lines. Reversibility is high.'
+	)
+];
+
 const ADR_0008 = [
 	h(
 		'ADR 0008 — Vercel edge cache with TTL + stale-while-revalidate, no programmatic tag invalidation in v1',
@@ -614,7 +656,9 @@ const ARCHITECTURE_DECISIONS = [
 	p(''),
 	...ADR_0007,
 	p(''),
-	...ADR_0008
+	...ADR_0008,
+	p(''),
+	...ADR_0009
 ];
 
 const WEEK_04 = [
@@ -764,7 +808,7 @@ const PORTFOLIO = [
 	),
 	h('Discipline artefacts', 2),
 	bullet(
-		'architecture-decisions.docx — eight ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard, Vercel edge cache with TTL-only invalidation).'
+		'architecture-decisions.docx — nine ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard, Vercel edge cache with TTL-only invalidation, Vercel image-optimization over build-time and third-party transformers).'
 	),
 	bullet(
 		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
