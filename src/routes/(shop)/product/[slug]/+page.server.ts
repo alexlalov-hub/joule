@@ -41,13 +41,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		reviewsPage,
 		summary,
 		userReviewed,
-		justPostedReview,
-		// `signedIn` previously came from parent layout data. Week 6 moved
-		// the user out of the root layout server load (so cached SSR HTML
-		// stays anonymous), so the product page now surfaces signed-in
-		// state itself. This route is not cached, so `signedIn` is
-		// already per-request fresh.
-		signedIn: !!locals.user
+		justPostedReview
 	};
 };
 

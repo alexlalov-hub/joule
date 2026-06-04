@@ -255,7 +255,7 @@
 			summary={data.summary}
 			canReview={true}
 			alreadyReviewed={data.userReviewed}
-			signedIn={data.signedIn}
+			signedIn={!!data.user}
 			formMessage={form?.reviewError ?? null}
 			justReviewed={data.justPostedReview}
 			page={data.reviewsPage.page}

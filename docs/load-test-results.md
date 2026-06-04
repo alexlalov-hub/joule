@@ -162,3 +162,36 @@ Same surprise as the cache feature, sharper. The site already scores **99/100 on
 - Image payload _should_ drop visibly in DevTools (AVIF is materially smaller than the JPG the Unsplash CDN returns by default) — that's the cleanest "this feature did something" signal to capture in the after run.
 
 The honest framing: **"this feature ships not because the page was visually janky but because the `<Image>` component is the right primitive for any future image and prevents a class of bugs (layout shift, oversized payloads) that would otherwise surface as the catalog grows."**
+
+---
+
+## After catalog edge cache — measurement + revert (2026-06-04)
+
+The deploy went live. The first after-Lighthouse showed a Performance drop from 99 → 84. Investigation found the `<Image>` wrapper was hitting Vercel's `/_vercel/image` endpoint with widths that weren't in the `vercel.json` `sizes` whitelist, returning 84-byte error responses for every image request. Fixed in commit `a0997c0` by passing image URLs through directly while keeping the `width`/`height`/`loading`/`decoding` attributes — `vercel.json` deleted.
+
+The post-fix Lighthouse showed 86 — still 13 points below baseline. A 5-run median was captured to determine whether this was Lighthouse single-run variance or a real regression.
+
+### 5-run after-Lighthouse against the post-image-fix deploy
+
+| Run        | Performance |          FCP |          LCP |  Speed Index |      TBT |         CLS |
+| ---------- | ----------: | -----------: | -----------: | -----------: | -------: | ----------: |
+| 1          |          87 |      3099 ms |      3249 ms |      3099 ms |     0 ms |     0.00005 |
+| 2          |          86 |      3089 ms |      3389 ms |      3089 ms |     0 ms |     0.00005 |
+| 3          |          86 |      3236 ms |      3236 ms |      3236 ms |     0 ms |     0.00005 |
+| 4          |          85 |      3253 ms |      3328 ms |      3253 ms |     0 ms |     0.00005 |
+| 5          |          86 |      3244 ms |      3244 ms |      3244 ms |     0 ms |     0.00005 |
+| **Median** |      **86** |  **3236 ms** |  **3249 ms** |  **3236 ms** | **0 ms** | **0.00005** |
+| Range      |       85-87 | 3089-3253 ms | 3236-3389 ms | 3089-3253 ms |     0 ms |           — |
+| Stdev      |           1 |        83 ms |        67 ms |        83 ms |     0 ms |           — |
+
+**Interpretation**: stdev of 1 point on Performance and ~80 ms on FCP / LCP across 5 runs is well below what would be needed for the before-vs-after gap to be noise. The 99 → 86 regression is real and reproducible.
+
+CLS and TBT stayed perfect across all runs (the `<Image>` wrapper's width/height attributes do what they should). FCP / LCP / Speed Index all consistently doubled vs the pre-Week-6 baseline. Page weight was unchanged (958 KiB vs 957 KiB). The most likely cost driver: the `/api/me` client-hydration round-trip plus the extra JS chunk needed to support the layout's `onMount` fetch.
+
+### Decision: revert
+
+Per ADR 0010, the cache + personalisation work was reverted. The `<Image>` wrapper stays for its CLS-lock value. Spec-Kit docs and the before/after measurement evidence stay in git as the honest portfolio artefact: tried, measured, the win wasn't there, reverted, documented.
+
+### After-revert (expected, to be captured in a follow-up 5-run)
+
+Expected: Performance back at ~99, FCP / LCP back at ~1.6 s, CLS still at ~0 (the `<Image>` wrapper's width / height attributes still apply on every product `<img>`).

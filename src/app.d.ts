@@ -17,14 +17,9 @@ declare global {
 			safeGetUser: () => Promise<User | null>;
 			user: User | null;
 		}
-		// PageData intentionally has no `user` field. The Week 6 catalog
-		// edge caching (specs/003-catalog-edge-caching/) requires the root
-		// layout server load to return no per-user data so the SSR HTML
-		// can be safely cached at the Vercel edge. Pages that need the
-		// user (account, admin, product) read it from their own
-		// +page.server.ts via locals.user.
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		interface PageData {}
+		interface PageData {
+			user: User | null;
+		}
 		// interface Error {}
 		// interface PageState {}
 		// interface Platform {}

@@ -4,17 +4,9 @@ import { getCategory, listBrands, listProducts, priceBounds } from '$lib/catalog
 
 const SORTS = new Set(['featured', 'price_asc', 'price_desc', 'name']);
 
-export const load: PageServerLoad = async ({ locals, params, url, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const category = await getCategory(locals.supabase, params.slug);
 	if (!category) throw error(404, `Category "${params.slug}" not found`);
-
-	// Edge cache — see specs/003-catalog-edge-caching/. The category
-	// page varies by URL (including the ?brand= / ?sort= / ?min= / ?max=
-	// query string), but every variant is anonymous so the same bytes
-	// can be served to all visitors of that exact URL.
-	setHeaders({
-		'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
-	});
 
 	const sort = SORTS.has(url.searchParams.get('sort') ?? '')
 		? (url.searchParams.get('sort') as 'featured' | 'price_asc' | 'price_desc' | 'name')

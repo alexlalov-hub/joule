@@ -156,3 +156,37 @@ The site was already extremely fast for an uncached state — Vercel serverless 
 **Why ship anyway**: the cache is still load-bearing for spike resilience (the `spike.js` k6 script now finds an easier path) and for cost as traffic grows. The personalisation move-out (`/api/me` hydration, anonymous SSR) is also a correctness improvement independent of latency — without it, a future cached deploy would leak user state.
 
 **Methodological note for the retro**: the failure mode here was writing measurable targets without measuring the baseline first. The constitution's Principle III calls for "real coverage gates" — this experience generalises to "real measurement gates for any performance claim." Future perf specs run the before-baseline as task T000 before the SCs are finalised.
+
+### Adjustment 4 — feature reverted post-deploy after the after-measurement showed a regression
+
+After the PR merged and the deploy went live, the after-Lighthouse showed an unexpected regression: Performance score dropped from 99 to 86. A 5-run median confirmed this was reproducible, not single-sample variance:
+
+| Run        | Performance |         FCP |         LCP |          SI |
+| ---------- | ----------: | ----------: | ----------: | ----------: |
+| 1          |          87 |     3099 ms |     3249 ms |     3099 ms |
+| 2          |          86 |     3089 ms |     3389 ms |     3089 ms |
+| 3          |          86 |     3236 ms |     3236 ms |     3236 ms |
+| 4          |          85 |     3253 ms |     3328 ms |     3253 ms |
+| 5          |          86 |     3244 ms |     3244 ms |     3244 ms |
+| **Median** |      **86** | **3236 ms** | **3249 ms** | **3236 ms** |
+| stdev      |           1 |       83 ms |       67 ms |       83 ms |
+
+CLS and TBT stayed perfect across all runs (0 / 0 ms). The regression was concentrated in FCP / LCP / Speed Index — all consistently doubled vs the pre-Week-6 baseline. Total page weight was identical (958 KiB vs 957 KiB), same 7 images, same fonts — so the regression wasn't payload-driven. Most likely cause: the `/api/me` client-hydration round-trip plus one extra JS chunk needed to support the personalisation move-out.
+
+The catalog cache was confirmed working (`X-Vercel-Cache: STALE`, `Age: 127` on `/`), but the small site's already-fast origin meant the cache wasn't winning back what the personalisation refactor cost.
+
+**Decision: revert.** The feature shipped a measurable regression with no measurable benefit. The right move was to roll it back rather than ship a feature that made the site materially slower in pursuit of a benefit that didn't materialise.
+
+Concretely:
+
+- `src/routes/+layout.server.ts` restored to returning `{ user, cartCount }`.
+- `src/routes/+layout.svelte` restored to reading `data.user` / `data.cartCount` directly.
+- `src/routes/api/me/` deleted.
+- `setHeaders({ 'Cache-Control': ... })` removed from `+page.server.ts`, `(shop)/categories/+page.server.ts`, `(shop)/category/[slug]/+page.server.ts`, `(shop)/search/+page.server.ts`, `(shop)/compare/+page.server.ts`.
+- `setHeaders` removed from `admin/+layout.server.ts` (no-store no longer load-bearing without the cache layer).
+- `src/app.d.ts` restored to declare `user: User | null` on `PageData`.
+- `src/routes/(shop)/product/[slug]/+page.{server.ts,svelte}` reverted to reading `!!data.user` from parent layout.
+
+The Spec-Kit folder, the before-baseline numbers, ADR 0008, and the methodology notes **all stay in git** as the honest portfolio artefact. The work isn't deleted — its absence on the live site is what's documented. ADR 0010 records the rollback decision and the measurement that drove it.
+
+**Updated portfolio framing**: "I picked performance as Week 6's theme. The before-baseline showed the site was already at 99/100. I shipped the catalog cache + personalisation refactor with reframed targets (cost / resilience rather than latency). A 5-run after-measurement showed a consistent 13-point regression from the round-trip cost of the `/api/me` hydration, with no measurable cache-driven win on a catalog this small. I reverted the cache + personalisation changes; kept the `<Image>` wrapper for its CLS-lock value. Three new ADRs (0008, 0009, 0010) document the decisions including the rollback. Net Week 6 outcome: site is back at 99/100, with one architecturally-clean primitive added (`<Image>`) and a measurement-driven scope correction that's stronger evidence of engineering judgment than a clean-but-vacuous win would have been."

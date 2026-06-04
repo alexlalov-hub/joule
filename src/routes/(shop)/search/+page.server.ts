@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { listCategories, listProducts, semanticSearch } from '$lib/catalog/queries';
 import { embedText, semanticSearchEnabled } from '$lib/server/embeddings';
 
-export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const q = (url.searchParams.get('q') ?? '').trim();
 	const category = url.searchParams.get('category') || undefined;
 
@@ -11,13 +11,6 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 		listCategories(locals.supabase),
 		Promise.resolve(semanticSearchEnabled() ? 'semantic' : 'text')
 	] as const);
-
-	// Edge cache — short TTL because search queries are an open
-	// vocabulary. Cache per (q, category) URL; admin edits to the
-	// catalog appear in search results within 60s.
-	setHeaders({
-		'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
-	});
 
 	return { q, category, products, categories, mode };
 };

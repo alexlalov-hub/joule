@@ -284,6 +284,51 @@ const ADR_0004 = [
 	)
 ];
 
+const ADR_0010 = [
+	h(
+		'ADR 0010 — Catalog edge cache + personalisation move-out reverted post-deploy after a measured regression',
+		1
+	),
+	p('Date: June 2026', { bold: true }),
+	h('Context', 2),
+	p(
+		'Week 6 shipped two perf features (specs/003-catalog-edge-caching, specs/004-image-optimization) on top of a baseline that the before-measurement showed was already excellent — Lighthouse 99/100, CLS 0.00005, catalog p95 327 ms. The features were shipped anyway with reframed SCs (regression-prevention rather than improvement), per ADR 0008 and ADR 0009.'
+	),
+	p(
+		"After deploy, a 5-run Lighthouse median showed an unexpected regression: Performance dropped from 99 to 86, FCP / LCP / Speed Index roughly doubled from 1.6 s to 3.2 s, with stdev of 1 point and 80 ms — not single-sample noise. CLS and TBT stayed at 0 / 0 across all 5 runs (the <Image> wrapper's width/height attributes work as intended). Page weight was unchanged at 958 KiB."
+	),
+	p('Options considered (this is the rollback decision, not the original feature decision):'),
+	bullet(
+		'Ship as-is. The cache reduces function-invocation cost in principle; ADRs 0008 and 0009 already documented the reframing. But the user-facing FCP / LCP regression is real and would be visible to anyone running Lighthouse against the deploy.'
+	),
+	bullet(
+		"Partial revert. Keep the cache headers; drop the personalisation move-out and the /api/me endpoint. Problem: without the move-out, the cached SSR HTML contains the first visitor's user state and leaks to subsequent visitors. The two changes are tightly coupled; you can't keep one without the other."
+	),
+	bullet(
+		'Full revert of the cache + personalisation work. Keep the <Image> wrapper. Site returns to the verified 99/100 baseline. Spec-Kit docs, ADRs 0008 / 0009, and the before/after measurement evidence stay in git as the honest portfolio artefact.'
+	),
+	h('Decision', 2),
+	p(
+		"Full revert of the cache + personalisation work, keep the <Image> wrapper. The most likely cost driver of the regression was the /api/me hydration round-trip plus the extra JS chunk needed to support the layout's onMount fetch — a small but real overhead with no measurable cache-driven win on this catalog size. Rather than ship a feature that made the site materially slower in pursuit of a benefit that didn't materialise on the actual workload, the honest move is to remove the change and document why."
+	),
+	h('Consequences', 2),
+	bullet(
+		'Site is back at the pre-Week-6 Performance score (verified by re-running the 5-run Lighthouse median post-revert). The architecturally clean <Image> wrapper stays for its CLS-lock value (every product image now has explicit width and height; CLS is hard to regress as the catalog grows or product photos with new aspect ratios are added).'
+	),
+	bullet(
+		"Spec-Kit folders for 003 and 004 stay in git with the before-baseline data, the reframing adjustments, and the new revert adjustment. The work is preserved as a methodologically honest portfolio artefact: tried, measured, found the win wasn't there, reverted, documented. That is stronger evidence of engineering judgment than a clean-but-vacuous win."
+	),
+	bullet(
+		'ADRs 0008 (TTL + SWR over programmatic tag purge) and 0009 (Vercel image-opt over enhanced-img / Cloudinary) remain as decisions in their own right; they describe the engineering choice that would have been correct if the feature had earned its place. This ADR (0010) records that the feature did not.'
+	),
+	bullet(
+		"The Vercel image-optimization 84-byte error from the first after-deploy was a separate failure (widths-not-in-vercel.json-whitelist), already rolled back in a previous hotfix. That mistake informed this decision but isn't the primary reason for the cache revert."
+	),
+	bullet(
+		"Future perf specs add a task T000: capture the before-baseline before SCs are finalised. The Week 6 retro generalises Constitution Principle III: 'real coverage gates' for tests becomes 'real measurement gates for performance claims'."
+	)
+];
+
 const ADR_0009 = [
 	h(
 		'ADR 0009 — Vercel image-optimization endpoint over @sveltejs/enhanced-img and third-party CDNs',
@@ -658,7 +703,9 @@ const ARCHITECTURE_DECISIONS = [
 	p(''),
 	...ADR_0008,
 	p(''),
-	...ADR_0009
+	...ADR_0009,
+	p(''),
+	...ADR_0010
 ];
 
 const WEEK_04 = [
@@ -808,7 +855,7 @@ const PORTFOLIO = [
 	),
 	h('Discipline artefacts', 2),
 	bullet(
-		'architecture-decisions.docx — nine ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard, Vercel edge cache with TTL-only invalidation, Vercel image-optimization over build-time and third-party transformers).'
+		'architecture-decisions.docx — ten ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard, Vercel edge cache with TTL-only invalidation, Vercel image-optimization over build-time and third-party transformers, the post-deploy revert of the edge cache + personalisation refactor after a measured regression).'
 	),
 	bullet(
 		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
