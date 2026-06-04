@@ -122,17 +122,17 @@ Alternative considered: per-user `Vary: Cookie` cache. Rejected — every signed
 
 Set in each catalog `+page.server.ts` via `event.setHeaders()`:
 
-| Route                       | `Cache-Control`                                    | Tags                               |
-| --------------------------- | -------------------------------------------------- | ---------------------------------- |
-| `/`                         | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
-| `/categories`               | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
-| `/category/<slug>`          | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
-| `/product/<slug>`           | `public, s-maxage=3600, stale-while-revalidate=60` | `product:<slug>`, `reviews:<slug>` |
-| `/search?q=...`             | `public, s-maxage=60`                              | none (low cardinality, short TTL)  |
-| `/compare?slugs=...`        | `public, s-maxage=60`                              | none                               |
-| `/admin/*`                  | `private, no-store`                                | (explicitly excluded)              |
-| `/assistant`, `/api/ai/*`   | `private, no-store`                                | (explicitly excluded)              |
-| `/api/me`                   | `private, no-store`                                | (per-user, never cached)           |
+| Route                     | `Cache-Control`                                    | Tags                               |
+| ------------------------- | -------------------------------------------------- | ---------------------------------- |
+| `/`                       | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
+| `/categories`             | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
+| `/category/<slug>`        | `public, s-maxage=3600, stale-while-revalidate=60` | `catalog`                          |
+| `/product/<slug>`         | `public, s-maxage=3600, stale-while-revalidate=60` | `product:<slug>`, `reviews:<slug>` |
+| `/search?q=...`           | `public, s-maxage=60`                              | none (low cardinality, short TTL)  |
+| `/compare?slugs=...`      | `public, s-maxage=60`                              | none                               |
+| `/admin/*`                | `private, no-store`                                | (explicitly excluded)              |
+| `/assistant`, `/api/ai/*` | `private, no-store`                                | (explicitly excluded)              |
+| `/api/me`                 | `private, no-store`                                | (per-user, never cached)           |
 
 The `stale-while-revalidate=60` on the long-TTL routes is the safety net for the edge case where an invalidation fails — visitors see the slightly-stale page while the cache refreshes in the background. Acceptable.
 

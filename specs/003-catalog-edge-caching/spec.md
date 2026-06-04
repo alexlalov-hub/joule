@@ -103,9 +103,30 @@ The cache layer is an optimisation. When a request hits a cold edge node, when V
 
 ## Assumptions
 
-- Vercel provides edge caching via the `Cache-Control: s-maxage=...` response header plus tag-based invalidation via the `revalidateTag()` API or equivalent. The exact SvelteKit-on-Vercel integration is left to the plan; the spec only requires that the behaviour is achieved.
-- Admin pool stays small (2-3 admins, < 10 writes per day) so the invalidation rate is low and cache hit rates stay high (> 95% on the hot routes).
+- Vercel provides edge caching via the `Cache-Control: s-maxage=...` response header. SvelteKit's `event.setHeaders()` is the integration point.
+- Admin pool stays small (2-3 admins, < 10 writes per day) so cache hit rates stay high (> 95% on the hot routes).
 - The catalog is read-heavy: ~99% of requests are reads, ~1% are admin writes. This is the assumption that makes caching worthwhile.
-- The `src/lib/cache.ts` in-memory request cache from earlier weeks is complementary to (not replaced by) the edge cache. The edge cache cuts the function invocation entirely; the request cache reduces Supabase round-trips inside a single function invocation.
-- Vercel cache TTLs of 1 hour for catalog routes and 60 seconds for search/compare are acceptable for v1. If a tag invalidation fails (network blip), the worst case is "stale data for up to 1 hour" — recoverable, not catastrophic.
+- The `src/lib/cache.ts` in-memory request cache from earlier weeks is complementary to (not replaced by) the edge cache. Edge cache cuts the function invocation entirely; the request cache reduces Supabase round-trips inside a single function invocation.
 - Customers are tolerant of "the home page shows the same as someone else's home page" because the home page IS the same — it's anonymous catalog content. Personalisation is in the header, not in the cached page body.
+
+## What actually shipped (v1)
+
+The spec above was written before implementation. Two adjustments landed when the code actually went in; recording them here so the doc stays honest rather than aspirational.
+
+### Adjustment 1 — TTL-only invalidation, no programmatic tag purge
+
+US2 (admin edit invalidates the cache immediately) was relaxed from **immediate** to **within ~60 seconds** in v1.
+
+Vercel's CDN tag-purge API does exist (`POST /v1/data-cache/purge-by-tag`) but requires a deployment-scoped API token in env (`VERCEL_API_TOKEN` + `VERCEL_TEAM_ID`). That's exactly the same "env-var brittleness" pattern that pushed PostHog out in ADR 0007 — a missing token would silently leave stale pages live and the build would not fail to catch it.
+
+v1 chose **`s-maxage=60` + `stale-while-revalidate=300`** on the catalog routes (and `60 / 120` on search and compare). Admin writes appear on the public side within ~60 s; the SWR window keeps subsequent requests fast while the cache refreshes in the background. Zero new env vars.
+
+The trade-off: SC-003 ("100% of admin product writes invalidate the cache for the affected product page within one second") is **not met** in v1. It's softened to "within 60 seconds" and re-evaluated when (if) traffic patterns make the tighter latency worth the operational cost of the env-var pair.
+
+### Adjustment 2 — product page deferred from caching
+
+US1's scope listed `/product/<slug>` as cacheable. In implementation the product page's server load reads `locals.user` (for `wishlisted` and `userReviewed`), so caching the response would leak per-user signals to other visitors.
+
+v1 leaves `/product/<slug>` on origin. Five of six originally-cacheable routes are cached (`/`, `/categories`, `/category/<slug>`, `/search`, `/compare`); the sixth needs a small refactor to move `wishlisted` and `userReviewed` to client-side fetches (similar to the header personalisation) before it can join the cached set.
+
+SC-002 ("`route:product` p95 drops to < 1 s") is therefore not in scope for v1 — moved to a follow-up. SC-001 (catalog routes) remains the load-bearing measurement target.

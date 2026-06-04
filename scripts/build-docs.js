@@ -284,6 +284,54 @@ const ADR_0004 = [
 	)
 ];
 
+const ADR_0008 = [
+	h(
+		'ADR 0008 — Vercel edge cache with TTL + stale-while-revalidate, no programmatic tag invalidation in v1',
+		1
+	),
+	p('Date: May 2026', { bold: true }),
+	h('Context', 2),
+	p(
+		'Week 6 focuses on performance. The bulk of customer-facing traffic hits five anonymous catalog routes (/, /categories, /category/<slug>, /search, /compare). Each of those currently goes function → Supabase → SSR on every request. Caching the SSR HTML at the Vercel edge would cut p95 latency on those routes by roughly an order of magnitude.'
+	),
+	p('Options considered:'),
+	bullet(
+		'No edge cache. Continue serving every request from the function. Simplest, slowest. Visible to anyone who runs the k6 sustained suite as the obvious left-on-the-table win.'
+	),
+	bullet(
+		'TTL + stale-while-revalidate via Cache-Control headers. Set s-maxage=60 + SWR=300 on cached routes. Admin writes appear within ~60 s. Zero new env vars; zero new dependencies.'
+	),
+	bullet(
+		'TTL + programmatic tag purge via Vercel CDN API. Same TTL headers, plus a fetch() call from admin write helpers that hits POST /v1/data-cache/purge-by-tag. Requires VERCEL_API_TOKEN and VERCEL_TEAM_ID set in every environment; build does not catch a missing token, so a missed env-var setting silently leaves stale pages live.'
+	),
+	bullet(
+		'Cloudflare in front of Vercel. Two-tier cache. Doubles the invalidation surface for one upside (global hit rates) the project does not need at current scale.'
+	),
+	bullet(
+		'In-memory only (the existing src/lib/cache.ts request cache, no edge layer). Reduces Supabase round-trips inside a single function invocation; does nothing for the function-startup cost on subsequent requests.'
+	),
+	h('Decision', 2),
+	p(
+		'Option 2 — TTL + stale-while-revalidate, no programmatic invalidation. Five of six originally-cacheable routes get Cache-Control: public, s-maxage=60, stale-while-revalidate=300 (or 60 / 120 on search and compare where the URL-space is wider). Admin writes propagate to the public side within ~60 s via TTL expiry. The product page (/product/<slug>) defers caching because its server load reads per-user signals (wishlisted, userReviewed); a follow-up will move those to client-side fetches before joining the cached set. The personalised header moves out of SSR and into a client-side /api/me hydration so the cached HTML is anonymous and identical for every visitor.'
+	),
+	h('Consequences', 2),
+	bullet(
+		'Latency on the cached routes drops dramatically — measurement target is route:catalog p95 from ~2 s to < 800 ms (specs/003-catalog-edge-caching/ SC-001). Numbers in docs/load-test-results.md.'
+	),
+	bullet(
+		'Admin edits appear publicly within ~60 s instead of immediately. The SC-003 "within one second" target is softened to "within 60 seconds" for v1. Re-evaluate if traffic patterns make the tighter latency operationally worth the env-var pair the purge API needs.'
+	),
+	bullet(
+		'No new env vars, no new runtime deps, no new failure modes from missing config. Same engineering judgment as the PostHog rejection in ADR 0007 — environment-variable brittleness can silently break behaviour that should be reliable, so we avoid it until the trade-off is clearly worth it.'
+	),
+	bullet(
+		'The /product/<slug> exclusion is documented as a v1 scope cut, not a missed requirement. Moving wishlisted and userReviewed to client-side hydration is straightforward (same pattern as the header) and adds the product page to the cached set in a future slice when the bigger SC-002 win is wanted.'
+	),
+	bullet(
+		'Stale-while-revalidate keeps the page responsive even past TTL expiry; the cache refreshes in the background while the next visitor still gets a fast response. Failure mode: nothing — the worst case is "data is up to 60 s old", which is recoverable and never breaks the page.'
+	)
+];
+
 const ADR_0007 = [
 	h('ADR 0007 — Platform-first observability over a custom admin dashboard', 1),
 	p('Date: May 2026', { bold: true }),
@@ -564,7 +612,9 @@ const ARCHITECTURE_DECISIONS = [
 	p(''),
 	...ADR_0006,
 	p(''),
-	...ADR_0007
+	...ADR_0007,
+	p(''),
+	...ADR_0008
 ];
 
 const WEEK_04 = [
@@ -714,7 +764,7 @@ const PORTFOLIO = [
 	),
 	h('Discipline artefacts', 2),
 	bullet(
-		'architecture-decisions.docx — seven ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard).'
+		'architecture-decisions.docx — eight ADRs covering the chunky technical choices (Supabase, Vercel AI Gateway, embedding-hybrid recommender, paginated reviews, refusing cross-category compare verdicts, admin UI on the request-scoped Supabase client, platform-first observability over a custom dashboard, Vercel edge cache with TTL-only invalidation).'
 	),
 	bullet(
 		'BDD scenarios across three layers in tests/bdd/. Layer 1 is deterministic catalog behaviour (16 scenarios). Layer 2 is structural-invariant: every product slug the assistant cites must exist in the catalog (3 scenarios). Layer 3 is stochastic tolerance: N runs, pass if at least M succeed (3 scenarios).'
