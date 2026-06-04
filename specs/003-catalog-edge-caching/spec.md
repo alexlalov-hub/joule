@@ -130,3 +130,29 @@ US1's scope listed `/product/<slug>` as cacheable. In implementation the product
 v1 leaves `/product/<slug>` on origin. Five of six originally-cacheable routes are cached (`/`, `/categories`, `/category/<slug>`, `/search`, `/compare`); the sixth needs a small refactor to move `wishlisted` and `userReviewed` to client-side fetches (similar to the header personalisation) before it can join the cached set.
 
 SC-002 ("`route:product` p95 drops to < 1 s") is therefore not in scope for v1 — moved to a follow-up. SC-001 (catalog routes) remains the load-bearing measurement target.
+
+### Adjustment 3 — assumed baseline was wrong; SCs reframed from improvement to regression-prevention
+
+The spec's "current p95 ~2 s" / "drop p95 to < 800 ms" framing was based on an estimated baseline, not a measured one. Before opening the PR, the actual baseline was captured against the live deploy (uncached state) via `tests/load/sustained.js` and `tests/load/journey.js` — output saved under `docs/k6-runs/before-*.txt`. Key numbers:
+
+| Metric               | Spec assumption |        **Actual measured** |
+| -------------------- | --------------: | -------------------------: |
+| `route:catalog` p95  |       ~2 000 ms |                 **327 ms** |
+| `route:product` p95  |       ~1 800 ms |                 **453 ms** |
+| `route:search` p95   |      (unstated) |                     251 ms |
+| `route:compare` p95  |      (unstated) |                     272 ms |
+| Aggregate p95        | (implied 2–3 s) |                 **383 ms** |
+| `journey:browse` p95 |      (unstated) | 6.13 s (mostly think-time) |
+| `http_req_failed`    |      (unstated) |                     0.00 % |
+
+The site was already extremely fast for an uncached state — Vercel serverless cold starts on a small catalog over a fast Postgres query simply don't cost much. **SC-001 and SC-002's "drop p95 by ≥ 50 %" targets are not achievable because there isn't 50 % of headroom; the catalog is already 4× under the original 800 ms target.**
+
+**The feature still ships, but the framing changes**:
+
+- **SC-001 reframed** — instead of "`route:catalog` p95 < 800 ms", the target becomes "`route:catalog` p95 stays under 400 ms while function invocation count drops by ≥ 90 % vs. the no-cache baseline." The latency was already fine; the win is now about cost (fewer function invocations = lower Vercel bill) and resilience (TTL + SWR means a Supabase outage doesn't take the catalog offline for the duration of the TTL window).
+- **SC-006 reframed** — `journey:browse` p95 was already 6.13 s in baseline and most of that is the script's simulated `sleep()` think-time, not HTTP. The 30 % improvement target was unreachable from the start. New target: journey-mean HTTP time per page < 200 ms in the cached state.
+- **SC-002, SC-003, SC-004, SC-005** — unchanged but expected to be near-no-ops on the latency axis; main benefit is now operational (cost + resilience).
+
+**Why ship anyway**: the cache is still load-bearing for spike resilience (the `spike.js` k6 script now finds an easier path) and for cost as traffic grows. The personalisation move-out (`/api/me` hydration, anonymous SSR) is also a correctness improvement independent of latency — without it, a future cached deploy would leak user state.
+
+**Methodological note for the retro**: the failure mode here was writing measurable targets without measuring the baseline first. The constitution's Principle III calls for "real coverage gates" — this experience generalises to "real measurement gates for any performance claim." Future perf specs run the before-baseline as task T000 before the SCs are finalised.

@@ -103,6 +103,41 @@ A customer hits the home page and reads the hero strip. They don't scroll. The b
 - The existing `alt` data in the schema is non-empty for product images, so accessibility is preserved automatically.
 - Lighthouse and Web Vitals are sufficient measurement tools. k6 (the load-test suite) does not measure asset loading, so it stays out of scope for this feature — `docs/load-test-results.md` will gain a separate "Image Vitals" section rather than reusing the k6 tables.
 
+## What actually shipped (v1)
+
+The spec above was written before the before-baseline was captured. Two things changed once it was.
+
+### Adjustment 1 — assumed baseline was wrong; SCs reframed
+
+Before opening the PR, the actual baseline was captured against the live deploy via `npx lighthouse https://joule-lilac.vercel.app/ --only-categories=performance` — saved as `docs/lighthouse-before.html`. The numbers were nothing like the spec assumed:
+
+| Metric            | Spec assumption |     **Actual measured** |
+| ----------------- | --------------: | ----------------------: |
+| Performance score |   (implied ~80) |            **99 / 100** |
+| LCP               | (assumed 3–4 s) |  **1.6 s** (score 0.99) |
+| **CLS**           | (assumed ≥ 0.3) | **0.00005** (score 1.0) |
+| TBT               |      (unstated) |        0 ms (score 1.0) |
+| Speed Index       |      (unstated) |                   2.2 s |
+
+The home page was already scoring 99/100 and CLS was 4 orders of magnitude below the "Good" threshold of 0.1. The Unsplash CDN apparently serves images at sensible sizes, and the existing layout was already reserving space well enough that almost no layout shift occurred.
+
+**SC-001, SC-002, SC-003, SC-004 are reframed** from improvement targets to **regression-prevention targets**:
+
+- **SC-001 (CLS < 0.1)** — already at 0.00005. Reframed: "every `<img>` has explicit `width` and `height` so the score stays at zero as the catalog grows or product photos with different aspect ratios are added."
+- **SC-002 (image payload − 60 %)** — payload was already small. Reframed: "every product image now goes through `/_vercel/image` so AVIF / WebP is served where supported, and the resolution served matches the displayed size. The savings will appear in DevTools but are not the load-bearing portfolio claim."
+- **SC-003 (LCP − 30 %)** — already at 1.6 s with a score of 0.99. Reframed: "LCP is hard to regress because the priority hero image gets `fetchpriority='high'` + `loading='eager'`, and the wrapper component ensures every image route goes through the optimiser."
+- **SC-004 (Lighthouse + 15 points)** — only 1 point of headroom on the home page; the target is unreachable. Reframed: "Lighthouse score stays at 99+ on the deployed build."
+
+### Adjustment 2 — value framing changes from speed to correctness + future-proofing
+
+The feature was scoped as a perf win. The before-baseline showed there isn't much perf to win. The feature **still ships** because:
+
+- The `<Image>` wrapper is the right architectural primitive even if today's CLS is already great. The next time someone adds a product image with an unexpected aspect ratio, the explicit `width`/`height` saves the page from reflowing.
+- AVIF / WebP serving is operationally correct — it costs nothing and reduces bandwidth-usage charges (and end-user data) for real users on slow connections, even if the lab Lighthouse run didn't show it.
+- Hard-coding the format-negotiation and resolution-matching behind one component means future image-using pages get it for free.
+
+**Methodological note for the retro**: same lesson as feature 003 — assumed baseline rather than measured one. The supervisor-facing story is "we measured, found the work wasn't needed for the reason we thought, and shipped it for the reasons it's still worth doing." That's a more honest portfolio artefact than confirming a hypothesis that wasn't tested.
+
 ## What this feature does NOT do
 
 - Does not handle file uploads from admins. The image source remains whatever's in `product_images.url` — the admin UI for replacing product photos is a separate feature.
