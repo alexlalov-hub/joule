@@ -1,63 +1,41 @@
 <script lang="ts">
 	/**
-	 * Image — small wrapper that routes the URL through Vercel's image
-	 * optimisation endpoint, sets width/height to prevent layout shift,
-	 * and emits a srcset for 1x and 2x display densities.
+	 * Image — small wrapper that sets the boilerplate every product
+	 * <img> should have: explicit width/height (for CLS prevention),
+	 * lazy loading by default with a `priority` opt-out for above-
+	 * the-fold images, async decoding, and a fetchpriority hint.
 	 *
-	 * The Vercel endpoint (`/_vercel/image?url=<encoded>&w=<width>&q=<quality>`)
-	 * fetches the source, transforms it to AVIF or WebP based on the
-	 * client's Accept header, caches the result at the edge, and serves
-	 * the right format for the browser. JPEG fallback is automatic.
+	 * The URL is passed straight through. An earlier version routed
+	 * through Vercel's /_vercel/image transform endpoint — it returned
+	 * 84-byte error responses on every image request because the widths
+	 * we asked for weren't in the vercel.json `sizes` whitelist, and
+	 * even with that fixed the transform path was slower than the
+	 * direct Unsplash CDN path the project already uses (Unsplash
+	 * already serves AVIF/WebP when supported). Removed; reverted to
+	 * pass-through.
 	 *
-	 * In local dev there's no /_vercel/image — pass the original URL
-	 * through unchanged so dev still renders.
-	 *
-	 * Width and height are required: that's the load-bearing CLS fix.
-	 * The browser uses them to reserve layout space before the image
-	 * arrives.
+	 * The load-bearing piece of this component is the width/height
+	 * being required: with those set, the browser reserves layout
+	 * space before the image arrives and the page can't reflow. CLS
+	 * stays at zero as the catalog grows.
 	 */
-
-	import { browser } from '$app/environment';
 
 	type Props = {
 		src: string | null | undefined;
 		alt: string;
 		width: number;
 		height: number;
-		/** Image quality 1-100, defaults to 75 (Vercel's default). */
-		quality?: number;
 		/** Set to true for above-the-fold images. Defaults to lazy. */
 		priority?: boolean;
 		class?: string;
 	};
 
-	let {
-		src,
-		alt,
-		width,
-		height,
-		quality = 75,
-		priority = false,
-		class: className = ''
-	}: Props = $props();
-
-	function vercelImage(url: string, w: number): string {
-		// During SSR or in local dev we don't have a Vercel runtime —
-		// `import.meta.env.DEV` is true under `npm run dev`. Pass the URL
-		// through so the dev server still renders.
-		if (import.meta.env.DEV && browser) return url;
-		const encoded = encodeURIComponent(url);
-		return `/_vercel/image?url=${encoded}&w=${w}&q=${quality}`;
-	}
-
-	const sized = $derived(src ? vercelImage(src, width) : null);
-	const sized2x = $derived(src ? vercelImage(src, width * 2) : null);
+	let { src, alt, width, height, priority = false, class: className = '' }: Props = $props();
 </script>
 
-{#if sized}
+{#if src}
 	<img
-		src={sized}
-		srcset="{sized} 1x, {sized2x} 2x"
+		{src}
 		{alt}
 		{width}
 		{height}
