@@ -1,21 +1,20 @@
 # DORA report — Joule
 
-Generated 2026-06-14T09:31:11.494Z · window: last 28 days · 6 merged PRs in window
+Generated 2026-06-21T09:46:49.172Z · window: last 28 days · 3 merged PRs in window
 
 ## Headline
 
 | Metric                         |        Value | Method                                                                                                                              |
 | ------------------------------ | -----------: | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Deployment frequency           | 1.5 per week | Each PR merged to main is one Vercel auto-deploy.                                                                                   |
-| Lead time for changes (median) |        1 min | PR opened → PR merged.                                                                                                              |
-| Change failure rate            | 33% (2 of 6) | PRs whose title matches `^(revert\|hotfix\|fix(\(.+\))?:\|chore.*revert)` or carrying a `bug`/`regression`/`hotfix`/`revert` label. |
-| Mean time to recovery (median) |       26 min | For each fix PR, time back to the previous non-fix merge within 7 days.                                                             |
+| Deployment frequency           | 0.8 per week | Each PR merged to main is one Vercel auto-deploy.                                                                                   |
+| Lead time for changes (median) |        3 min | PR opened → PR merged.                                                                                                              |
+| Change failure rate            | 33% (1 of 3) | PRs whose title matches `^(revert\|hotfix\|fix(\(.+\))?:\|chore.*revert)` or carrying a `bug`/`regression`/`hotfix`/`revert` label. |
+| Mean time to recovery (median) |       17 min | For each fix PR, time back to the previous non-fix merge within 7 days.                                                             |
 
 ## Deploys per week
 
 | Week (Mon)         | Deploys |
 | ------------------ | ------: |
-| week of 2026-05-18 |       3 |
 | week of 2026-05-25 |       2 |
 | week of 2026-06-01 |       1 |
 
@@ -23,7 +22,6 @@ Generated 2026-06-14T09:31:11.494Z · window: last 28 days · 6 merged PRs in wi
 
 | Intro PR                                                 | Failure PR                                                           | Recovery |
 | -------------------------------------------------------- | -------------------------------------------------------------------- | -------: |
-| #6 Week 03 polish — docs, L3 tolerance BDD, DORA report  | #7 fix: auth audit + stock decrement + AI rate-limiting              |   36 min |
 | #9 Week 05 — admin platform + Spec-Kit + local SonarQube | #10 fix(ci): unblock the SonarQube workflow + clean prettier on DORA |   17 min |
 
 ## Caveats
