@@ -1,21 +1,19 @@
 # DORA report — Joule
 
-Generated 2026-06-28T08:48:51.969Z · window: last 28 days · 1 merged PR in window
+Generated 2026-07-05T08:49:59.881Z · window: last 28 days · 0 merged PRs in window
 
 ## Headline
 
 | Metric                         |                    Value | Method                                                                                                                              |
 | ------------------------------ | -----------------------: | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Deployment frequency           |             0.3 per week | Each PR merged to main is one Vercel auto-deploy.                                                                                   |
+| Deployment frequency           |             0.0 per week | Each PR merged to main is one Vercel auto-deploy.                                                                                   |
 | Lead time for changes (median) |                    0 min | PR opened → PR merged.                                                                                                              |
-| Change failure rate            |              0% (0 of 1) | PRs whose title matches `^(revert\|hotfix\|fix(\(.+\))?:\|chore.*revert)` or carrying a `bug`/`regression`/`hotfix`/`revert` label. |
+| Change failure rate            |              0% (0 of 0) | PRs whose title matches `^(revert\|hotfix\|fix(\(.+\))?:\|chore.*revert)` or carrying a `bug`/`regression`/`hotfix`/`revert` label. |
 | Mean time to recovery (median) | n/a — no paired failures | For each fix PR, time back to the previous non-fix merge within 7 days.                                                             |
 
 ## Deploys per week
 
-| Week (Mon)         | Deploys |
-| ------------------ | ------: |
-| week of 2026-06-01 |       1 |
+_No merges in the window._
 
 ## Failure pairs
 
