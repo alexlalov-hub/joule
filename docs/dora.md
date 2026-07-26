@@ -1,6 +1,6 @@
 # DORA report — Joule
 
-Generated 2026-07-19T08:12:47.060Z · window: last 28 days · 0 merged PRs in window
+Generated 2026-07-26T08:23:10.473Z · window: last 28 days · 0 merged PRs in window
 
 ## Headline
 
