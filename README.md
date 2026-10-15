@@ -2,7 +2,7 @@
 
 **An AI-augmented electronics store.** Joule rebuilds a first-year ASP.NET catalog (TechnoMarket) as a modern SvelteKit + Supabase app with a grounded shopping assistant, AI review summaries, semantic search and personalised recommendations, all verified with layered BDD tests.
 
-**Live:** [joule-lilac.vercel.app](https://joule-lilac.vercel.app) · **Stack:** SvelteKit 2 · Svelte 5 · Supabase (Postgres, Auth, pgvector) · Stripe (test mode) · Vercel AI Gateway · Playwright-BDD · Vercel
+**Stack:** SvelteKit 2 · Svelte 5 · Supabase (Postgres, Auth, pgvector) · Stripe (test mode) · Vercel AI Gateway · Playwright-BDD · Vercel
 
 > Built as an individual Semester 6 portfolio project at Fontys: 8 weeks, 2 sprints. Sprint 1 was test-driven with experiments as evidence; Sprint 2 added spec-first development with GitHub Spec-Kit.
 
@@ -167,7 +167,7 @@ Feature files are in `tests/bdd/features`, step definitions in `tests/bdd/steps`
 **Load tests** (`tests/load`, k6): `smoke`, `sustained`, `journey`, `spike` and `stress`. See [`docs/load-test.md`](./docs/load-test.md).
 
 ```bash
-k6 run -e BASE_URL=https://joule-lilac.vercel.app tests/load/sustained.js
+k6 run -e BASE_URL=http://localhost:4173 tests/load/sustained.js
 ```
 
 ---
